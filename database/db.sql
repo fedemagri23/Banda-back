@@ -1,0 +1,4 @@
+-- CREATE DATABASE db_name;
+-- \l
+-- \c db_name
+-- \d
