@@ -12,11 +12,21 @@ Get ID from auth token:
 
 */
 
+export const register = async (req, res) => {
+  const {username, phone, mail, passhash} = req.body;
+
+  const response = await pool.query(`
+    INSERT INTO useraccount (username, phone, mail, passhash) VALUES ($1, $2, $3, $4) RETURNING *
+    `, [username, phone, mail, passhash]);
+
+  res.json(response.rows[0]);
+};
+
 // GET EXAMPLE
 export const getUserById = async (req, res) => {
   const id = parseInt(req.params.id);
   const response = await pool.query(
-    "SELECT id, name, surname, username, profile_picture, birth_date, posts_amount, friends_amount FROM users WHERE id = $1",
+    "SELECT * FROM useraccount WHERE id = $1",
     [id]
   );
   res.json(response.rows[0]);

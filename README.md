@@ -21,9 +21,11 @@ A REST API using Node.js and PostgreSQL with pg library and using Express.js for
 ```
 DB_USER=your_username
 DB_PASSWORD=your_password
-DB_HOST=your_host
+DB_HOST=localhost
 DB_PORT=your_port
-DB_DATABASE=your_database
+DB_DATABASE=company_system
+
+PORT=3001
 ```
 
 5. Run the server: `npm run dev`
