@@ -12,9 +12,11 @@ A REST API using Node.js and PostgreSQL with pg library and using Express.js for
 
 1. Install the dependencies: `npm install`
 
-2. Create a database in PostgreSQL
+2. Create a database in PostgreSQL, named company_system
 
-3. Create a .env file in the root directory and add the following:
+3. Copy db.sql elements into the database console and run to save changes
+
+4. Create a .env file in the root directory and add the following:
 
 ```
 DB_USER=your_username
