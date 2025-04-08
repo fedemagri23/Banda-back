@@ -13,60 +13,29 @@ Get ID from auth token:
 */
 
 export const register = async (req, res) => {
-  const {username, phone, mail, passhash} = req.body;
-
-  const response = await pool.query(`
-    INSERT INTO useraccount (username, phone, mail, passhash) VALUES ($1, $2, $3, $4) RETURNING *
-    `, [username, phone, mail, passhash]);
-
-  res.json(response.rows[0]);
-};
-
-// GET EXAMPLE
-export const getUserById = async (req, res) => {
-  const id = parseInt(req.params.id);
-  const response = await pool.query(
-    "SELECT * FROM useraccount WHERE id = $1",
-    [id]
-  );
-  res.json(response.rows[0]);
-};
-
-// REGISTRATION EXAMPLE
-export const createUser = async (req, res) => {
   try {
-    const {
-      name,
-      surname,
-      username,
-      email,
-      password,
-      phone_number,
-      birth_date,
-      profile_picture,
-    } = req.body;
+    const { username, phone, mail, password } = req.body;
 
     const salt = await bcrypt.genSalt(10);
     const passhash = await bcrypt.hash(password, salt);
 
-    const { rows } = await pool.query(
-      "INSERT INTO users (name, surname, username, email, passhash, phone_number, birth_date, profile_picture) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *",
-      [
-        name,
-        surname,
-        username,
-        email,
-        passhash,
-        phone_number,
-        birth_date,
-        profile_picture,
-      ]
+    const response = await pool.query(
+      `
+    INSERT INTO useraccount (username, phone, mail, passhash) VALUES ($1, $2, $3, $4) RETURNING *
+    `,
+      [username, phone, mail, passhash]
     );
 
-    res.status(201).json(rows[0]);
+    res.json(response.rows[0]);
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    console.error("Registration error:", error.message);
+    res.status(500).json({ error: error.message }); 
   }
+};
+
+export const getUsers = async (req, res) => {
+  const response = await pool.query("SELECT * FROM useraccount");
+  res.json(response.rows);
 };
 
 // LOGIN EXAMPLE
