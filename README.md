@@ -23,7 +23,8 @@ DB_USER=your_username
 DB_PASSWORD=your_password
 DB_HOST=localhost
 DB_PORT=your_port
-DB_DATABASE=company_system
+DB_NAME=company_system
+JWT_SECRET=any_key
 
 PORT=3001
 ```
