@@ -33,7 +33,9 @@ CREATE TABLE useraccount (
     passhash TEXT,
     joined_at DATE DEFAULT now(),
     last_payment_at DATE DEFAULT NULL,
-    companies_amount INT DEFAULT 0
+    companies_amount INT DEFAULT 0,
+    verification_code VARCHAR(6),
+    verification_code_expires TIMESTAMP
 );
 
 CREATE TABLE company (

@@ -3,6 +3,8 @@ import {
   register,
   getUsers,
   login,
+  requestPasswordChange,
+  changePassword,
 } from "../controllers/user.controllers.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import { addCompany, getCompanies, getCompaniesByUserId } from "../controllers/company.controllers.js";
@@ -13,6 +15,8 @@ const router = Router();
 
 router.post("/user/register", register);
 router.post("/user/login", login);
+router.post("/user/request-password-change", requestPasswordChange);
+router.post("/user/change-password", changePassword);
 router.get("/user", getUsers);
 
 router.post("/company", verifyToken, addCompany);
