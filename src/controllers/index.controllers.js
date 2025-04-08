@@ -16,13 +16,45 @@ export const register = async (req, res) => {
   try {
     const { username, phone, mail, password } = req.body;
 
+    /*
+    Validaciones: 
+    username: Al menos 6 caracteres, solo numeros, letras o "_", case insensitive
+    phone: Solo numeros, al menos 10 caracteres
+    mail: Contiene @
+    password: al menos 6 caracteres
+    */
+
+    if (!username || username.length < 6) {
+      return res.status(400).json({ error: "Username debe tener al menos 6 caracteres" });
+    }
+    
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      return res.status(400).json({ error: "Username solo puede contener letras, números o guiones bajos" });
+    }
+
+    if (!phone || phone.length < 10) {
+      return res.status(400).json({ error: "Teléfono debe tener al menos 10 caracteres" });
+    }
+    
+    if (!/^\d+$/.test(phone)) {
+      return res.status(400).json({ error: "Teléfono solo puede contener números" });
+    }
+
+    if (!mail || !mail.includes('@')) {
+      return res.status(400).json({ error: "Email debe contener el símbolo @ y ser válido" });
+    }
+
+    if (!password || password.length < 6) {
+      return res.status(400).json({ error: "Contraseña debe tener al menos 6 caracteres" });
+    }
+
     const salt = await bcrypt.genSalt(10);
     const passhash = await bcrypt.hash(password, salt);
 
     const response = await pool.query(
       `
-    INSERT INTO useraccount (username, phone, mail, passhash) VALUES ($1, $2, $3, $4) RETURNING *
-    `,
+      INSERT INTO useraccount (username, phone, mail, passhash) VALUES ($1, $2, $3, $4) RETURNING *
+      `,
       [username, phone, mail, passhash]
     );
 
