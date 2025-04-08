@@ -23,17 +23,17 @@ export const addCompany = async (req, res) => {
     */
 
     if (!name || typeof name !== 'string') {
-      return res.status(400).json({ error: "El nombre de la empresa es requerido y debe ser texto" });
+      return res.status(400).json({ error: "Company name is required and must be text" });
     }
 
     const normalizedName = name.trim().replace(/\s+/g, ' ');
 
     if (normalizedName.length < 3) {
-      return res.status(400).json({ error: "El nombre debe tener al menos 3 caracteres" });
+      return res.status(400).json({ error: "Name must be at least 3 characters long" });
     }
 
     if (!/^[a-zA-Z0-9\s]+$/.test(normalizedName)) {
-      return res.status(400).json({ error: "El nombre no puede contener caracteres especiales" });
+      return res.status(400).json({ error: "Name cannot contain special characters" });
     }
 
     const response = await pool.query(
@@ -52,5 +52,11 @@ export const addCompany = async (req, res) => {
 
 export const getCompanies = async (req, res) => {
   const response = await pool.query("SELECT * FROM company");
+  res.json(response.rows);
+};
+
+export const getCompaniesByUserId = async (req, res) => {
+  const userId = parseInt(req.params.id);
+  const response = await pool.query("SELECT * FROM company WHERE id=$1", [userId]);
   res.json(response.rows);
 };

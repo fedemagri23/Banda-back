@@ -25,27 +25,27 @@ export const register = async (req, res) => {
     */
 
     if (!username || username.length < 6) {
-      return res.status(400).json({ error: "Username debe tener al menos 6 caracteres" });
+      return res.status(400).json({ error: "Username must be at least 6 characters long" });
     }
     
     if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      return res.status(400).json({ error: "Username solo puede contener letras, números o guiones bajos" });
+      return res.status(400).json({ error: "Username can only contain letters, numbers or underscores" });
     }
 
     if (!phone || phone.length < 10) {
-      return res.status(400).json({ error: "Teléfono debe tener al menos 10 caracteres" });
+      return res.status(400).json({ error: "Phone number must be at least 10 characters long" });
     }
     
     if (!/^\d+$/.test(phone)) {
-      return res.status(400).json({ error: "Teléfono solo puede contener números" });
+      return res.status(400).json({ error: "Phone number can only contain numbers" });
     }
 
     if (!mail || !mail.includes('@')) {
-      return res.status(400).json({ error: "Email debe contener el símbolo @ y ser válido" });
+      return res.status(400).json({ error: "Email must contain @ symbol and be valid" });
     }
 
     if (!password || password.length < 6) {
-      return res.status(400).json({ error: "Contraseña debe tener al menos 6 caracteres" });
+      return res.status(400).json({ error: "Password must be at least 6 characters long" });
     }
 
     const salt = await bcrypt.genSalt(10);

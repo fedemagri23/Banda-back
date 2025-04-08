@@ -3,9 +3,17 @@
 -- \c company_system
 -- \d
 
+DROP DATABASE IF EXISTS company_system;
 CREATE DATABASE company_system;
 
--- \c company_system
+\c company_system
+
+DROP TYPE IF EXISTS address CASCADE;
+DROP TABLE IF EXISTS supplier CASCADE;
+DROP TABLE IF EXISTS client CASCADE;
+DROP TABLE IF EXISTS product CASCADE;
+DROP TABLE IF EXISTS company CASCADE;
+DROP TABLE IF EXISTS useraccount CASCADE;
 
 CREATE TYPE address AS (
     town VARCHAR,
@@ -17,12 +25,11 @@ CREATE TYPE address AS (
     observations VARCHAR
 );
 
-DROP TABLE IF EXISTS useraccount;
 CREATE TABLE useraccount (
     id SERIAL PRIMARY KEY,
-    username VARCHAR,
+    username VARCHAR UNIQUE,
     phone VARCHAR,
-    mail VARCHAR,
+    mail VARCHAR UNIQUE,
     passhash TEXT,
     joined_at DATE DEFAULT now(),
     last_payment_at DATE DEFAULT NULL,
@@ -31,13 +38,13 @@ CREATE TABLE useraccount (
 
 CREATE TABLE company (
     id SERIAL PRIMARY KEY,
-    name VARCHAR,
+    name VARCHAR UNIQUE,
     user_id INT REFERENCES useraccount(id) ON DELETE CASCADE
 );
 
 CREATE TABLE client (
     id SERIAL PRIMARY KEY,
-    code VARCHAR,
+    code VARCHAR UNIQUE,
     added_at DATE DEFAULT now(),
     name VARCHAR,
     country VARCHAR,
@@ -46,16 +53,16 @@ CREATE TABLE client (
     mail VARCHAR,
     web VARCHAR,
     description VARCHAR,
-    CUIT VARCHAR,
-    CUIL VARCHAR,
-    DNI VARCHAR,
-    CDI VARCHAR,
+    CUIT VARCHAR DEFAULT NULL,
+    CUIL VARCHAR DEFAULT NULL,
+    DNI VARCHAR DEFAULT NULL,
+    CDI VARCHAR DEFAULT NULL,
     company_id INT REFERENCES company(id) ON DELETE CASCADE
 );
 
 CREATE TABLE supplier (
     id SERIAL PRIMARY KEY,
-    code VARCHAR,
+    code VARCHAR UNIQUE,
     added_at DATE DEFAULT now(),
     name VARCHAR,
     country VARCHAR,
@@ -64,14 +71,16 @@ CREATE TABLE supplier (
     mail VARCHAR,
     web VARCHAR,
     description VARCHAR,
-    CUIT VARCHAR,
-    CUIL VARCHAR,
-    DNI VARCHAR,
-    CDI VARCHAR,
+    CUIT VARCHAR DEFAULT NULL,
+    CUIL VARCHAR DEFAULT NULL,
+    DNI VARCHAR DEFAULT NULL,
+    CDI VARCHAR DEFAULT NULL,
     company_id INT REFERENCES company(id) ON DELETE CASCADE
 );
 
--- Triggers & functions
+DROP TRIGGER IF EXISTS trigger_increase_company_count ON company;
+DROP FUNCTION IF EXISTS increase_user_company_count();
+
 CREATE OR REPLACE FUNCTION increase_user_company_count()
 RETURNS TRIGGER AS $$
 BEGIN

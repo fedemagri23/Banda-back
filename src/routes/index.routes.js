@@ -4,7 +4,9 @@ import {
   getUsers,
 } from "../controllers/user.controllers.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
-import { addCompany, getCompanies } from "../controllers/company.controllers.js";
+import { addCompany, getCompanies, getCompaniesByUserId } from "../controllers/company.controllers.js";
+import { getToken } from "../controllers/test.controllers.js";
+import { addSupplier } from "../controllers/supplier.controllers.js";
 
 const router = Router();
 
@@ -12,8 +14,13 @@ router.post("/user", register);
 router.get("/user", getUsers);
 
 router.post("/company", verifyToken, addCompany);
-router.get("/companies", verifyToken, getCompanies);
+router.get("/company", getCompanies);
+router.get("/company/user/:id", verifyToken, getCompaniesByUserId);
 
+router.post("/supplier", verifyToken, addSupplier);
+
+// TODO: Al final BORRAR estos controllers
+router.get("/token", getToken);
 
 /*
 router.post("/login", loginUser);
