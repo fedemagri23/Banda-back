@@ -70,13 +70,12 @@ export const getUsers = async (req, res) => {
   res.json(response.rows);
 };
 
-// LOGIN EXAMPLE
-export const loginUser = async (req, res) => {
+export const login = async (req, res) => {
   try {
     const { identifier, password } = req.body;
 
     const { rows } = await pool.query(
-      "SELECT * FROM users WHERE username = $1 OR email = $1 OR phone_number = $1",
+      "SELECT * FROM useraccount WHERE username = $1 OR mail = $1 OR phone = $1",
       [identifier]
     );
 
@@ -93,7 +92,7 @@ export const loginUser = async (req, res) => {
     const token = jwt.sign(
       { userId: user.id, username: user.username },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "6h" }
     );
 
     res.status(200).json({ message: "Login successful", token, user });
