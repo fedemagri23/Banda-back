@@ -14,6 +14,7 @@ DROP TABLE IF EXISTS client CASCADE;
 DROP TABLE IF EXISTS product CASCADE;
 DROP TABLE IF EXISTS company CASCADE;
 DROP TABLE IF EXISTS useraccount CASCADE;
+DROP TABLE IF EXISTS product CASCADE;
 
 CREATE TYPE address AS (
     town VARCHAR,
@@ -80,6 +81,17 @@ CREATE TABLE supplier (
     company_id INT REFERENCES company(id) ON DELETE CASCADE
 );
 
+CREATE TABLE product (
+    id SERIAL PRIMARY KEY,
+    sku VARCHAR UNIQUE,
+    upc VARCHAR(12) UNIQUE,
+    EAN VARCHAR(13) UNIQUE,
+    name VARCHAR,
+    list_price NUMERIC(10, 2),
+    currency VARCHAR(3),
+    company_id INT REFERENCES company(id) ON DELETE CASCADE
+);
+
 DROP TRIGGER IF EXISTS trigger_increase_company_count ON company;
 DROP FUNCTION IF EXISTS increase_user_company_count();
 
@@ -97,14 +109,3 @@ CREATE TRIGGER trigger_increase_company_count
 AFTER INSERT ON company
 FOR EACH ROW
 EXECUTE FUNCTION increase_user_company_count();
-
-/*
-CREATE TABLE product (
-    id SERIAL PRIMARY KEY,
-    sku VARCHAR,
-    cpu VARCHAR,
-    name VARCHAR,
-    list_price INT,
-    company_id INT REFERENCES company(id) ON DELETE CASCADE
-);
-*/

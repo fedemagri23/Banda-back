@@ -1,6 +1,4 @@
 import { pool } from "../db.js";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 
 /*
 
@@ -50,13 +48,8 @@ export const addCompany = async (req, res) => {
   }
 };
 
-export const getCompanies = async (req, res) => {
-  const response = await pool.query("SELECT * FROM company");
-  res.json(response.rows);
-};
-
-export const getCompaniesByUserId = async (req, res) => {
-  const userId = parseInt(req.params.id);
+export const getCompaniesFromUser = async (req, res) => {
+  const userId = req.user.userId;
   const response = await pool.query("SELECT * FROM company WHERE id=$1", [userId]);
   res.json(response.rows);
 };
