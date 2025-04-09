@@ -11,6 +11,7 @@ import { addCompany, getCompaniesFromUser } from "../controllers/company.control
 import { getToken } from "../controllers/test.controllers.js";
 import { addSupplier } from "../controllers/supplier.controllers.js";
 import { addProduct, getProductsByCompany } from "../controllers/product.controllers.js";
+import { checkCompanyOwner } from "../middleware/companyOwnerMiddleware.js";
 
 const router = Router();
 
@@ -20,13 +21,13 @@ router.post("/user/request-password-change", requestPasswordChange);
 router.post("/user/change-password", changePassword);
 router.get("/user/get-all", getUsers);
 
-router.get("/user/company/get-all", verifyToken, getCompaniesFromUser);
-router.post("/user/company", verifyToken, addCompany);
+router.get("/company/get-all", verifyToken, getCompaniesFromUser);
+router.post("/company/post", verifyToken, addCompany);
 
-router.post("/supplier", verifyToken, addSupplier);
+router.post("/supplier/post", verifyToken, addSupplier);
 
-router.get("user/company/:id/product/get-all", verifyToken, getProductsByCompany);
-router.post("/product", verifyToken, addProduct);
+router.get("/product/get-all/:companyId", verifyToken, checkCompanyOwner, getProductsByCompany);
+router.post("/product/post/:companyId", verifyToken, checkCompanyOwner, addProduct);
 
 // TODO: Al final BORRAR estos controllers
 router.get("/token", getToken);

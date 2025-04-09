@@ -2,7 +2,8 @@ import { pool } from "../db.js";
 
 export const addProduct = async (req, res) => {
   try {
-    const { sku, upc, ean, name, list_price, currency, company_id } = req.body;
+    const { company_id } = req.params.id;
+    const { sku, upc, ean, name, list_price, currency } = req.body;
 
     /*
         Validaciones: 

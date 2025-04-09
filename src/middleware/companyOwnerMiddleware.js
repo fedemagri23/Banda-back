@@ -2,7 +2,8 @@ import { pool } from "../db.js";
 
 export const checkCompanyOwner = async (req, res, next) => {
     const userId = req.user.userId;
-  
+    const id = req.params.companyId;
+
     const { rows } = await pool.query(
       "SELECT user_id FROM company WHERE id = $1",
       [id]

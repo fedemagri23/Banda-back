@@ -50,6 +50,6 @@ export const addCompany = async (req, res) => {
 
 export const getCompaniesFromUser = async (req, res) => {
   const userId = req.user.userId;
-  const response = await pool.query("SELECT * FROM company WHERE id=$1", [userId]);
+  const response = await pool.query("SELECT * FROM company WHERE user_id=$1", [userId]);
   res.json(response.rows);
 };
