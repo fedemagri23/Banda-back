@@ -425,3 +425,192 @@ Authorization: Bearer <your_token>
   }
 ]
 ```
+
+---
+
+## Sale
+
+### POST | /sale/post/:companyId
+
+**Headers:**
+
+```
+Authorization: Bearer <your_token>
+```
+
+**Body:**
+
+```json
+{
+  "condition": "string",
+  "client_id": "number",
+  "proof_code": "string",
+  "proof_type": "string",
+  "products_details": [
+    {
+      "batch_number": "string",
+      "total": "number",
+      "product_id": "number"
+    }
+  ]
+}
+```
+
+**Response:**
+
+```json
+{
+  "id": "number",
+  "condition": "string",
+  "client_id": "number",
+  "company_id": "number"
+}
+```
+
+---
+
+### GET | /sale/get-all/:companyId
+
+**Headers:**
+
+```
+Authorization: Bearer <your_token>
+```
+
+**Response:**
+
+```json
+[
+  {
+    "id": "number",
+    "created_at": "string",
+    "condition": "string",
+    "company_id": "number",
+    "proof": {
+      "id": "number",
+      "client_id": "number",
+      "code": "string",
+      "type": "string",
+      "order_id": "number"
+    },
+    "details": [
+      {
+        "id": "number",
+        "batch_number": "string",
+        "total": "number",
+        "canceled": "boolean",
+        "product_id": "number"
+      }
+    ]
+  }
+]
+```
+
+---
+
+## Client
+
+### POST | /client/post/:companyId
+
+**Headers:**
+
+```
+Authorization: Bearer <your_token>
+```
+
+**Body:**
+
+```json
+{
+  "code": "string",
+  "name": "string",
+  "country": "string",
+  "address": {
+    "town": "string",
+    "street": "string",
+    "number": "number",
+    "floor": "number",
+    "departament": "string",
+    "zip_code": "string",
+    "observations": "string"
+  },
+  "phone": "string",
+  "mail": "string",
+  "web": "string",
+  "description": "string",
+  "CUIT": "string",
+  "CUIL": "string",
+  "DNI": "string",
+  "CDI": "string"
+}
+```
+
+**Response:**
+
+```json
+{
+  "id": "number",
+  "code": "string",
+  "name": "string",
+  "country": "string",
+  "address": {
+    "town": "string",
+    "street": "string",
+    "number": "number",
+    "floor": "number",
+    "departament": "string",
+    "zip_code": "string",
+    "observations": "string"
+  },
+  "phone": "string",
+  "mail": "string",
+  "web": "string",
+  "description": "string",
+  "CUIT": "string",
+  "CUIL": "string",
+  "DNI": "string",
+  "CDI": "string",
+  "company_id": "number"
+}
+```
+
+---
+
+### GET | /client/get-all/:companyId
+
+**Headers:**
+
+```
+Authorization: Bearer <your_token>
+```
+
+**Response:**
+
+```json
+[
+  {
+    "id": "number",
+    "code": "string",
+    "name": "string",
+    "country": "string",
+    "address": {
+      "town": "string",
+      "street": "string",
+      "number": "number",
+      "floor": "number",
+      "departament": "string",
+      "zip_code": "string",
+      "observations": "string"
+    },
+    "phone": "string",
+    "mail": "string",
+    "web": "string",
+    "description": "string",
+    "CUIT": "string",
+    "CUIL": "string",
+    "DNI": "string",
+    "CDI": "string",
+    "company_id": "number"
+  }
+]
+```
