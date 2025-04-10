@@ -1,7 +1,7 @@
 import { pool } from "../db.js";
 
-export const addPurchaseOrder = async (req, res) => {
-  const { condition, supplier_id, proof_code, proof_type, products_details } =
+export const addSaleOrder = async (req, res) => {
+  const { condition, client_id, proof_code, proof_type, products_details } =
     req.body;
   const company_id = req.params.companyId;
 
@@ -11,7 +11,7 @@ export const addPurchaseOrder = async (req, res) => {
     condition: Debe ser uno de los siguientes strings: 
       ["CNT", "P30", "P60", "P90", "CTE", "CDF", "TRB", "DBA", "CUC", "OTH"]
       VER MANUAL DE PAGOS
-    supplier_id debe tener una instancia de supplier asociada existente
+    client_id debe tener una instancia de supplier asociada existente
     proof_code maximo 8 caracteres, solo letras y numeros, no se aceptan espacios
     proof_type: Debe ser uno de los siguientes strings:
       [ "FACTA", "FACTB", "FACTC", "FACTM", "FACTE",
@@ -62,7 +62,7 @@ export const addPurchaseOrder = async (req, res) => {
 
     const supplierCheck = await pool.query(
       `SELECT * FROM supplier WHERE id = $1`,
-      [supplier_id]
+      [client_id]
     );
     if (supplierCheck.rowCount === 0) {
       return res.status(400).json({ error: "Supplier not found." });
@@ -106,16 +106,16 @@ export const addPurchaseOrder = async (req, res) => {
       }
     }
 
-    // Purchase order
+    // Sale order
     const response_order = await pool.query(
       `
-      INSERT INTO purchase_order (condition, supplier_id, company_id) VALUES ($1, $2, $3) RETURNING *
+      INSERT INTO sale_order (condition, client_id, company_id) VALUES ($1, $2, $3) RETURNING *
       `,
-      [condition, supplier_id, company_id]
+      [condition, client_id, company_id]
     );
 
     if (response_order.rowCount == 0) {
-      console.error("Error creating purchase order:", error.message);
+      console.error("Error creating sale order:", error.message);
       return res.status(500).json({ error: error.message });
     }
 
@@ -124,23 +124,23 @@ export const addPurchaseOrder = async (req, res) => {
     // Proof
     const response_proof = await pool.query(
       `
-      INSERT INTO purchase_proof (code, type, supplier_id, order_id, company_id) VALUES ($1, $2, $3, $4, $5) RETURNING *
+      INSERT INTO sale_proof (code, type, client_id, order_id, company_id) VALUES ($1, $2, $3, $4, $5) RETURNING *
       `,
-      [proof_code, proof_type, supplier_id, order_id, company_id]
+      [proof_code, proof_type, client_id, order_id, company_id]
     );
 
     if (response_proof.rowCount == 0) {
-      console.error("Error creating purchase proof:", error.message);
+      console.error("Error creating sale proof:", error.message);
       return res.status(500).json({ error: error.message });
     }
 
     const proof_id = response_proof.rows[0].id;
 
-    // Purchase details
+    // Sale details
     for (const detail of products_details) {
       const response_detail = await pool.query(
         `
-        INSERT INTO product_purchase_detail (batch_number, total, product_id, proof_id, company_id) VALUES ($1, $2, $3, $4, $5) RETURNING *
+        INSERT INTO product_sale_detail (batch_number, total, product_id, proof_id, company_id) VALUES ($1, $2, $3, $4, $5) RETURNING *
         `,
         [
           detail.batch_number,
@@ -153,7 +153,7 @@ export const addPurchaseOrder = async (req, res) => {
 
       if (response_detail.rowCount == 0) {
         console.error(
-          "Error creating purchase detail for product:",
+          "Error creating sale detail for product:",
           error.message
         );
         return res.status(500).json({ error: error.message });
@@ -162,45 +162,45 @@ export const addPurchaseOrder = async (req, res) => {
 
     res.json(response_order.rows[0]);
   } catch (error) {
-    console.error("Error creating purchase item:", error.message);
+    console.error("Error sale sale item:", error.message);
     res.status(500).json({ error: error.message });
   }
 };
 
-export const getPurchaseOrders = async (req, res) => {
+export const getSaleOrders = async (req, res) => {
   const company_id = req.params.companyId;
 
   try {
     const response = await pool.query(
       `
       SELECT 
-        purchase_order.id AS order_id,
-        purchase_order.created_at AS order_created_at,
-        purchase_order.condition,
-        purchase_order.company_id,
+        sale_order.id AS order_id,
+        sale_order.created_at AS order_created_at,
+        sale_order.condition,
+        sale_order.company_id,
     
-        purchase_proof.id AS proof_id,
-        purchase_proof.supplier_id,
-        purchase_proof.code,
-        purchase_proof.type,
-        purchase_proof.order_id AS proof_order_id,
+        sale_proof.id AS proof_id,
+        sale_proof.client_id,
+        sale_proof.code,
+        sale_proof.type,
+        sale_proof.order_id AS proof_order_id,
     
-        product_purchase_detail.id AS detail_id,
-        product_purchase_detail.batch_number,
-        product_purchase_detail.total,
-        product_purchase_detail.canceled,
-        product_purchase_detail.product_id
+        product_sale_detail.id AS detail_id,
+        product_sale_detail.batch_number,
+        product_sale_detail.total,
+        product_sale_detail.canceled,
+        product_sale_detail.product_id
     
-      FROM purchase_order 
-      JOIN purchase_proof ON purchase_order.id = purchase_proof.order_id
-      JOIN product_purchase_detail ON purchase_proof.id = product_purchase_detail.proof_id
-      WHERE purchase_order.company_id = $1
+      FROM sale_order 
+      JOIN sale_proof ON sale_order.id = sale_proof.order_id
+      JOIN product_sale_detail ON sale_proof.id = product_sale_detail.proof_id
+      WHERE sale_order.company_id = $1
       `,
       [company_id]
     );
 
     if (response.rowCount == 0) {
-      return res.status(404).json({ error: "No purchase orders found." });
+      return res.status(404).json({ error: "No sale orders found." });
     }
 
     const rows = response.rows;
@@ -217,7 +217,7 @@ export const getPurchaseOrders = async (req, res) => {
           company_id: row.company_id,
           proof: {
             id: row.proof_id,
-            supplier_id: row.supplier_id,
+            client_id: row.client_id,
             code: row.code,
             type: row.type,
             order_id: row.proof_order_id,
@@ -238,7 +238,7 @@ export const getPurchaseOrders = async (req, res) => {
     const formatted = Array.from(ordersMap.values());
     res.json(formatted);
   } catch (error) {
-    console.error("Error fetching purchase orders:", error.message);
+    console.error("Error fetching sale orders:", error.message);
     res.status(500).json({ error: error.message });
   }
 };

@@ -13,6 +13,8 @@ import { addSupplier } from "../controllers/supplier.controllers.js";
 import { addProduct, getProductsByCompany } from "../controllers/product.controllers.js";
 import { checkCompanyOwner } from "../middleware/companyOwnerMiddleware.js";
 import { addPurchaseOrder, getPurchaseOrders } from "../controllers/purchase.controllers.js";
+import { addClient, getClientsByCompany } from "../controllers/client.controllers.js";
+import { addSaleOrder, getSaleOrders } from "../controllers/sale.controllers.js";
 
 const router = Router();
 
@@ -32,6 +34,13 @@ router.get("/product/get-all/:companyId", verifyToken, checkCompanyOwner, getPro
 
 router.post("/purchase/post/:companyId", verifyToken, checkCompanyOwner, addPurchaseOrder);
 router.get("/purchase/get-all/:companyId", verifyToken, checkCompanyOwner, getPurchaseOrders);
+
+router.post("/client/post/:companyId", verifyToken, checkCompanyOwner, addClient);
+router.get("/client/get-all/:companyId", verifyToken, checkCompanyOwner, getClientsByCompany);
+
+router.post("/sale/post/:companyId", verifyToken, checkCompanyOwner, addSaleOrder);
+router.get("/sale/get-all/:companyId", verifyToken, checkCompanyOwner, getSaleOrders);
+
 
 // TODO: Al final BORRAR estos controllers
 router.get("/token", getToken);

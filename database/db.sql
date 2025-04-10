@@ -15,10 +15,14 @@ DROP TABLE IF EXISTS product CASCADE;
 DROP TABLE IF EXISTS company CASCADE;
 DROP TABLE IF EXISTS useraccount CASCADE;
 DROP TABLE IF EXISTS product CASCADE;
+
 DROP TABLE IF EXISTS product_purchase_detail CASCADE;
-DROP TABLE IF EXISTS proof CASCADE;
+DROP TABLE IF EXISTS purchase_proof CASCADE;
 DROP TABLE IF EXISTS purchase_order CASCADE;
 
+DROP TABLE IF EXISTS product_sale_detail CASCADE;
+DROP TABLE IF EXISTS sale_proof CASCADE;
+DROP TABLE IF EXISTS sale_order CASCADE;
 
 CREATE TYPE address AS (
     town VARCHAR,
@@ -100,11 +104,11 @@ CREATE TABLE purchase_order (
     id SERIAL PRIMARY KEY,
     created_at DATE DEFAULT now(),
     condition VARCHAR(3),
-    company_id INT REFERENCES company(id) ON DELETE CASCADE
     supplier_id INT REFERENCES supplier(id) ON DELETE CASCADE,
+    company_id INT REFERENCES company(id) ON DELETE CASCADE
 );
 
-CREATE TABLE proof (
+CREATE TABLE purchase_proof (
     id SERIAL PRIMARY KEY,
     created_at DATE DEFAULT now(),
     code VARCHAR(8) UNIQUE, 
@@ -121,7 +125,36 @@ CREATE TABLE product_purchase_detail (
     total NUMERIC(10, 2),
     canceled NUMERIC(10, 2) DEFAULT 0,
     product_id INT REFERENCES product(id) ON DELETE CASCADE,
-    proof_id INT REFERENCES proof(id) ON DELETE CASCADE,
+    proof_id INT REFERENCES purchase_proof(id) ON DELETE CASCADE,
+    company_id INT REFERENCES company(id) ON DELETE CASCADE
+);
+
+CREATE TABLE sale_order (
+    id SERIAL PRIMARY KEY,
+    created_at DATE DEFAULT now(),
+    condition VARCHAR(3),
+    client_id INT REFERENCES client(id) ON DELETE CASCADE,
+    company_id INT REFERENCES company(id) ON DELETE CASCADE
+);
+
+CREATE TABLE sale_proof (
+    id SERIAL PRIMARY KEY,
+    created_at DATE DEFAULT now(),
+    code VARCHAR(8) UNIQUE, 
+    type VARCHAR,
+    client_id INT REFERENCES client(id) ON DELETE CASCADE,
+    order_id INT REFERENCES sale_order(id) ON DELETE CASCADE,
+    company_id INT REFERENCES company(id) ON DELETE CASCADE
+);
+
+CREATE TABLE product_sale_detail (
+    id SERIAL PRIMARY KEY,
+    created_at DATE DEFAULT now(),
+    batch_number VARCHAR,
+    total NUMERIC(10, 2),
+    canceled NUMERIC(10, 2) DEFAULT 0,
+    product_id INT REFERENCES product(id) ON DELETE CASCADE,
+    proof_id INT REFERENCES sale_proof(id) ON DELETE CASCADE,
     company_id INT REFERENCES company(id) ON DELETE CASCADE
 );
 
