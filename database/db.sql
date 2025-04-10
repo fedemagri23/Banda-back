@@ -15,6 +15,10 @@ DROP TABLE IF EXISTS product CASCADE;
 DROP TABLE IF EXISTS company CASCADE;
 DROP TABLE IF EXISTS useraccount CASCADE;
 DROP TABLE IF EXISTS product CASCADE;
+DROP TABLE IF EXISTS product_purchase_detail CASCADE;
+DROP TABLE IF EXISTS proof CASCADE;
+DROP TABLE IF EXISTS purchase_order CASCADE;
+
 
 CREATE TYPE address AS (
     town VARCHAR,
@@ -91,6 +95,30 @@ CREATE TABLE product (
     currency VARCHAR(3),
     company_id INT REFERENCES company(id) ON DELETE CASCADE
 );
+
+CREATE TABLE product_purchase_detail (
+    id SERIAL PRIMARY KEY,
+    batch_number INT,
+    total NUMERIC(10, 2),
+    canceled NUMERIC(10, 2),
+    proof_id INT REFERENCES proof(id) ON DELETE CASCADE,
+    company_id INT REFERENCES company(id) ON DELETE CASCADE
+); -- TODO: Terminar
+
+CREATE TABLE proof (
+    id SERIAL PRIMARY KEY,
+    code VARCHAR UNIQUE, 
+    type VARCHAR,
+    company_id INT REFERENCES company(id) ON DELETE CASCADE
+); -- TODO: Terminar
+
+CREATE TABLE purchase_order (
+    id SERIAL PRIMARY KEY,
+    condition VARCHAR,
+    proof INT REFERENCES proof(id) ON DELETE CASCADE,
+    supplier_id INT REFERENCES supplier(id) ON DELETE CASCADE,
+    company_id INT REFERENCES company(id) ON DELETE CASCADE
+); -- TODO: Terminar
 
 DROP TRIGGER IF EXISTS trigger_increase_company_count ON company;
 DROP FUNCTION IF EXISTS increase_user_company_count();
