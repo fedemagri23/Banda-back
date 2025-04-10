@@ -24,9 +24,9 @@ export const addSupplier = async (req, res) => {
       CUIT,
       CUIL,
       DNI,
-      CDI,
-      company_id,
+      CDI
     } = req.body;
+    const company_id = req.params.companyId;
 
     /*
     Validaciones: 
@@ -209,17 +209,4 @@ export const addSupplier = async (req, res) => {
     console.error("Error adding supplier:", error.message);
     res.status(500).json({ error: error.message });
   }
-};
-
-export const getCompanies = async (req, res) => {
-  const response = await pool.query("SELECT * FROM company");
-  res.json(response.rows);
-};
-
-export const getCompaniesByUserId = async (req, res) => {
-  const userId = parseInt(req.params.id);
-  const response = await pool.query("SELECT * FROM company WHERE id=$1", [
-    userId,
-  ]);
-  res.json(response.rows);
 };

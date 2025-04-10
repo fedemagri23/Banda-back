@@ -2,7 +2,7 @@ import { pool } from "../db.js";
 
 export const addProduct = async (req, res) => {
   try {
-    const { company_id } = req.params.id;
+    const company_id = req.params.companyId;
     const { sku, upc, ean, name, list_price, currency } = req.body;
 
     /*
@@ -89,7 +89,7 @@ export const addProduct = async (req, res) => {
 
 export const getProductsByCompany = async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = req.params.companyId;
 
     const response = await pool.query(
       `

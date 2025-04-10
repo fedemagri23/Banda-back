@@ -32,9 +32,9 @@ CREATE TYPE address AS (
 
 CREATE TABLE useraccount (
     id SERIAL PRIMARY KEY,
-    username VARCHAR UNIQUE,
-    phone VARCHAR,
-    mail VARCHAR UNIQUE,
+    username VARCHAR UNIQUE NOT NULL,
+    phone VARCHAR UNIQUE,
+    mail VARCHAR UNIQUE NOT NULL,
     passhash TEXT,
     joined_at DATE DEFAULT now(),
     last_payment_at DATE DEFAULT NULL,
@@ -96,29 +96,34 @@ CREATE TABLE product (
     company_id INT REFERENCES company(id) ON DELETE CASCADE
 );
 
-CREATE TABLE product_purchase_detail (
+CREATE TABLE purchase_order (
     id SERIAL PRIMARY KEY,
-    batch_number INT,
-    total NUMERIC(10, 2),
-    canceled NUMERIC(10, 2),
-    proof_id INT REFERENCES proof(id) ON DELETE CASCADE,
+    created_at DATE DEFAULT now(),
+    condition VARCHAR(3),
     company_id INT REFERENCES company(id) ON DELETE CASCADE
-); -- TODO: Terminar
+    supplier_id INT REFERENCES supplier(id) ON DELETE CASCADE,
+);
 
 CREATE TABLE proof (
     id SERIAL PRIMARY KEY,
-    code VARCHAR UNIQUE, 
+    created_at DATE DEFAULT now(),
+    code VARCHAR(8) UNIQUE, 
     type VARCHAR,
-    company_id INT REFERENCES company(id) ON DELETE CASCADE
-); -- TODO: Terminar
-
-CREATE TABLE purchase_order (
-    id SERIAL PRIMARY KEY,
-    condition VARCHAR,
-    proof INT REFERENCES proof(id) ON DELETE CASCADE,
     supplier_id INT REFERENCES supplier(id) ON DELETE CASCADE,
+    order_id INT REFERENCES purchase_order(id) ON DELETE CASCADE,
     company_id INT REFERENCES company(id) ON DELETE CASCADE
-); -- TODO: Terminar
+);
+
+CREATE TABLE product_purchase_detail (
+    id SERIAL PRIMARY KEY,
+    created_at DATE DEFAULT now(),
+    batch_number VARCHAR,
+    total NUMERIC(10, 2),
+    canceled NUMERIC(10, 2) DEFAULT 0,
+    product_id INT REFERENCES product(id) ON DELETE CASCADE,
+    proof_id INT REFERENCES proof(id) ON DELETE CASCADE,
+    company_id INT REFERENCES company(id) ON DELETE CASCADE
+);
 
 DROP TRIGGER IF EXISTS trigger_increase_company_count ON company;
 DROP FUNCTION IF EXISTS increase_user_company_count();
