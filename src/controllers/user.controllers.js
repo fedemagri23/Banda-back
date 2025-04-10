@@ -111,12 +111,10 @@ export const login = async (req, res) => {
   }
 };
 
-// Función auxiliar para generar código de verificación
 const generateVerificationCode = () => {
   return crypto.randomInt(100000, 999999).toString();
 };
 
-// Función auxiliar para enviar correo
 const sendVerificationEmail = async (email, code) => {
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
