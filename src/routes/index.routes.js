@@ -12,7 +12,7 @@ import { getToken } from "../controllers/test.controllers.js";
 import { addSupplier } from "../controllers/supplier.controllers.js";
 import { addProduct, getProductsByCompany } from "../controllers/product.controllers.js";
 import { checkCompanyOwner } from "../middleware/companyOwnerMiddleware.js";
-import { addPurchaseOrder } from "../controllers/purchase.controllers.js";
+import { addPurchaseOrder, getPurchaseOrders } from "../controllers/purchase.controllers.js";
 
 const router = Router();
 
@@ -31,6 +31,7 @@ router.post("/product/post/:companyId", verifyToken, checkCompanyOwner, addProdu
 router.get("/product/get-all/:companyId", verifyToken, checkCompanyOwner, getProductsByCompany);
 
 router.post("/purchase/post/:companyId", verifyToken, checkCompanyOwner, addPurchaseOrder);
+router.get("/purchase/get-all/:companyId", verifyToken, checkCompanyOwner, getPurchaseOrders);
 
 // TODO: Al final BORRAR estos controllers
 router.get("/token", getToken);

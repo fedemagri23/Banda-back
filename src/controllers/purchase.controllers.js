@@ -69,12 +69,10 @@ export const addPurchaseOrder = async (req, res) => {
     }
 
     if (!/^[A-Za-z0-9]{1,8}$/.test(proof_code)) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "Invalid proof code. Only letters and numbers are allowed, up to 8 characters, no spaces.",
-        });
+      return res.status(400).json({
+        error:
+          "Invalid proof code. Only letters and numbers are allowed, up to 8 characters, no spaces.",
+      });
     }
 
     if (!validProofTypes.includes(proof_type)) {
@@ -92,22 +90,19 @@ export const addPurchaseOrder = async (req, res) => {
         !detail.batch_number ||
         !/^[A-Za-z0-9\-]+$/.test(detail.batch_number)
       ) {
-        return res
-          .status(400)
-          .json({
-            error: "Invalid batch number. Only letters, numbers and hyphens are allowed.",
-          });
+        return res.status(400).json({
+          error:
+            "Invalid batch number. Only letters, numbers and hyphens are allowed.",
+        });
       }
 
       if (
         typeof detail.total !== "number" ||
         !/^\d+(\.\d{1,2})?$/.test(detail.total.toFixed(2))
       ) {
-        return res
-          .status(400)
-          .json({
-            error: "Total must be a number with up to two decimal places.",
-          });
+        return res.status(400).json({
+          error: "Total must be a number with up to two decimal places.",
+        });
       }
     }
 
@@ -147,7 +142,13 @@ export const addPurchaseOrder = async (req, res) => {
         `
         INSERT INTO product_purchase_detail (batch_number, total, product_id, proof_id, company_id) VALUES ($1, $2, $3, $4, $5) RETURNING *
         `,
-        [detail.batch_number, detail.total, detail.product_id, proof_id, company_id]
+        [
+          detail.batch_number,
+          detail.total,
+          detail.product_id,
+          proof_id,
+          company_id,
+        ]
       );
 
       if (response_detail.rowCount == 0) {
@@ -166,3 +167,78 @@ export const addPurchaseOrder = async (req, res) => {
   }
 };
 
+export const getPurchaseOrders = async (req, res) => {
+  const company_id = req.params.companyId;
+
+  try {
+    const response = await pool.query(
+      `
+      SELECT 
+        purchase_order.id AS order_id,
+        purchase_order.created_at AS order_created_at,
+        purchase_order.condition,
+        purchase_order.company_id,
+    
+        proof.id AS proof_id,
+        proof.supplier_id,
+        proof.code,
+        proof.type,
+        proof.order_id AS proof_order_id,
+    
+        product_purchase_detail.id AS detail_id,
+        product_purchase_detail.batch_number,
+        product_purchase_detail.total,
+        product_purchase_detail.canceled,
+        product_purchase_detail.product_id
+    
+      FROM purchase_order 
+      JOIN proof ON purchase_order.id = proof.order_id
+      JOIN product_purchase_detail ON proof.id = product_purchase_detail.proof_id
+      WHERE purchase_order.company_id = $1
+      `,
+      [company_id]
+    );
+
+    if (response.rowCount == 0) {
+      return res.status(404).json({ error: "No purchase orders found." });
+    }
+
+    const rows = response.rows;
+    const ordersMap = new Map();
+
+    for (const row of rows) {
+      const orderId = row.order_id;
+
+      if (!ordersMap.has(orderId)) {
+        ordersMap.set(orderId, {
+          id: row.order_id,
+          created_at: row.order_created_at,
+          condition: row.condition,
+          company_id: row.company_id,
+          proof: {
+            id: row.proof_id,
+            supplier_id: row.supplier_id,
+            code: row.code,
+            type: row.type,
+            order_id: row.proof_order_id,
+          },
+          details: [],
+        });
+      }
+
+      ordersMap.get(orderId).details.push({
+        id: row.detail_id,
+        batch_number: row.batch_number,
+        total: row.total,
+        canceled: row.canceled,
+        product_id: row.product_id,
+      });
+    }
+
+    const formatted = Array.from(ordersMap.values());
+    res.json(formatted);
+  } catch (error) {
+    console.error("Error fetching purchase orders:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
