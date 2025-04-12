@@ -215,6 +215,8 @@ export const getPurchaseOrders = async (req, res) => {
           created_at: row.order_created_at,
           condition: row.condition,
           company_id: row.company_id,
+          total: 0,
+          canceled: 0,
           proof: {
             id: row.proof_id,
             supplier_id: row.supplier_id,
@@ -233,6 +235,9 @@ export const getPurchaseOrders = async (req, res) => {
         canceled: row.canceled,
         product_id: row.product_id,
       });
+    
+      ordersMap.get(orderId).total += parseFloat(row.total);
+      ordersMap.get(orderId).canceled += parseFloat(row.canceled);
     }
 
     const formatted = Array.from(ordersMap.values());

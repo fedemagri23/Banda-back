@@ -406,6 +406,8 @@ Authorization: Bearer <your_token>
     "created_at": "string",
     "condition": "string",
     "company_id": "number",
+    "total": "number",
+    "canceled": "number",
     "proof": {
       "id": "number",
       "supplier_id": "number",
@@ -486,6 +488,8 @@ Authorization: Bearer <your_token>
     "created_at": "string",
     "condition": "string",
     "company_id": "number",
+    "total": "number",
+    "canceled": "number",
     "proof": {
       "id": "number",
       "client_id": "number",
