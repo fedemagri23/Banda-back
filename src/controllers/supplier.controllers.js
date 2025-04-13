@@ -210,3 +210,19 @@ export const addSupplier = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+export const getSuppliersByCompany = async (req, res) => {
+  try {
+    const company_id = req.params.companyId;
+
+    const response = await pool.query(
+      `SELECT * FROM supplier WHERE company_id = $1`,
+      [company_id]
+    );
+
+    res.json(response.rows);
+  } catch (error) {
+    console.error("Error fetching supplier:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
