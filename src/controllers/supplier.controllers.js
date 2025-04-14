@@ -226,3 +226,37 @@ export const getSuppliersByCompany = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+export const deleteSupplier = async (req, res) => {
+  try {
+    const company_id = req.params.companyId;
+    const supplier_id = req.params.supplierId;
+
+    // Verificar que el supplier pertenece a la compañía
+    const supplierCheck = await pool.query(
+      `SELECT * FROM supplier WHERE id = $1 AND company_id = $2`,
+      [supplier_id, company_id]
+    );
+
+    if (supplierCheck.rowCount === 0) {
+      return res.status(404).json({ error: "Supplier not found or does not belong to this company." });
+    }
+
+    // Eliminar el supplier (la eliminación en cascada se maneja automáticamente por la base de datos)
+    const response = await pool.query(
+      `DELETE FROM supplier WHERE id = $1 AND company_id = $2 RETURNING id`,
+      [supplier_id, company_id]
+    );
+
+    if (response.rowCount === 0) {
+      return res.status(404).json({ error: "Supplier could not be deleted." });
+    }
+
+    res.json({ message: "Supplier deleted successfully", id: supplier_id });
+  } catch (error) {
+    console.error("Error deleting supplier:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+

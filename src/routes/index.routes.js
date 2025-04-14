@@ -15,6 +15,7 @@ import { checkCompanyOwner } from "../middleware/companyOwnerMiddleware.js";
 import { addPurchaseOrder, getPurchaseOrders } from "../controllers/purchase.controllers.js";
 import { addClient, getClientsByCompany } from "../controllers/client.controllers.js";
 import { addSaleOrder, getSaleOrders } from "../controllers/sale.controllers.js";
+import { deleteSupplier } from "../controllers/supplier.controllers.js";
 
 const router = Router();
 
@@ -29,6 +30,7 @@ router.get("/company/get-all", verifyToken, getCompaniesFromUser);
 
 router.post("/supplier/post/:companyId", verifyToken, checkCompanyOwner, addSupplier);
 router.get("/supplier/get-all/:companyId", verifyToken, checkCompanyOwner, getSuppliersByCompany);
+router.delete("/supplier/delete/:companyId/:supplierId", verifyToken, checkCompanyOwner, deleteSupplier);
 
 router.post("/product/post/:companyId", verifyToken, checkCompanyOwner, addProduct);
 router.get("/product/get-all/:companyId", verifyToken, checkCompanyOwner, getProductsByCompany);
