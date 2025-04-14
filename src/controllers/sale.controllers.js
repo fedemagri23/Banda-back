@@ -11,7 +11,7 @@ export const addSaleOrder = async (req, res) => {
     condition: Debe ser uno de los siguientes strings: 
       ["CNT", "P30", "P60", "P90", "CTE", "CDF", "TRB", "DBA", "CUC", "OTH"]
       VER MANUAL DE PAGOS
-    client_id debe tener una instancia de supplier asociada existente
+    client_id debe tener una instancia de client asociada existente
     proof_code maximo 8 caracteres, solo letras y numeros, no se aceptan espacios
     proof_type: Debe ser uno de los siguientes strings:
       [ "FACTA", "FACTB", "FACTC", "FACTM", "FACTE",
@@ -61,7 +61,7 @@ export const addSaleOrder = async (req, res) => {
     }
 
     const supplierCheck = await pool.query(
-      `SELECT * FROM supplier WHERE id = $1`,
+      `SELECT * FROM client WHERE id = $1`,
       [client_id]
     );
     if (supplierCheck.rowCount === 0) {
