@@ -155,6 +155,8 @@ CREATE TABLE product_sale_detail (
     batch_number VARCHAR,
     total NUMERIC(10, 2),
     canceled NUMERIC(10, 2) DEFAULT 0,
+    quantity INT,
+    unit_price NUMERIC(10, 2),
     product_id INT REFERENCES product(id) ON DELETE CASCADE,
     proof_id INT REFERENCES sale_proof(id) ON DELETE CASCADE,
     company_id INT REFERENCES company(id) ON DELETE CASCADE
