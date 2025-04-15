@@ -191,7 +191,7 @@ export const getPurchaseOrders = async (req, res) => {
     );
 
     if (response.rowCount == 0) {
-      return res.status(404).json({ error: "No purchase orders found." });
+      return res.status(404).json([]);
     }
 
     const rows = response.rows;
