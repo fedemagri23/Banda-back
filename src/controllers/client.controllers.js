@@ -93,6 +93,20 @@ export const addClient = async (req, res) => {
           "You must provide at least one of the following fields: CUIT, CUIL, DNI, or CDI.",
       });
     }
+
+    const normalizeId = (id) => id?.replace(/[\s.-]/g, "");
+    const normalizedCUIT = normalizeId(CUIT);
+    const normalizedCUIL = normalizeId(CUIL);
+    const normalizedDNI = normalizeId(DNI);
+    const normalizedCDI = normalizeId(CDI);
+
+    const normalizeCountry = (country) => {
+      return country
+        ? country.charAt(0).toUpperCase() + country.slice(1).toLowerCase()
+        : "";
+    };
+
+    const normalizedCountry = normalizeCountry(country);
     
     const normalizeId = (id) => id?.replace(/[\s.-]/g, "");
     const normalizedCUIT = normalizeId(CUIT);
