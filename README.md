@@ -694,9 +694,19 @@ Authorization: Bearer <your_token>
 ```json
 [
   {
-    "product_id": "number",
+    "product": {
+      "id": "number",
+      "sku": "string",
+      "upc": "string",
+      "ean": "string",
+      "name": "string",
+      "list_price": "number",
+      "currency": "string",
+      "company_id": "number"
+    },
     "total_spent": "number",
     "amount": "number"
   }
 ]
+```
 ```
