@@ -279,6 +279,45 @@ Authorization: Bearer <your_token>
 }
 ```
 
+### GET | /supplier/get-all/:companyId
+
+**Headers:**
+
+```
+Authorization: Bearer <your_token>
+```
+
+**Response:**
+
+```json
+[
+  {
+    "id": "number",
+    "code": "string",
+    "name": "string",
+    "country": "string",
+    "address": {
+      "town": "string",
+      "street": "string",
+      "number": "number",
+      "floor": "number",
+      "departament": "string",
+      "zip_code": "string",
+      "observations": "string"
+    },
+    "phone": "string",
+    "mail": "string",
+    "web": "string",
+    "description": "string",
+    "CUIT": "string",
+    "CUIL": "string",
+    "DNI": "string",
+    "CDI": "string",
+    "company_id": "number"
+  }
+]
+```
+
 ---
 
 ### DELETE | /supplier/delete/:companyId/:supplierId
