@@ -66,8 +66,8 @@ export const addProduct = async (req, res) => {
     }
 
     const eanExists = await pool.query(
-      "SELECT * FROM product WHERE ean = $1",
-      [ean]
+      "SELECT * FROM product WHERE ean = $1 and company_id = $2",
+      [ean, company_id]
     );
 
     if (eanExists.rows.length > 0) {
@@ -75,8 +75,8 @@ export const addProduct = async (req, res) => {
     }
 
     const skuExists = await pool.query(
-      "SELECT * FROM product WHERE sku = $1",
-      [sku]
+      "SELECT * FROM product WHERE sku = $1 and company_id = $2",
+      [sku, company_id]
     );
 
     if (skuExists.rows.length > 0) {
@@ -84,8 +84,8 @@ export const addProduct = async (req, res) => {
     }
 
     const upcExists = await pool.query(
-      "SELECT * FROM product WHERE upc = $1",
-      [upc]
+      "SELECT * FROM product WHERE upc = $1 and company_id = $2",
+      [upc, company_id]
     );
 
     if (upcExists.rows.length > 0) {
