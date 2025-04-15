@@ -7,7 +7,7 @@ export const getInventoryByCompany = async (req, res) => {
     // Query para obtener productos en órdenes de compra
     const purchasedProducts = await pool.query(
       `
-        SELECT product_id, total FROM product_purchase_detail WHERE company_id = $1;
+        SELECT product_id, total, quantity FROM product_purchase_detail WHERE company_id = $1;
       `,
       [companyId]
     );
@@ -16,15 +16,16 @@ export const getInventoryByCompany = async (req, res) => {
       purchasedProducts.rows.reduce((acc, item) => {
         const id = item.product_id;
         const total = Number(item.total);
+        const quantity = item.quantity;
 
         if (!acc[id]) {
           acc[id] = {
             product_id: id,
             total_spent: total,
-            amount: 1,
+            amount: quantity,
           };
         } else {
-          acc[id].amount += 1;
+          acc[id].amount += quantity;
           acc[id].total_spent += total;
         }
         return acc;
@@ -34,7 +35,7 @@ export const getInventoryByCompany = async (req, res) => {
     // Query para obtener productos en órdenes de venta
     const soldProducts = await pool.query(
       `
-        SELECT product_id FROM product_sale_detail WHERE company_id = $1;
+        SELECT product_id, quantity FROM product_sale_detail WHERE company_id = $1;
       `,
       [companyId]
     );
@@ -42,10 +43,11 @@ export const getInventoryByCompany = async (req, res) => {
     const soldProductsCompressed = Object.values(
       soldProducts.rows.reduce((acc, item) => {
         const id = item.product_id;
+        const quantity = item.quantity
         if (!acc[id]) {
-          acc[id] = { product_id: id, amount: 1 };
+          acc[id] = { product_id: id, amount: quantity };
         } else {
-          acc[id].amount += 1;
+          acc[id].amount += quantity;
         }
         return acc;
       }, {})
