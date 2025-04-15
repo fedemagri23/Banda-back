@@ -16,19 +16,19 @@ export const addProduct = async (req, res) => {
         company_id: Debe existir una company relacionada
         */
 
-    if (!/^[a-zA-Z0-9]+$/.test(sku)) {
+    if (sku && !/^[a-zA-Z0-9]+$/.test(sku)) {
       return res
         .status(400)
         .json({ error: "SKU must contain only letters and numbers" });
     }
 
-    if (!/^[a-zA-Z0-9]{12}$/.test(upc)) {
+    if (upc && !/^[a-zA-Z0-9]{12}$/.test(upc)) {
       return res.status(400).json({
         error: "UPC must be exactly 12 characters (letters and numbers)",
       });
     }
 
-    if (!/^[a-zA-Z0-9]{13}$/.test(ean)) {
+    if (ean && !/^[a-zA-Z0-9]{13}$/.test(ean)) {
       return res.status(400).json({
         error: "EAN must be exactly 13 characters (letters and numbers)",
       });
