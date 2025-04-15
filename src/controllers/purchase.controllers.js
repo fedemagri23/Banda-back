@@ -95,6 +95,12 @@ export const addPurchaseOrder = async (req, res) => {
             "Invalid batch number. Only letters, numbers and hyphens are allowed.",
         });
       }
+      if (!detail.quantity){
+        return res.status(400).json({
+          error:
+            "Quantity must be detailed.",
+        });
+      }
     }
 
     // Purchase order
@@ -131,14 +137,16 @@ export const addPurchaseOrder = async (req, res) => {
     for (const detail of products_details) {
       const response_detail = await pool.query(
         `
-        INSERT INTO product_purchase_detail (batch_number, total, product_id, proof_id, company_id) VALUES ($1, $2, $3, $4, $5) RETURNING *
+        INSERT INTO product_purchase_detail (batch_number, total, product_id, proof_id, company_id, quantity, unit_price) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *
         `,
         [
           detail.batch_number,
-          detail.total,
+          detail.unit_price * detail.quantity,
           detail.product_id,
           proof_id,
           company_id,
+          detail.quantity,
+          detail.unit_price
         ]
       );
 
@@ -179,6 +187,8 @@ export const getPurchaseOrders = async (req, res) => {
         product_purchase_detail.id AS detail_id,
         product_purchase_detail.batch_number,
         product_purchase_detail.total,
+        product_purchase_detail.quantity,
+        product_purchase_detail.unit_price,
         product_purchase_detail.canceled,
         product_purchase_detail.product_id
     
@@ -222,6 +232,8 @@ export const getPurchaseOrders = async (req, res) => {
       ordersMap.get(orderId).details.push({
         id: row.detail_id,
         batch_number: row.batch_number,
+        quantity: row.quantity,
+        unit_price: row.unit_price,
         total: row.total,
         canceled: row.canceled,
         product_id: row.product_id,

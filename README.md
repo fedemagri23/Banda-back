@@ -427,7 +427,8 @@ Authorization: Bearer <your_token>
   "products_details": [
     {
       "batch_number": "string",
-      "total": "number",
+      "quantity": "number",
+      "unit_price": "number",
       "product_id": "number"
     }
   ]
@@ -477,6 +478,8 @@ Authorization: Bearer <your_token>
       {
         "id": "number",
         "batch_number": "string",
+        "quantity": "number",
+        "unit_price": "number",
         "total": "number",
         "canceled": "boolean",
         "product_id": "number"
