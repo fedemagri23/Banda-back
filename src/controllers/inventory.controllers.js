@@ -12,12 +12,10 @@ export const getInventoryByCompany = async (req, res) => {
       [companyId]
     );
 
-    console.log(purchasedProducts.rows);
-
     const purchasedProductsCompressed = Object.values(
       purchasedProducts.rows.reduce((acc, item) => {
         const id = item.product_id;
-        const total = Number(item.total); // Convertir string a número
+        const total = Number(item.total);
 
         if (!acc[id]) {
           acc[id] = {
@@ -33,8 +31,6 @@ export const getInventoryByCompany = async (req, res) => {
       }, {})
     );
 
-    console.log(purchasedProductsCompressed);
-
     // Query para obtener productos en órdenes de venta
     const soldProducts = await pool.query(
       `
@@ -42,8 +38,6 @@ export const getInventoryByCompany = async (req, res) => {
       `,
       [companyId]
     );
-
-    console.log(soldProducts.rows);
 
     const soldProductsCompressed = Object.values(
       soldProducts.rows.reduce((acc, item) => {
@@ -57,15 +51,26 @@ export const getInventoryByCompany = async (req, res) => {
       }, {})
     );
 
-    console.log(soldProductsCompressed);
-
     const soldMap = soldProductsCompressed.reduce((acc, item) => {
       acc[item.product_id] = item.amount;
       return acc;
     }, {});
 
+    const productIds = purchasedProductsCompressed.map((item) => item.product_id);
+    const productsQuery = await pool.query(
+      `
+        SELECT * FROM product WHERE id = ANY($1::int[]);
+      `,
+      [productIds]
+    );
+
+    const productMap = productsQuery.rows.reduce((acc, product) => {
+      acc[product.id] = product;
+      return acc;
+    }, {});
+
     const stock = purchasedProductsCompressed.map((item) => ({
-      product_id: item.product_id,
+      product: productMap[item.product_id],
       total_spent: item.total_spent,
       amount: item.amount - (soldMap[item.product_id] || 0),
     }));
