@@ -16,6 +16,7 @@ import { addPurchaseOrder, getPurchaseOrders } from "../controllers/purchase.con
 import { addClient, getClientsByCompany } from "../controllers/client.controllers.js";
 import { addSaleOrder, getSaleOrders } from "../controllers/sale.controllers.js";
 import { deleteSupplier } from "../controllers/supplier.controllers.js";
+import { getInventoryByCompany } from "../controllers/inventory.controllers.js";
 
 const router = Router();
 
@@ -44,6 +45,7 @@ router.get("/client/get-all/:companyId", verifyToken, checkCompanyOwner, getClie
 router.post("/sale/post/:companyId", verifyToken, checkCompanyOwner, addSaleOrder);
 router.get("/sale/get-all/:companyId", verifyToken, checkCompanyOwner, getSaleOrders);
 
+router.get("/inventory/get-all/:companyId", verifyToken, checkCompanyOwner, getInventoryByCompany); 
 
 // TODO: Al final BORRAR estos controllers
 router.get("/token", getToken);

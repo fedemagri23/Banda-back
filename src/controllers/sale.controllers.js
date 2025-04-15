@@ -96,14 +96,6 @@ export const addSaleOrder = async (req, res) => {
         });
       }
 
-      if (
-        typeof detail.total !== "number" ||
-        !/^\d+(\.\d{1,2})?$/.test(detail.total.toFixed(2))
-      ) {
-        return res.status(400).json({
-          error: "Total must be a number with up to two decimal places.",
-        });
-      }
     }
 
     // Sale order

@@ -281,6 +281,25 @@ Authorization: Bearer <your_token>
 
 ---
 
+### DELETE | /supplier/delete/:companyId/:supplierId
+
+**Headers:**
+
+```
+Authorization: Bearer <your_token>
+```
+
+**Response:**
+
+```json
+{
+  "message": "Supplier deleted successfully",
+  "id": "number"
+}
+```
+
+---
+
 ## Product
 
 ### POST | /product/post/:companyId
@@ -615,6 +634,30 @@ Authorization: Bearer <your_token>
     "DNI": "string",
     "CDI": "string",
     "company_id": "number"
+  }
+]
+```
+
+---
+
+## Inventory
+
+### GET | /inventory/get-all/:companyId
+
+**Headers:**
+
+```
+Authorization: Bearer <your_token>
+```
+
+**Response:**
+
+```json
+[
+  {
+    "product_id": "number",
+    "total_spent": "number",
+    "amount": "number"
   }
 ]
 ```
