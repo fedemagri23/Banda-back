@@ -90,7 +90,7 @@ export const addSupplier = async (req, res) => {
     if (!CUIT && !CUIL && !DNI && !CDI) {
       return res.status(400).json({ error: "Debe proporcionar al menos uno de los siguientes campos: CUIT, CUIL, DNI o CDI." });
     }
-    
+
     const normalizeId = (id) => id?.replace(/[\s.-]/g, "");
     const normalizedCUIT = normalizeId(CUIT);
     const normalizedCUIL = normalizeId(CUIL);
