@@ -70,7 +70,7 @@ export const addProduct = async (req, res) => {
       [ean, company_id]
     );
 
-    if (eanExists.rows.length > 0) {
+    if ((ean != "") && eanExists.rows.length > 0) {
       return res.status(400).json({ error: "EAN code repeated" });
     }
 
@@ -79,7 +79,7 @@ export const addProduct = async (req, res) => {
       [sku, company_id]
     );
 
-    if (skuExists.rows.length > 0) {
+    if ((sku != "") && skuExists.rows.length > 0) {
       return res.status(400).json({ error: "SKU code repeated" });
     }
 
@@ -88,7 +88,7 @@ export const addProduct = async (req, res) => {
       [upc, company_id]
     );
 
-    if (upcExists.rows.length > 0) {
+    if ((upc != "") && upcExists.rows.length > 0) {
       return res.status(400).json({ error: "UPC code repeated" });
     }
 
