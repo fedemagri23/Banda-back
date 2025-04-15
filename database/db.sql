@@ -91,9 +91,9 @@ CREATE TABLE supplier (
 
 CREATE TABLE product (
     id SERIAL PRIMARY KEY,
-    sku VARCHAR UNIQUE,
-    upc VARCHAR(12) UNIQUE,
-    EAN VARCHAR(13) UNIQUE,
+    sku VARCHAR,
+    upc VARCHAR(12),
+    EAN VARCHAR(13),
     name VARCHAR,
     list_price NUMERIC(10, 2),
     currency VARCHAR(3),

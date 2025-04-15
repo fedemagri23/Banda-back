@@ -14,7 +14,7 @@ export const addProduct = async (req, res) => {
         list_price: Valor numerico de hasta dos decimales
         currency: String de longitud exacta 3, solo letras y se normaliza a mayuscula
         company_id: Debe existir una company relacionada
-        */
+    */
 
     if (sku && !/^[a-zA-Z0-9]+$/.test(sku)) {
       return res
@@ -63,6 +63,33 @@ export const addProduct = async (req, res) => {
 
     if (companyExists.rows.length === 0) {
       return res.status(400).json({ error: "Company not found" });
+    }
+
+    const eanExists = await pool.query(
+      "SELECT * FROM product WHERE ean = $1",
+      [ean]
+    );
+
+    if (eanExists.rows.length > 0) {
+      return res.status(400).json({ error: "EAN code repeated" });
+    }
+
+    const skuExists = await pool.query(
+      "SELECT * FROM product WHERE sku = $1",
+      [sku]
+    );
+
+    if (skuExists.rows.length > 0) {
+      return res.status(400).json({ error: "SKU code repeated" });
+    }
+
+    const upcExists = await pool.query(
+      "SELECT * FROM product WHERE upc = $1",
+      [upc]
+    );
+
+    if (upcExists.rows.length > 0) {
+      return res.status(400).json({ error: "UPC code repeated" });
     }
 
     const response = await pool.query(
