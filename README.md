@@ -715,49 +715,31 @@ Authorization: Bearer <your_token>
   }
 ]
 ```
+
 ## Metric
 
-### GET | /metric/order/balance-chart/:companyId
-
-**Description:**
-Obtiene un gráfico de balance de órdenes (ventas menos compras) por fecha para una empresa específica.
-
-**Query Parameters:**
-- `startDate` (string, required): Fecha de inicio en formato `YYYY-MM-DD`.
-- `endDate` (string, required): Fecha de fin en formato `YYYY-MM-DD`.
+### GET | /metric/order/balance-chart/1?startDate=2023-01-01&endDate=2023-12-31
 
 **Headers:**
+
 ```
 Authorization: Bearer <your_token>
 ```
 
 **Response:**
+
 ```json
-[
-  {
-    "date": "string", // Fecha en formato ISO (e.g., "2025-04-15T00:00:00.000Z")
-    "balance": "number" // Balance (ventas - compras) para esa fecha
-  }
-]
+{
+  "metrics": [
+    {
+      "date": "YYYY-MM-DDT03:00:00.000Z",
+      "balance": "number"
+    }
+  ],
+  "balance": "number"
+}
 ```
 
-**Example Request:**
-```
-GET http://localhost:3000/metric/order/balance-chart/1?startDate=2023-01-01&endDate=2023-12-31
-```
-
-**Example Response:**
-```json
-[
-  {
-    "date": "2023-01-01T00:00:00.000Z",
-    "balance": 150.25
-  },
-  {
-    "date": "2023-01-02T00:00:00.000Z",
-    "balance": -50.75
-  }
-]
 ```
 
 ```
