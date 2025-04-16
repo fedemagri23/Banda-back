@@ -49,51 +49,49 @@ export const addClient = async (req, res) => {
       !address.number
     ) {
       return res.status(400).json({
-        error: "The address must include at least 'town', 'street', and 'number'.",
+        error:
+          "The address must include at least 'town', 'street', and 'number'.",
       });
     }
-    
+
     if (!code || !codeRegex.test(code)) {
       return res.status(400).json({
         error: "The code must have at least 4 alphanumeric characters.",
       });
     }
-    
+
     if (!name || !nameRegex.test(name)) {
       return res.status(400).json({
-        error: "The name must have at least 3 characters and no special characters.",
+        error:
+          "The name must have at least 3 characters and no special characters.",
       });
     }
-    
+
     if (!country) {
       return res.status(400).json({ error: "The country is required." });
     }
-    
+
     if (!phone || !phoneRegex.test(phone)) {
       return res
         .status(400)
         .json({ error: "The phone number must have at least 10 digits." });
     }
-    
+
     if (!mail || !emailRegex.test(mail)) {
-      return res
-        .status(400)
-        .json({ error: "The email address is not valid." });
+      return res.status(400).json({ error: "The email address is not valid." });
     }
-    
+
     if (web && !urlRegex.test(web)) {
-      return res
-        .status(400)
-        .json({ error: "The website URL is not valid." });
+      return res.status(400).json({ error: "The website URL is not valid." });
     }
-    
+
     if (!CUIT && !CUIL && !DNI && !CDI) {
       return res.status(400).json({
         error:
           "You must provide at least one of the following fields: CUIT, CUIL, DNI, or CDI.",
       });
     }
-    
+
     const normalizeId = (id) => id?.replace(/[\s.-]/g, "");
     const normalizedCUIT = normalizeId(CUIT);
     const normalizedCUIL = normalizeId(CUIL);
@@ -118,13 +116,13 @@ export const addClient = async (req, res) => {
         error: "The CUIT, CUIL, DNI, and CDI fields must contain only numbers.",
       });
     }
-    
+
     if (!company_id || !idRegex.test(company_id)) {
       return res.status(400).json({
         error: "The company ID is required and must be a valid number.",
       });
     }
-    
+
     const companyCheck = await pool.query(
       "SELECT * FROM company WHERE id = $1",
       [company_id]
@@ -133,6 +131,14 @@ export const addClient = async (req, res) => {
       return res
         .status(404)
         .json({ error: "The provided company does not exist." });
+    }
+
+    const clientExists = await pool.query(
+      `SELECT * FROM client WHERE code = $1 AND company_id = $2`,
+      [code, company_id]
+    );
+    if (clientExists.rowCount > 0) {
+      return res.status(400).json({ error: "Client already exists." });
     }
 
     const addressPG = {

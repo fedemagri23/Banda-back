@@ -85,6 +85,16 @@ export const addPurchaseOrder = async (req, res) => {
         .json({ error: "You must provide at least one product detail." });
     }
 
+    const proofExists = await pool.query(
+      `SELECT * FROM purchase_proof WHERE code = $1 AND order_id = $2`,
+      [proof_code, order_id]
+    );
+    if (proofExists.rowCount > 0) {
+      return res.status(400).json({
+        error: "A proof with this code already exists for this order.",
+      });
+    }
+
     for (const detail of products_details) {
       if (
         !detail.batch_number ||
@@ -95,10 +105,9 @@ export const addPurchaseOrder = async (req, res) => {
             "Invalid batch number. Only letters, numbers and hyphens are allowed.",
         });
       }
-      if (!detail.quantity){
+      if (!detail.quantity) {
         return res.status(400).json({
-          error:
-            "Quantity must be detailed.",
+          error: "Quantity must be detailed.",
         });
       }
     }
@@ -146,7 +155,7 @@ export const addPurchaseOrder = async (req, res) => {
           proof_id,
           company_id,
           detail.quantity,
-          detail.unit_price
+          detail.unit_price,
         ]
       );
 
@@ -238,7 +247,7 @@ export const getPurchaseOrders = async (req, res) => {
         canceled: row.canceled,
         product_id: row.product_id,
       });
-    
+
       ordersMap.get(orderId).total += parseFloat(row.total);
       ordersMap.get(orderId).canceled += parseFloat(row.canceled);
     }

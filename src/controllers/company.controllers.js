@@ -34,6 +34,15 @@ export const addCompany = async (req, res) => {
       return res.status(400).json({ error: "Name cannot contain special characters" });
     }
 
+    const companyExists = await pool.query(
+      `SELECT * FROM company WHERE name = $1 AND user_id = $2`,
+      [normalizedName, userId]
+    );
+    
+    if (companyExists.rows.length > 0) {
+      return res.status(400).json({ error: "Company already exists" });
+    }
+
     const response = await pool.query(
       `
       INSERT INTO company (name, user_id) VALUES ($1, $2) RETURNING *

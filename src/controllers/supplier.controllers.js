@@ -16,7 +16,7 @@ export const addSupplier = async (req, res) => {
       code,
       name,
       country,
-      address,  // Object | TODO: Agregar schema
+      address, // Object | TODO: Add schema
       phone,
       mail,
       web,
@@ -24,26 +24,26 @@ export const addSupplier = async (req, res) => {
       CUIT,
       CUIL,
       DNI,
-      CDI
+      CDI,
     } = req.body;
     const company_id = req.params.companyId;
 
     /*
-    Validaciones: 
-    code: Solo letras y números, sin espacios, sin caracteres especiales, al menos 4 caracteres.
-    name: Al menos 3 caracteres, sin caracteres especiales, acepta espacios, estos se normalizan.
-    country: Debe existir, se envia el nombre nada mas.
-    address: Al menos 3 caracteres, sin caracteres especiales, acepta espacios, estos se normalizan.
-    phone: Solo números, sin caracteres especiales, los espacios se normalizan al menos 10 caracteres.
-    mail: Debe ser un email válido, se valida con regex.
-    web: Debe ser un URL válido, se valida con regex.
-    description: sin caracteres especiales, acepta espacios, estos se normalizan, puede ser vacio.
-    CUIT, CUIL, DNI, CDI: Al menos uno de estos cuatro campos debe ser enviado, se valida con regex, 
-      acepta espacios (se normalizan), guiones (se eliminan) y puntos (se eliminan), solo números.
-    company_id: Debe existir, se envia el id de la compañia.
+    Validations: 
+    code: Only letters and numbers, no spaces, no special characters, at least 4 characters.
+    name: At least 3 characters, no special characters, accepts spaces, normalized.
+    country: Must exist, only the name is sent.
+    address: At least 3 characters, no special characters, accepts spaces, normalized.
+    phone: Only numbers, no special characters, spaces are normalized, at least 10 characters.
+    mail: Must be a valid email, validated with regex.
+    web: Must be a valid URL, validated with regex.
+    description: No special characters, accepts spaces, normalized, can be empty.
+    CUIT, CUIL, DNI, CDI: At least one of these four fields must be sent, validated with regex, 
+      accepts spaces (normalized), dashes (removed), and dots (removed), only numbers.
+    company_id: Must exist, the company ID is sent.
     */
 
-    // Validaciones
+    // Validations
     const codeRegex = /^[a-zA-Z0-9]{4,}$/;
     const nameRegex = /^[a-zA-ZÀ-ÿ\s]{3,}$/;
     const phoneRegex = /^\d{10,}$/;
@@ -59,36 +59,47 @@ export const addSupplier = async (req, res) => {
       !address.number
     ) {
       return res.status(400).json({
-        error: "La dirección debe incluir al menos 'town', 'street' y 'number'.",
+        error:
+          "The address must include at least 'town', 'street', and 'number'.",
       });
     }
 
     if (!code || !codeRegex.test(code)) {
-      return res.status(400).json({ error: "El código debe tener al menos 4 caracteres alfanuméricos." });
+      return res.status(400).json({
+        error: "The code must have at least 4 alphanumeric characters.",
+      });
     }
 
     if (!name || !nameRegex.test(name)) {
-      return res.status(400).json({ error: "El nombre debe tener al menos 3 caracteres y no contener caracteres especiales." });
+      return res.status(400).json({
+        error:
+          "The name must have at least 3 characters and not contain special characters.",
+      });
     }
 
     if (!country) {
-      return res.status(400).json({ error: "El país es obligatorio." });
+      return res.status(400).json({ error: "The country is required." });
     }
 
     if (!phone || !phoneRegex.test(phone)) {
-      return res.status(400).json({ error: "El teléfono debe contener al menos 10 dígitos." });
+      return res
+        .status(400)
+        .json({ error: "The phone number must contain at least 10 digits." });
     }
 
     if (!mail || !emailRegex.test(mail)) {
-      return res.status(400).json({ error: "El correo electrónico no es válido." });
+      return res.status(400).json({ error: "The email address is not valid." });
     }
 
     if (web && !urlRegex.test(web)) {
-      return res.status(400).json({ error: "La URL del sitio web no es válida." });
+      return res.status(400).json({ error: "The website URL is not valid." });
     }
 
     if (!CUIT && !CUIL && !DNI && !CDI) {
-      return res.status(400).json({ error: "Debe proporcionar al menos uno de los siguientes campos: CUIT, CUIL, DNI o CDI." });
+      return res.status(400).json({
+        error:
+          "You must provide at least one of the following fields: CUIT, CUIL, DNI, or CDI.",
+      });
     }
 
     const normalizeId = (id) => id?.replace(/[\s.-]/g, "");
@@ -111,19 +122,38 @@ export const addSupplier = async (req, res) => {
       (normalizedDNI && !idRegex.test(normalizedDNI)) ||
       (normalizedCDI && !idRegex.test(normalizedCDI))
     ) {
-      return res.status(400).json({ error: "Los campos CUIT, CUIL, DNI y CDI deben contener solo números." });
+      return res.status(400).json({
+        error: "The fields CUIT, CUIL, DNI, and CDI must contain only numbers.",
+      });
     }
 
     if (!company_id || !idRegex.test(company_id)) {
-      return res.status(400).json({ error: "El ID de la compañía es obligatorio y debe ser un número válido." });
+      return res.status(400).json({
+        error: "The company ID is required and must be a valid number.",
+      });
     }
 
-    const companyCheck = await pool.query("SELECT * FROM company WHERE id = $1", [company_id]);
+    const companyCheck = await pool.query(
+      "SELECT * FROM company WHERE id = $1",
+      [company_id]
+    );
     if (companyCheck.rowCount === 0) {
-      return res.status(404).json({ error: "La compañía proporcionada no existe." });
+      return res
+        .status(404)
+        .json({ error: "The provided company does not exist." });
     }
 
-    // Convertir address a formato PostgreSQL
+    const supplierExists = await pool.query(
+      "SELECT * FROM supplier WHERE code = $1 AND company_id = $2",
+      [code, company_id]
+    );
+
+    if (supplierExists.rowCount > 0) {
+      return res.status(400).json({
+        error: "A supplier with this code already exists for this company.",
+      });
+    }
+
     const addressPG = {
       town: address.town,
       street: address.street,
@@ -131,7 +161,7 @@ export const addSupplier = async (req, res) => {
       floor: address.floor || null,
       departament: address.departament || null,
       zip_code: address.zip_code || null,
-      observations: address.observations || null
+      observations: address.observations || null,
     };
 
     const response = await pool.query(
@@ -178,12 +208,12 @@ export const addSupplier = async (req, res) => {
         normalizedCUIL,
         normalizedDNI,
         normalizedCDI,
-        company_id
+        company_id,
       ]
     );
 
     const result = response.rows[0];
-    
+
     if (result) {
       result.address = {
         town: result.address_town,
@@ -192,7 +222,7 @@ export const addSupplier = async (req, res) => {
         floor: result.address_floor ? parseInt(result.address_floor) : null,
         departament: result.address_departament,
         zip_code: result.address_zip_code,
-        observations: result.address_observations
+        observations: result.address_observations,
       };
 
       delete result.address_town;
@@ -203,7 +233,7 @@ export const addSupplier = async (req, res) => {
       delete result.address_zip_code;
       delete result.address_observations;
     }
-    
+
     res.json(result);
   } catch (error) {
     console.error("Error adding supplier:", error.message);
@@ -232,17 +262,19 @@ export const deleteSupplier = async (req, res) => {
     const company_id = req.params.companyId;
     const supplier_id = req.params.supplierId;
 
-    // Verificar que el supplier pertenece a la compañía
+    // Verify that the supplier belongs to the company
     const supplierCheck = await pool.query(
       `SELECT * FROM supplier WHERE id = $1 AND company_id = $2`,
       [supplier_id, company_id]
     );
 
     if (supplierCheck.rowCount === 0) {
-      return res.status(404).json({ error: "Supplier not found or does not belong to this company." });
+      return res.status(404).json({
+        error: "Supplier not found or does not belong to this company.",
+      });
     }
 
-    // Eliminar el supplier (la eliminación en cascada se maneja automáticamente por la base de datos)
+    // Delete the supplier (cascade deletion is handled automatically by the database)
     const response = await pool.query(
       `DELETE FROM supplier WHERE id = $1 AND company_id = $2 RETURNING id`,
       [supplier_id, company_id]
@@ -258,5 +290,3 @@ export const deleteSupplier = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
-

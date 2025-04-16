@@ -85,6 +85,15 @@ export const addSaleOrder = async (req, res) => {
         .json({ error: "You must provide at least one product detail." });
     }
 
+    const proofExists = await pool.query(
+      `SELECT * FROM sale_proof WHERE code = $1 AND company_id = $2`,
+      [proof_code, company_id]
+    );
+
+    if (proofExists.rowCount > 0) {
+      return res.status(400).json({ error: "Proof code already exists." });
+    }
+
     for (const detail of products_details) {
       if (
         !detail.batch_number ||
@@ -95,10 +104,9 @@ export const addSaleOrder = async (req, res) => {
             "Invalid batch number. Only letters, numbers and hyphens are allowed.",
         });
       }
-      if (!detail.quantity){
+      if (!detail.quantity) {
         return res.status(400).json({
-          error:
-            "Quantity must be detailed.",
+          error: "Quantity must be detailed.",
         });
       }
     }
@@ -146,15 +154,12 @@ export const addSaleOrder = async (req, res) => {
           proof_id,
           company_id,
           detail.unit_price,
-          detail.quantity
+          detail.quantity,
         ]
       );
 
       if (response_detail.rowCount == 0) {
-        console.error(
-          "Error creating sale detail for product:",
-          error.message
-        );
+        console.error("Error creating sale detail for product:", error.message);
         return res.status(500).json({ error: error.message });
       }
     }
@@ -238,7 +243,7 @@ export const getSaleOrders = async (req, res) => {
         quantity: row.quantity,
         unit_price: row.unit_price,
       });
-      
+
       ordersMap.get(orderId).total += parseFloat(row.total);
       ordersMap.get(orderId).canceled += parseFloat(row.canceled);
     }

@@ -49,13 +49,13 @@ CREATE TABLE useraccount (
 
 CREATE TABLE company (
     id SERIAL PRIMARY KEY,
-    name VARCHAR UNIQUE,
+    name VARCHAR,
     user_id INT REFERENCES useraccount(id) ON DELETE CASCADE
 );
 
 CREATE TABLE client (
     id SERIAL PRIMARY KEY,
-    code VARCHAR UNIQUE,
+    code VARCHAR,
     added_at DATE DEFAULT now(),
     name VARCHAR,
     country VARCHAR,
@@ -73,7 +73,7 @@ CREATE TABLE client (
 
 CREATE TABLE supplier (
     id SERIAL PRIMARY KEY,
-    code VARCHAR UNIQUE,
+    code VARCHAR,
     added_at DATE DEFAULT now(),
     name VARCHAR,
     country VARCHAR,
@@ -111,7 +111,7 @@ CREATE TABLE purchase_order (
 CREATE TABLE purchase_proof (
     id SERIAL PRIMARY KEY,
     created_at DATE DEFAULT now(),
-    code VARCHAR(8) UNIQUE, 
+    code VARCHAR(8), 
     type VARCHAR,
     supplier_id INT REFERENCES supplier(id) ON DELETE CASCADE,
     order_id INT REFERENCES purchase_order(id) ON DELETE CASCADE,
@@ -142,7 +142,7 @@ CREATE TABLE sale_order (
 CREATE TABLE sale_proof (
     id SERIAL PRIMARY KEY,
     created_at DATE DEFAULT now(),
-    code VARCHAR(8) UNIQUE, 
+    code VARCHAR(8), 
     type VARCHAR,
     client_id INT REFERENCES client(id) ON DELETE CASCADE,
     order_id INT REFERENCES sale_order(id) ON DELETE CASCADE,
