@@ -86,8 +86,8 @@ export const addPurchaseOrder = async (req, res) => {
     }
 
     const proofExists = await pool.query(
-      `SELECT * FROM purchase_proof WHERE code = $1 AND order_id = $2`,
-      [proof_code, order_id]
+      `SELECT * FROM purchase_proof WHERE code = $1 AND company_id = $2`,
+      [proof_code, company_id]
     );
     if (proofExists.rowCount > 0) {
       return res.status(400).json({
