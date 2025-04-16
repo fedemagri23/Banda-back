@@ -718,7 +718,7 @@ Authorization: Bearer <your_token>
 
 ## Metric
 
-### GET | /metric/order/balance-chart/1?startDate=2023-01-01&endDate=2023-12-31
+### GET | /metric/order/balance-chart/1?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
 
 **Headers:**
 
