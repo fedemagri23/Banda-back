@@ -95,12 +95,44 @@ export const getOrderBalanceChart = async (req, res) => {
 
     // Endpoint exaple: http://localhost:3000/metric/order/balance-chart/1?startDate=2023-01-01&endDate=2023-12-31
 
+    console.log("metrics = ", metrics);
+
     res.json({
-      "metrics": metrics,
-      "balance": balance,
+      metrics: fillMissingDatesWithTimezone(metrics, ["balance"]),
+      balance: balance,
     });
   } catch (error) {
     console.error("Error getting balance chart:", error.message);
     res.status(500).json({ error: error.message });
   }
 };
+
+function fillMissingDatesWithTimezone(data, categoryKeys) {
+  if (data.length === 0) return [];
+
+  const startDate = new Date(data[0].date);
+  const endDate = new Date(data[data.length - 1].date);
+  const dateMap = new Map(data.map(item => [item.date.slice(0, 10), item]));
+
+  const result = [];
+  const current = new Date(startDate);
+
+  while (current <= endDate) {
+    const isoDate = current.toISOString().split("T")[0]; // yyyy-mm-dd
+    const fullDate = `${isoDate}T03:00:00.000Z`;
+
+    if (dateMap.has(isoDate)) {
+      result.push(dateMap.get(isoDate));
+    } else {
+      const emptyEntry = { date: fullDate };
+      categoryKeys.forEach(key => {
+        emptyEntry[key] = 0;
+      });
+      result.push(emptyEntry);
+    }
+
+    current.setUTCDate(current.getUTCDate() + 1);
+  }
+
+  return result;
+}
