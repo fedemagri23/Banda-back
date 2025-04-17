@@ -95,8 +95,6 @@ export const getOrderBalanceChart = async (req, res) => {
 
     // Endpoint exaple: http://localhost:3000/metric/order/balance-chart/1?startDate=2023-01-01&endDate=2023-12-31
 
-    console.log("metrics = ", metrics);
-
     res.json({
       metrics: fillMissingDatesWithTimezone(metrics, ["balance"]),
       balance: balance,
@@ -110,9 +108,12 @@ export const getOrderBalanceChart = async (req, res) => {
 function fillMissingDatesWithTimezone(data, categoryKeys) {
   if (data.length === 0) return [];
 
-  const startDate = new Date(data[0].date);
-  const endDate = new Date(data[data.length - 1].date);
-  const dateMap = new Map(data.map(item => [item.date.slice(0, 10), item]));
+  // Ordenar los datos por fecha
+  const sortedData = [...data].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  const startDate = new Date(sortedData[0].date);
+  const endDate = new Date(sortedData[sortedData.length - 1].date);
+  const dateMap = new Map(sortedData.map(item => [item.date.slice(0, 10), item]));
 
   const result = [];
   const current = new Date(startDate);
