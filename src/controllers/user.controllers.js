@@ -72,6 +72,18 @@ export const getUsers = async (req, res) => {
   res.json(response.rows);
 };
 
+export const getUserById = async (req, res) => {
+  const { id } = req.params;
+  const response = await pool.query(
+    "SELECT id, username, mail FROM useraccount WHERE id = $1",
+    [id]
+  );
+  if (response.rows.length === 0) {
+    return res.status(404).json({ error: "User not found" });
+  }
+  res.json(response.rows[0]);
+};
+
 export const login = async (req, res) => {
   try {
     const { identifier, password } = req.body;

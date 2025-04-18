@@ -5,6 +5,7 @@ import {
   login,
   requestPasswordChange,
   changePassword,
+  getUserById,
 } from "../controllers/user.controllers.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import { addCompany, getCompaniesFromUser } from "../controllers/company.controllers.js";
@@ -18,14 +19,21 @@ import { addSaleOrder, getSaleOrders } from "../controllers/sale.controllers.js"
 import { deleteSupplier } from "../controllers/supplier.controllers.js";
 import { getInventoryByCompany } from "../controllers/inventory.controllers.js";
 import { getOrderBalanceChart } from "../controllers/metric.controllers.js";
+import { createSession, getSession, invalidateSession, invalidateUserSessions } from "../controllers/session.controllers.js";
 
 const router = Router();
+
+router.post("/session/create", createSession);
+router.get("/session/:id", getSession);
+router.delete("/user/sessions/:user_id", invalidateUserSessions);
+router.delete("/session/:id", invalidateSession);
 
 router.post("/user/register", register);
 router.post("/user/login", login);
 router.post("/user/request-password-change", requestPasswordChange);
 router.post("/user/change-password", changePassword);
 router.get("/user/get-all", getUsers);
+router.get("/user/:id", getUserById);
 
 router.post("/company/post", verifyToken, addCompany);
 router.get("/company/get-all", verifyToken, getCompaniesFromUser);

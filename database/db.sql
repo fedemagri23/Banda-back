@@ -24,6 +24,8 @@ DROP TABLE IF EXISTS product_sale_detail CASCADE;
 DROP TABLE IF EXISTS sale_proof CASCADE;
 DROP TABLE IF EXISTS sale_order CASCADE;
 
+DROP TABLE IF EXISTS session CASCADE;
+
 CREATE TYPE address AS (
     town VARCHAR,
     street VARCHAR,
@@ -160,6 +162,12 @@ CREATE TABLE product_sale_detail (
     product_id INT REFERENCES product(id) ON DELETE CASCADE,
     proof_id INT REFERENCES sale_proof(id) ON DELETE CASCADE,
     company_id INT REFERENCES company(id) ON DELETE CASCADE
+);
+
+CREATE TABLE session (
+    id VARCHAR PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES useraccount(id) ON DELETE CASCADE,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
 DROP TRIGGER IF EXISTS trigger_increase_company_count ON company;
