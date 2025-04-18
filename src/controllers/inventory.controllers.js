@@ -74,6 +74,7 @@ export const getInventoryByCompany = async (req, res) => {
     const stock = purchasedProductsCompressed.map((item) => ({
       product: productMap[item.product_id],
       total_spent: item.total_spent,
+      stock_value: productMap[item.product_id].list_price * (item.amount - (soldMap[item.product_id] || 0)),
       amount: item.amount - (soldMap[item.product_id] || 0),
     }));
 

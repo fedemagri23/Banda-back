@@ -710,8 +710,9 @@ Authorization: Bearer <your_token>
       "currency": "string",
       "company_id": "number"
     },
-    "total_spent": "number",
-    "amount": "number"
+    "total_spent": "number", // Total gastado en la compra del producto
+    "stock_value": "number", // Valor del stock basado en el precio de lista y la cantidad disponible
+    "amount": "number" // Cantidad disponible en el inventario
   }
 ]
 ```
@@ -738,8 +739,4 @@ Authorization: Bearer <your_token>
   ],
   "balance": "number"
 }
-```
-
-```
-
 ```
