@@ -14,7 +14,7 @@ import { addSupplier, getSuppliersByCompany } from "../controllers/supplier.cont
 import { addProduct, getProductsByCompany } from "../controllers/product.controllers.js";
 import { checkCompanyOwner } from "../middleware/companyOwnerMiddleware.js";
 import { addPurchaseOrder, getPurchaseOrders } from "../controllers/purchase.controllers.js";
-import { addClient, getClientsByCompany } from "../controllers/client.controllers.js";
+import { addClient, getClientsByCompany, deleteClient } from "../controllers/client.controllers.js";
 import { addSaleOrder, getSaleOrders } from "../controllers/sale.controllers.js";
 import { deleteSupplier } from "../controllers/supplier.controllers.js";
 import { getInventoryByCompany } from "../controllers/inventory.controllers.js";
@@ -63,6 +63,7 @@ router.get("/purchase/get-all/:companyId", verifyToken, checkCompanyOwner, getPu
 
 router.post("/client/post/:companyId", verifyToken, checkCompanyOwner, addClient);
 router.get("/client/get-all/:companyId", verifyToken, checkCompanyOwner, getClientsByCompany);
+router.delete("/client/delete/:companyId/:clientId", verifyToken, checkCompanyOwner, deleteClient);
 
 router.post("/sale/post/:companyId", verifyToken, checkCompanyOwner, addSaleOrder);
 router.get("/sale/get-all/:companyId", verifyToken, checkCompanyOwner, getSaleOrders);

@@ -243,3 +243,38 @@ export const getClientsByCompany = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+export const deleteClient = async (req, res) => {
+  try {
+    const company_id = req.params.companyId;
+    const client_id = req.params.clientId;
+
+    // Verify that the client belongs to the company
+    const clientCheck = await pool.query(
+      `SELECT * FROM client WHERE id = $1 AND company_id = $2`,
+      [client_id, company_id]
+    );
+
+    if (clientCheck.rowCount === 0) {
+      return res.status(404).json({
+        error: "Client not found or does not belong to this company.",
+      });
+    }
+
+    // Delete the client (cascade deletion is handled automatically by the database)
+    const response = await pool.query(
+      `DELETE FROM client WHERE id = $1 AND company_id = $2 RETURNING id`,
+      [client_id, company_id]
+    );
+
+    if (response.rowCount === 0) {
+      return res.status(404).json({ error: "Client could not be deleted." });
+    }
+
+    res.json({ message: "Client deleted successfully", id: client_id });
+  } catch (error) {
+    console.error("Error deleting client:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
