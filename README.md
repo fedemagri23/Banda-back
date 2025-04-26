@@ -48,6 +48,73 @@ Authorization: Bearer <your_token>
 
 ---
 
+## Session
+
+### POST | /session/create
+
+**Body:**
+
+```json
+{
+  "id": "string",
+  "user_id": "string",
+  "expires_at": "string (ISO date)"
+}
+```
+
+**Response:**
+
+```json
+{
+  "message": "Session created successfully",
+  "session": {
+    "id": "string",
+    "user_id": "string",
+    "expires_at": "string (ISO date)"
+  }
+}
+```
+
+---
+
+### GET | /session/:id
+
+**Response:**
+
+```json
+{
+  "id": "string",
+  "user_id": "string",
+  "expires_at": "string (ISO date)"
+}
+```
+
+---
+
+### DELETE | /session/:id
+
+**Response:**
+
+```json
+{
+  "message": "Session invalidated successfully"
+}
+```
+
+---
+
+### DELETE | /user/sessions/:user_id
+
+**Response:**
+
+```json
+{
+  "message": "User sessions invalidated successfully"
+}
+```
+
+---
+
 ## User
 
 ### POST | /user/register
@@ -157,6 +224,20 @@ Authorization: Bearer <your_token>
     "mail": "string"
   }
 ]
+```
+
+---
+
+### GET | /user/:id
+
+**Response:**
+
+```json
+{
+  "id": "number",
+  "username": "string",
+  "mail": "string"
+}
 ```
 
 ---
