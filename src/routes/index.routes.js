@@ -20,8 +20,21 @@ import { deleteSupplier } from "../controllers/supplier.controllers.js";
 import { getInventoryByCompany } from "../controllers/inventory.controllers.js";
 import { getOrderBalanceChart } from "../controllers/metric.controllers.js";
 import { createSession, getSession, invalidateSession, invalidateUserSessions } from "../controllers/session.controllers.js";
+import { deleteArcaToken, getArcaToken, upsertArcaToken } from "../controllers/arcatoken.controllers.js";
+import { createSaleInvoice, deleteSaleInvoice, getAllSaleInvoices, getSaleInvoiceById } from "../controllers/invoice.controllers.js";
 
 const router = Router();
+
+// Facturas
+router.post("/sale-invoice/create", createSaleInvoice); // Crear una nueva factura
+router.get("/sale-invoice/get-all/:companyId", getAllSaleInvoices); // Obtener resumen de todas las facturas de una empresa
+router.get("/sale-invoice/:id", getSaleInvoiceById); // Obtener detalle completo de una factura
+router.delete("/sale-invoice/delete/:id", deleteSaleInvoice); // Eliminar una factura
+
+// Token ARCA
+router.get("/arca/token/:user_id/:cuit", getArcaToken);         // obtener TA si está vigente
+router.post("/arca/token/:user_id/:cuit", upsertArcaToken);     // crear o actualizar (upsert)
+router.delete("/arca/token/:user_id/:cuit", deleteArcaToken);   // eliminar manualmente
 
 router.post("/session/create", createSession);
 router.get("/session/:id", getSession);
