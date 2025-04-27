@@ -14,13 +14,12 @@ import {
   getCompaniesFromUser,
 } from "../controllers/company.controllers.js";
 import { getToken } from "../controllers/test.controllers.js";
-import { addSupplier, getSuppliersByCompany } from "../controllers/supplier.controllers.js";
+import { addSupplier, getSuppliersByCompany, deleteSupplier, getSuppliersWithPurchases } from "../controllers/supplier.controllers.js";
 import { addProduct, getProductsByCompany } from "../controllers/product.controllers.js";
 import { checkCompanyRole } from "../middleware/companyOwnerMiddleware.js";
 import { addPurchaseOrder, getPurchaseOrders } from "../controllers/purchase.controllers.js";
-import { addClient, getClientsByCompany, deleteClient } from "../controllers/client.controllers.js";
+import { addClient, getClientsByCompany, deleteClient, getClientsWithSales } from "../controllers/client.controllers.js";
 import { addSaleOrder, getSaleOrders } from "../controllers/sale.controllers.js";
-import { deleteSupplier } from "../controllers/supplier.controllers.js";
 import { getInventoryByCompany } from "../controllers/inventory.controllers.js";
 import { getOrderBalanceChart } from "../controllers/metric.controllers.js";
 import {
@@ -81,6 +80,7 @@ router.get("/company/get-all", verifyToken, getCompaniesFromUser);
 
 router.post("/supplier/post/:companyId", verifyToken, checkCompanyRole(2), addSupplier);
 router.get("/supplier/get-all/:companyId", verifyToken, checkCompanyRole(2), getSuppliersByCompany);
+router.get("/supplier/get-all-with-purchases/:companyId", verifyToken, checkCompanyRole(2), getSuppliersWithPurchases);
 router.delete("/supplier/delete/:companyId/:supplierId", verifyToken, checkCompanyRole(2), deleteSupplier);
 
 router.post("/product/post/:companyId", verifyToken, checkCompanyRole(2), addProduct);
@@ -91,6 +91,7 @@ router.get("/purchase/get-all/:companyId", verifyToken, checkCompanyRole(2), get
 
 router.post("/client/post/:companyId", verifyToken, checkCompanyRole(2), addClient);
 router.get("/client/get-all/:companyId", verifyToken, checkCompanyRole(2), getClientsByCompany);
+router.get("/client/get-all-with-sales/:companyId", verifyToken, checkCompanyRole(2), getClientsWithSales);
 router.delete("/client/delete/:companyId/:clientId", verifyToken, checkCompanyRole(2), deleteClient);
 
 router.post("/sale/post/:companyId", verifyToken, checkCompanyRole(2), addSaleOrder);

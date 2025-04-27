@@ -278,3 +278,30 @@ export const deleteClient = async (req, res) => {
   }
 };
 
+export const getClientsWithSales = async (req, res) => {
+  try {
+    const company_id = req.params.companyId;
+
+    const response = await pool.query(
+      `
+      SELECT 
+        c.name AS client_name,
+        COALESCE(SUM(psd.total), 0) AS total_sales
+      FROM client c
+      LEFT JOIN sale_order so ON c.id = so.client_id
+      LEFT JOIN sale_proof sp ON so.id = sp.order_id
+      LEFT JOIN product_sale_detail psd ON sp.id = psd.proof_id
+      WHERE c.company_id = $1
+      GROUP BY c.name
+      ORDER BY c.name
+      `,
+      [company_id]
+    );
+
+    res.json(response.rows);
+  } catch (error) {
+    console.error("Error fetching clients with sales:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
