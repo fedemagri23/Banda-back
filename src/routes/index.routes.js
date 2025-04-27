@@ -8,20 +8,55 @@ import {
   getUserById,
 } from "../controllers/user.controllers.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
-import { addCompany, getCompaniesFromUser } from "../controllers/company.controllers.js";
+import {
+  addCompany,
+  getCompaniesFromUser,
+} from "../controllers/company.controllers.js";
 import { getToken } from "../controllers/test.controllers.js";
-import { addSupplier, getSuppliersByCompany } from "../controllers/supplier.controllers.js";
-import { addProduct, getProductsByCompany } from "../controllers/product.controllers.js";
+import {
+  addSupplier,
+  getSuppliersByCompany,
+} from "../controllers/supplier.controllers.js";
+import {
+  addProduct,
+  getProductsByCompany,
+} from "../controllers/product.controllers.js";
 import { checkCompanyOwner } from "../middleware/companyOwnerMiddleware.js";
-import { addPurchaseOrder, getPurchaseOrders } from "../controllers/purchase.controllers.js";
-import { addClient, getClientsByCompany } from "../controllers/client.controllers.js";
-import { addSaleOrder, getSaleOrders } from "../controllers/sale.controllers.js";
+import {
+  addPurchaseOrder,
+  getPurchaseOrders,
+} from "../controllers/purchase.controllers.js";
+import {
+  addClient,
+  getClientsByCompany,
+} from "../controllers/client.controllers.js";
+import {
+  addSaleOrder,
+  getSaleOrders,
+} from "../controllers/sale.controllers.js";
 import { deleteSupplier } from "../controllers/supplier.controllers.js";
 import { getInventoryByCompany } from "../controllers/inventory.controllers.js";
 import { getOrderBalanceChart } from "../controllers/metric.controllers.js";
-import { createSession, getSession, invalidateSession, invalidateUserSessions } from "../controllers/session.controllers.js";
-import { deleteArcaToken, getArcaToken, upsertArcaToken } from "../controllers/arcatoken.controllers.js";
-import { createSaleInvoice, deleteSaleInvoice, getAllSaleInvoices, getSaleInvoiceById } from "../controllers/invoice.controllers.js";
+import {
+  createSession,
+  getSession,
+  invalidateSession,
+  invalidateUserSessions,
+} from "../controllers/session.controllers.js";
+import {
+  deleteArcaToken,
+  deleteUserCertificate,
+  getArcaToken,
+  getUserCertificate,
+  upsertArcaToken,
+  upsertUserCertificate,
+} from "../controllers/arcatoken.controllers.js";
+import {
+  createSaleInvoice,
+  deleteSaleInvoice,
+  getAllSaleInvoices,
+  getSaleInvoiceById,
+} from "../controllers/invoice.controllers.js";
 
 const router = Router();
 
@@ -32,9 +67,14 @@ router.get("/sale-invoice/:id", getSaleInvoiceById); // Obtener detalle completo
 router.delete("/sale-invoice/delete/:id", deleteSaleInvoice); // Eliminar una factura
 
 // Token ARCA
-router.get("/arca/token/:user_id/:cuit", getArcaToken);         // obtener TA si está vigente
-router.post("/arca/token/:user_id/:cuit", upsertArcaToken);     // crear o actualizar (upsert)
-router.delete("/arca/token/:user_id/:cuit", deleteArcaToken);   // eliminar manualmente
+router.get("/arca/token/:user_id/:cuit", getArcaToken); // obtener TA si está vigente
+router.post("/arca/token/:user_id/:cuit", upsertArcaToken); // crear o actualizar (upsert)
+router.delete("/arca/token/:user_id/:cuit", deleteArcaToken); // eliminar manualmente
+
+// Certificados de usuario para AFIP (WSAA)
+router.get("/arca/certificate/:user_id/:cuit", getUserCertificate); // Obtener certificado+private_key para un user y cuit
+router.post("/arca/certificate/:user_id/:cuit", upsertUserCertificate); // Crear o actualizar certificado+private_key para un user y cuit
+router.delete("/arca/certificate/:user_id/:cuit", deleteUserCertificate); // Eliminar certificado+private_key para un user y cuit
 
 router.post("/session/create", createSession);
 router.get("/session/:id", getSession);
@@ -51,26 +91,90 @@ router.get("/user/:id", getUserById);
 router.post("/company/post", verifyToken, addCompany);
 router.get("/company/get-all", verifyToken, getCompaniesFromUser);
 
-router.post("/supplier/post/:companyId", verifyToken, checkCompanyOwner, addSupplier);
-router.get("/supplier/get-all/:companyId", verifyToken, checkCompanyOwner, getSuppliersByCompany);
-router.delete("/supplier/delete/:companyId/:supplierId", verifyToken, checkCompanyOwner, deleteSupplier);
+router.post(
+  "/supplier/post/:companyId",
+  verifyToken,
+  checkCompanyOwner,
+  addSupplier
+);
+router.get(
+  "/supplier/get-all/:companyId",
+  verifyToken,
+  checkCompanyOwner,
+  getSuppliersByCompany
+);
+router.delete(
+  "/supplier/delete/:companyId/:supplierId",
+  verifyToken,
+  checkCompanyOwner,
+  deleteSupplier
+);
 
-router.post("/product/post/:companyId", verifyToken, checkCompanyOwner, addProduct);
-router.get("/product/get-all/:companyId", verifyToken, checkCompanyOwner, getProductsByCompany);
+router.post(
+  "/product/post/:companyId",
+  verifyToken,
+  checkCompanyOwner,
+  addProduct
+);
+router.get(
+  "/product/get-all/:companyId",
+  verifyToken,
+  checkCompanyOwner,
+  getProductsByCompany
+);
 
-router.post("/purchase/post/:companyId", verifyToken, checkCompanyOwner, addPurchaseOrder);
-router.get("/purchase/get-all/:companyId", verifyToken, checkCompanyOwner, getPurchaseOrders);
+router.post(
+  "/purchase/post/:companyId",
+  verifyToken,
+  checkCompanyOwner,
+  addPurchaseOrder
+);
+router.get(
+  "/purchase/get-all/:companyId",
+  verifyToken,
+  checkCompanyOwner,
+  getPurchaseOrders
+);
 
-router.post("/client/post/:companyId", verifyToken, checkCompanyOwner, addClient);
-router.get("/client/get-all/:companyId", verifyToken, checkCompanyOwner, getClientsByCompany);
+router.post(
+  "/client/post/:companyId",
+  verifyToken,
+  checkCompanyOwner,
+  addClient
+);
+router.get(
+  "/client/get-all/:companyId",
+  verifyToken,
+  checkCompanyOwner,
+  getClientsByCompany
+);
 
-router.post("/sale/post/:companyId", verifyToken, checkCompanyOwner, addSaleOrder);
-router.get("/sale/get-all/:companyId", verifyToken, checkCompanyOwner, getSaleOrders);
+router.post(
+  "/sale/post/:companyId",
+  verifyToken,
+  checkCompanyOwner,
+  addSaleOrder
+);
+router.get(
+  "/sale/get-all/:companyId",
+  verifyToken,
+  checkCompanyOwner,
+  getSaleOrders
+);
 
-router.get("/inventory/get-all/:companyId", verifyToken, checkCompanyOwner, getInventoryByCompany); 
+router.get(
+  "/inventory/get-all/:companyId",
+  verifyToken,
+  checkCompanyOwner,
+  getInventoryByCompany
+);
 
-router.get("/metric/order/balance-chart/:companyId", verifyToken, checkCompanyOwner, getOrderBalanceChart); 
-
+router.get(
+  "/metric/order/balance-chart/:companyId",
+  verifyToken,
+  checkCompanyOwner,
+  getOrderBalanceChart
+);
 
 // TODO: Al final BORRAR estos controllers
 router.get("/token", getToken);

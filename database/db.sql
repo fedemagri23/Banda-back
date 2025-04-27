@@ -178,7 +178,24 @@ CREATE TABLE user_arca_tokens (
   sign TEXT NOT NULL,
   expiration TIMESTAMP NOT NULL,
   created_at TIMESTAMP DEFAULT now(),
-  updated_at TIMESTAMP DEFAULT now()
+  updated_at TIMESTAMP DEFAULT now(),
+
+  UNIQUE (user_id, cuit)
+);
+
+CREATE TABLE user_certificates (
+  id SERIAL PRIMARY KEY,
+  
+  user_id INTEGER NOT NULL REFERENCES useraccount(id) ON DELETE CASCADE,
+  cuit BIGINT NOT NULL,
+
+  certificate TEXT NOT NULL, -- Certificado público (en formato PEM)
+  private_key TEXT NOT NULL, -- Llave privada ENCRIPTADA (no texto plano)
+  
+  created_at TIMESTAMP DEFAULT now(),
+  updated_at TIMESTAMP DEFAULT now(),
+
+  UNIQUE (user_id, cuit) -- Un mismo usuario no puede tener dos certificados distintos para el mismo CUIT
 );
 
 CREATE TABLE sale_invoice (

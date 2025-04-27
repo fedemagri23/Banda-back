@@ -81,7 +81,7 @@ export async function createSaleInvoice(req, res) {
 
     // Insertar impuestos (taxes)
     for (const tax of taxes) {
-      await client.query(
+      await pool.query(
         `INSERT INTO sale_invoice_tax (sale_invoice_id, tributo_id, description, base_amount, aliquot, amount)
        VALUES ($1, $2, $3, $4, $5, $6)`,
         [
@@ -97,7 +97,7 @@ export async function createSaleInvoice(req, res) {
 
     // Insertar IVA (vats)
     for (const vat of vats) {
-      await client.query(
+      await pool.query(
         `INSERT INTO sale_invoice_vat (sale_invoice_id, vat_id, base_amount, amount)
        VALUES ($1, $2, $3, $4)`,
         [saleInvoiceId, vat.vat_id, vat.base_amount, vat.amount]
@@ -106,7 +106,7 @@ export async function createSaleInvoice(req, res) {
 
     // Insertar comprobantes relacionados (related)
     for (const rel of related) {
-      await client.query(
+      await pool.query(
         `INSERT INTO sale_invoice_related (sale_invoice_id, related_cbte_tipo, related_pto_vta, related_nro, related_cuit, related_cbte_fch)
        VALUES ($1, $2, $3, $4, $5, $6)`,
         [
@@ -122,7 +122,7 @@ export async function createSaleInvoice(req, res) {
 
     // Insertar opcionales (optional)
     for (const opt of optional) {
-      await client.query(
+      await pool.query(
         `INSERT INTO sale_invoice_optional (sale_invoice_id, optional_id, value)
        VALUES ($1, $2, $3)`,
         [saleInvoiceId, opt.optional_id, opt.value]
@@ -131,7 +131,7 @@ export async function createSaleInvoice(req, res) {
 
     // Insertar compradores (buyers)
     for (const buyer of buyers) {
-      await client.query(
+      await pool.query(
         `INSERT INTO sale_invoice_buyer (sale_invoice_id, doc_tipo, doc_nro, porcentaje)
        VALUES ($1, $2, $3, $4)`,
         [saleInvoiceId, buyer.doc_tipo, buyer.doc_nro, buyer.porcentaje]
