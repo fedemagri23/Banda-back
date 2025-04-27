@@ -15,6 +15,7 @@ DROP TABLE IF EXISTS product CASCADE;
 DROP TABLE IF EXISTS company CASCADE;
 DROP TABLE IF EXISTS useraccount CASCADE;
 DROP TABLE IF EXISTS product CASCADE;
+DROP TABLE IF EXISTS works_for CASCADE;
 
 DROP TABLE IF EXISTS product_purchase_detail CASCADE;
 DROP TABLE IF EXISTS purchase_proof CASCADE;
@@ -53,6 +54,14 @@ CREATE TABLE company (
     id SERIAL PRIMARY KEY,
     name VARCHAR,
     user_id INT REFERENCES useraccount(id) ON DELETE CASCADE
+);
+
+CREATE TABLE works_for (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES useraccount(id) ON DELETE CASCADE,
+    company_id INT REFERENCES company(id) ON DELETE CASCADE,
+    role INT,
+    added_at DATE DEFAULT now()
 );
 
 CREATE TABLE client (

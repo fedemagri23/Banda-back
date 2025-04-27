@@ -72,18 +72,6 @@ export const getUsers = async (req, res) => {
   res.json(response.rows);
 };
 
-export const getUserById = async (req, res) => {
-  const { id } = req.params;
-  const response = await pool.query(
-    "SELECT id, username, mail FROM useraccount WHERE id = $1",
-    [id]
-  );
-  if (response.rows.length === 0) {
-    return res.status(404).json({ error: "User not found" });
-  }
-  res.json(response.rows[0]);
-};
-
 export const login = async (req, res) => {
   try {
     const { identifier, password } = req.body;
@@ -230,4 +218,31 @@ export const changePassword = async (req, res) => {
     console.error("Error changing password:", error.message);
     res.status(500).json({ error: error.message });
   }
+};
+
+export const addEmployee = async (req, res) => {
+  const { employeeId, employeeRole } = req.body;
+  const userId = req.user.userId;
+  const company_id = req.params.companyId;
+
+  const response = await pool.query("INSERT INTO works_for (user_id, company_id, role) VALUES ($1, $2, $3) RETURNING *", [
+    employeeId,
+    company_id,
+    employeeRole,
+  ]);
+  
+  res.json(response.rows);
+};
+
+export const removeEmployee = async (req, res) => {
+  const { employeeId, employeeRole } = req.body;
+  const userId = req.user.userId;
+  const company_id = req.params.companyId;
+
+  const response = await pool.query(
+    "DELETE FROM works_for WHERE user_id = $1 AND company_id = $2 AND role = $3 RETURNING *",
+    [employeeId, company_id, employeeRole]
+  );
+  
+  res.json(response.rows);
 };
