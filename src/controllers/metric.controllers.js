@@ -19,6 +19,14 @@ export const getOrderBalanceChart = async (req, res) => {
       [company_id, startDate, endDate]
     );
 
+    // Si no hay datos en ninguna de las consultas, devolver array vacío
+    if (purchaseResponse.rows.length === 0 && saleResponse.rows.length === 0) {
+      return res.json({
+        metrics: [],
+        balance: 0
+      });
+    }
+
     const saleMetrics = Object.values(
       saleResponse.rows.reduce((acc, item) => {
         const created_at = item.created_at;
@@ -141,7 +149,7 @@ function fillMissingDatesWithTimezone(data, categoryKeys) {
 export const getSupplierDistributionChart = async (req, res) => {
   try {
     const company_id = req.params.companyId;
-
+    const { startDate, endDate } = req.query;
     const response = await pool.query(
       `
       SELECT 
@@ -151,12 +159,16 @@ export const getSupplierDistributionChart = async (req, res) => {
       LEFT JOIN purchase_order po ON s.id = po.supplier_id
       LEFT JOIN purchase_proof pp ON po.id = pp.order_id
       LEFT JOIN product_purchase_detail ON pp.id = product_purchase_detail.proof_id
-      WHERE s.company_id = $1
+      WHERE s.company_id = $1 AND product_purchase_detail.created_at BETWEEN $2 AND $3
       GROUP BY s.name
       ORDER BY s.name
       `,
-      [company_id]
+      [company_id, startDate, endDate]
     );
+
+    if (response.rows.length === 0) {
+      return res.json([]);
+    }
 
     res.json(response.rows);
   } catch (error) {
@@ -168,6 +180,7 @@ export const getSupplierDistributionChart = async (req, res) => {
 export const getClientDistributionChart = async (req, res) => {
   try {
     const company_id = req.params.companyId;
+    const { startDate, endDate } = req.query;
 
     const response = await pool.query(
       `
@@ -178,12 +191,17 @@ export const getClientDistributionChart = async (req, res) => {
       LEFT JOIN sale_order so ON c.id = so.client_id
       LEFT JOIN sale_proof sp ON so.id = sp.order_id
       LEFT JOIN product_sale_detail psd ON sp.id = psd.proof_id
-      WHERE c.company_id = $1
+      WHERE c.company_id = $1 AND psd.created_at BETWEEN $2 AND $3
       GROUP BY c.name
       ORDER BY c.name
       `,
-      [company_id]
+      [company_id, startDate, endDate]
     );
+
+    // Si no hay datos, devolver array vacío
+    if (response.rows.length === 0) {
+      return res.json([]);
+    }
 
     res.json(response.rows);
   } catch (error) {
