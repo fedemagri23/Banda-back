@@ -41,10 +41,195 @@ async function handleResponse(response, successMessage, errorMessage) {
   return data;
 }
 
+async function createUser(user, baseUrl) {
+  const response = await fetch(`${baseUrl}/user/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(user),
+  });
+  return handleResponse(
+    response,
+    `User ${user.username} created successfully`,
+    `Failed to create user ${user.username}`
+  );
+}
+
+async function loginUser(username, password, baseUrl) {
+  const response = await fetch(`${baseUrl}/user/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      identifier: username,
+      password: password,
+    }),
+  });
+  return handleResponse(
+    response,
+    `User ${username} logged in successfully`,
+    "Login failed"
+  );
+}
+
+async function createCompany(company, token, baseUrl) {
+  const response = await fetch(`${baseUrl}/company/post`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(company),
+  });
+  return handleResponse(
+    response,
+    `Company ${company.name} created successfully`,
+    `Failed to create company ${company.name}`
+  );
+}
+
+async function createSupplier(supplier, token, baseUrl) {
+  const response = await fetch(`${baseUrl}/supplier/post/1`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(supplier),
+  });
+  return handleResponse(
+    response,
+    `Supplier ${supplier.name} created successfully`,
+    `Failed to create supplier ${supplier.name}`
+  );
+}
+
+async function createProduct(product, token, baseUrl) {
+  const response = await fetch(`${baseUrl}/product/post/1`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(product),
+  });
+  return handleResponse(
+    response,
+    `Product ${product.name} created successfully`,
+    `Failed to create product ${product.name}`
+  );
+}
+
+async function createPurchase(purchase, token, baseUrl) {
+  const response = await fetch(`${baseUrl}/purchase/post/1`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(purchase),
+  });
+  return handleResponse(
+    response,
+    `Purchase order created successfully`,
+    "Failed to create purchase order"
+  );
+}
+
+async function createClient(client, token, baseUrl) {
+  const response = await fetch(`${baseUrl}/client/post/1`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(client),
+  });
+  return handleResponse(
+    response,
+    `Client ${client.name} created successfully`,
+    `Failed to create client ${client.name}`
+  );
+}
+
+async function createSale(sale, token, baseUrl) {
+  const response = await fetch(`${baseUrl}/sale/post/1`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(sale),
+  });
+  return handleResponse(
+    response,
+    `Sale order created successfully`,
+    "Failed to create sale order"
+  );
+}
+
+async function createGhostPurchase(productId, quantity, saleDate, token, baseUrl) {
+  // Generate a valid proof code: G + 3 digits for product ID + 4 digits for date
+  const proofCode = `G${String(productId).padStart(3, '0')}${saleDate.replace(/-/g, '').slice(4)}`;
+  
+  const ghostPurchase = {
+    condition: "CTE",
+    supplier_id: 1, // Using ASML as default supplier
+    proof_code: proofCode,
+    proof_type: "FACTA",
+    created_at: saleDate,
+    products_details: [
+      {
+        batch_number: `GHOST-${productId}-${saleDate.replace(/-/g, '')}`,
+        quantity: quantity,
+        unit_price: 0.00,
+        product_id: productId,
+      },
+    ],
+  };
+
+  return createPurchase(ghostPurchase, token, baseUrl);
+}
+
+async function createGhostPurchasesForSales(sales, purchases, token, baseUrl) {
+  // Create a map of product quantities purchased
+  const purchasedQuantities = new Map();
+  purchases.forEach(purchase => {
+    purchase.products_details.forEach(detail => {
+      const current = purchasedQuantities.get(detail.product_id) || 0;
+      purchasedQuantities.set(detail.product_id, current + detail.quantity);
+    });
+  });
+
+  // Create a map of product quantities sold
+  const soldQuantities = new Map();
+  sales.forEach(sale => {
+    sale.products_details.forEach(detail => {
+      const current = soldQuantities.get(detail.product_id) || 0;
+      soldQuantities.set(detail.product_id, current + detail.quantity);
+    });
+  });
+
+  // Find products that were sold but not purchased enough
+  for (const [productId, soldQty] of soldQuantities) {
+    const purchasedQty = purchasedQuantities.get(productId) || 0;
+    if (soldQty > purchasedQty) {
+      const missingQty = soldQty - purchasedQty;
+      // Find the first sale date for this product
+      const firstSale = sales.find(sale => 
+        sale.products_details.some(detail => detail.product_id === productId)
+      );
+      if (firstSale) {
+        await createGhostPurchase(productId, missingQty, firstSale.created_at, token, baseUrl);
+        console.log(`Created ghost purchase for product ${productId} with quantity ${missingQty}`);
+      }
+    }
+  }
+}
+
 async function seedDatabase() {
   await resetDatabase();
   console.log("Seeding database...");
 
+  // Seed users
   const users = [
     {
       username: "greg_lavender",
@@ -61,52 +246,27 @@ async function seedDatabase() {
   ];
 
   for (const user of users) {
-    const response = await fetch(`${baseUrl}/user/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(user),
-    });
-    await handleResponse(
-      response,
-      `User ${user.username} created successfully`,
-      `Failed to create user ${user.username}`
-    );
+    await createUser(user, baseUrl);
   }
 
-  const response = await fetch(`${baseUrl}/user/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      identifier: users[0].username,
-      password: users[0].password,
-    }),
-  });
-
-  const loginData = await handleResponse(
-    response,
-    `User ${users[0].username} logged in successfully`,
-    "Login failed"
-  );
+  // Login and get token
+  const loginData = await loginUser(users[0].username, users[0].password, baseUrl);
   const token = loginData.token;
 
-  const companies = [{ name: "Intel", cuit: "20-12345678-9", email: "intelbanda@gmail.com", app_password: "lfks znej beny msbz", userId: 1 }];
+  // Seed company
+  const companies = [{ 
+    name: "Intel", 
+    cuit: "20-12345678-9", 
+    email: "intelbanda@gmail.com", 
+    app_password: "lfks znej beny msbz", 
+    userId: 1 
+  }];
 
   for (const company of companies) {
-    const response = await fetch(`${baseUrl}/company/post`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(company),
-    });
-    await handleResponse(
-      response,
-      `Company ${company.name} created successfully`,
-      `Failed to create company ${company.name}`
-    );
+    await createCompany(company, token, baseUrl);
   }
 
+  // Seed suppliers
   const suppliers = [
     {
       code: "SNL001",
@@ -196,21 +356,10 @@ async function seedDatabase() {
   ];
 
   for (const supplier of suppliers) {
-    const response = await fetch(`${baseUrl}/supplier/post/1`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(supplier),
-    });
-    await handleResponse(
-      response,
-      `Supplier ${supplier.name} created successfully`,
-      `Failed to create supplier ${supplier.name}`
-    );
+    await createSupplier(supplier, token, baseUrl);
   }
 
+  // Seed products
   const products = [
     {
       sku: "FAB-EUV-ASML-NXE3600D",
@@ -434,21 +583,10 @@ async function seedDatabase() {
   ];
 
   for (const product of products) {
-    const response = await fetch(`${baseUrl}/product/post/1`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(product),
-    });
-    await handleResponse(
-      response,
-      `Product ${product.name} created successfully`,
-      `Failed to create product ${product.name}`
-    );
+    await createProduct(product, token, baseUrl);
   }
 
+  // Seed purchases
   const purchases = [
     {
       condition: "P30",
@@ -564,40 +702,40 @@ async function seedDatabase() {
     {
       condition: "P30",
       supplier_id: 1,
-      proof_code: "F0034567",
+      proof_code: "F0034568",
       proof_type: "FACTA",
-      created_at: "2025-04-15",
+      created_at: "2025-04-26",
       products_details: [
         {
-          batch_number: "BCH20250412",
-          quantity: 800,
+          batch_number: "BCH20250421",
+          quantity: 1200,
           unit_price: 75.00,
           product_id: 16,
         },
         {
-          batch_number: "BCH20250413",
-          quantity: 600,
+          batch_number: "BCH20250422",
+          quantity: 800,
           unit_price: 110.00,
           product_id: 17,
         },
       ],
     },
     {
-      condition: "TRB",
+      condition: "P60",
       supplier_id: 2,
-      proof_code: "F0078912",
+      proof_code: "F0078913",
       proof_type: "FACTM",
-      created_at: "2025-04-18",
+      created_at: "2025-04-28",
       products_details: [
         {
-          batch_number: "BCH20250414",
-          quantity: 500,
+          batch_number: "BCH20250423",
+          quantity: 600,
           unit_price: 90.00,
           product_id: 19,
         },
         {
-          batch_number: "BCH20250415",
-          quantity: 400,
+          batch_number: "BCH20250424",
+          quantity: 500,
           unit_price: 40.00,
           product_id: 20,
         },
@@ -606,69 +744,32 @@ async function seedDatabase() {
     {
       condition: "DBA",
       supplier_id: 3,
-      proof_code: "F0098765",
+      proof_code: "F0098766",
       proof_type: "FACTE",
-      created_at: "2024-04-22",
+      created_at: "2025-04-30",
       products_details: [
         {
-          batch_number: "BCH20250416",
-          quantity: 100,
+          batch_number: "BCH20250425",
+          quantity: 150,
           unit_price: 75.00,
           product_id: 22,
         },
         {
-          batch_number: "BCH20250417",
-          quantity: 200,
+          batch_number: "BCH20250426",
+          quantity: 250,
           unit_price: 300.00,
           product_id: 23,
-        },
-        {
-          batch_number: "BCH20250418",
-          quantity: 150,
-          unit_price: 250.00,
-          product_id: 24,
-        },
-      ],
-    },
-    {
-      condition: "CUC",
-      supplier_id: 4,
-      proof_code: "NC005679",
-      proof_type: "NTCRA",
-      created_at: "2024-04-25",
-      products_details: [
-        {
-          batch_number: "BCH20250419",
-          quantity: 50,
-          unit_price: 2000.00,
-          product_id: 25,
-        },
-        {
-          batch_number: "BCH20250420",
-          quantity: 60,
-          unit_price: 500.00,
-          product_id: 26,
         },
       ],
     },
   ];
 
+  // Create initial purchases
   for (const purchase of purchases) {
-    const response = await fetch(`${baseUrl}/purchase/post/1`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(purchase),
-    });
-    await handleResponse(
-      response,
-      `Purchase order created successfully`,
-      "Failed to create purchase order"
-    );
+    await createPurchase(purchase, token, baseUrl);
   }
 
+  // Seed clients
   const clients = [
     {
       code: "CLUSA001",
@@ -783,21 +884,10 @@ async function seedDatabase() {
   ];
 
   for (const client of clients) {
-    const response = await fetch(`${baseUrl}/client/post/1`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(client),
-    });
-    await handleResponse(
-      response,
-      `Client ${client.name} created successfully`,
-      `Failed to create client ${client.name}`
-    );
+    await createClient(client, token, baseUrl);
   }
 
+  // Seed sales
   const sales = [
     {
       condition: "P30",
@@ -1114,23 +1204,225 @@ async function seedDatabase() {
         },
       ],
     },
+    {
+      condition: "P30",
+      client_id: 1,
+      proof_code: "F1041234",
+      proof_type: "FACTA",
+      created_at: "2025-05-18",
+      products_details: [
+        {
+          batch_number: "SAL20250431",
+          quantity: 15000,
+          unit_price: 1500.00,
+          product_id: 13,
+        },
+        {
+          batch_number: "SAL20250432",
+          quantity: 9000,
+          unit_price: 1480.00,
+          product_id: 14,
+        },
+      ],
+    },
+    {
+      condition: "P60",
+      client_id: 2,
+      proof_code: "F1045678",
+      proof_type: "FACTA",
+      created_at: "2025-05-20",
+      products_details: [
+        {
+          batch_number: "SAL20250433",
+          quantity: 8000,
+          unit_price: 1510.00,
+          product_id: 13,
+        },
+        {
+          batch_number: "SAL20250434",
+          quantity: 6000,
+          unit_price: 1495.00,
+          product_id: 16,
+        },
+      ],
+    },
+    {
+      condition: "P90",
+      client_id: 3,
+      proof_code: "F1048912",
+      proof_type: "FACTB",
+      created_at: "2025-05-22",
+      products_details: [
+        {
+          batch_number: "SAL20250435",
+          quantity: 20000,
+          unit_price: 1450.00,
+          product_id: 13,
+        },
+        {
+          batch_number: "SAL20250436",
+          quantity: 16000,
+          unit_price: 1440.00,
+          product_id: 17,
+        },
+      ],
+    },
+    {
+      condition: "CTE",
+      client_id: 4,
+      proof_code: "F1052345",
+      proof_type: "FACTC",
+      created_at: "2025-05-25",
+      products_details: [
+        {
+          batch_number: "SAL20250437",
+          quantity: 1000,
+          unit_price: 17000.00,
+          product_id: 1,
+        },
+        {
+          batch_number: "SAL20250438",
+          quantity: 400,
+          unit_price: 16800.00,
+          product_id: 2,
+        },
+      ],
+    },
+    {
+      condition: "P30",
+      client_id: 5,
+      proof_code: "F1056789",
+      proof_type: "FACTA",
+      created_at: "2025-05-28",
+      products_details: [
+        {
+          batch_number: "SAL20250439",
+          quantity: 600,
+          unit_price: 17200.00,
+          product_id: 1,
+        },
+        {
+          batch_number: "SAL20250440",
+          quantity: 200,
+          unit_price: 16900.00,
+          product_id: 2,
+        },
+      ],
+    },
+    {
+      condition: "P30",
+      client_id: 1,
+      proof_code: "F1059012",
+      proof_type: "FACTA",
+      created_at: "2025-05-30",
+      products_details: [
+        {
+          batch_number: "SAL20250441",
+          quantity: 10000,
+          unit_price: 1500.00,
+          product_id: 13,
+        },
+        {
+          batch_number: "SAL20250442",
+          quantity: 7000,
+          unit_price: 1480.00,
+          product_id: 14,
+        },
+      ],
+    },
+    {
+      condition: "P60",
+      client_id: 2,
+      proof_code: "F1061234",
+      proof_type: "FACTA",
+      created_at: "2025-06-02",
+      products_details: [
+        {
+          batch_number: "SAL20250443",
+          quantity: 14000,
+          unit_price: 1510.00,
+          product_id: 13,
+        },
+        {
+          batch_number: "SAL20250444",
+          quantity: 10000,
+          unit_price: 1495.00,
+          product_id: 16,
+        },
+      ],
+    },
+    {
+      condition: "P90",
+      client_id: 3,
+      proof_code: "F1065678",
+      proof_type: "FACTB",
+      created_at: "2025-06-05",
+      products_details: [
+        {
+          batch_number: "SAL20250445",
+          quantity: 22000,
+          unit_price: 1450.00,
+          product_id: 13,
+        },
+        {
+          batch_number: "SAL20250446",
+          quantity: 18000,
+          unit_price: 1440.00,
+          product_id: 17,
+        },
+      ],
+    },
+    {
+      condition: "CTE",
+      client_id: 4,
+      proof_code: "F1069012",
+      proof_type: "FACTC",
+      created_at: "2025-06-08",
+      products_details: [
+        {
+          batch_number: "SAL20250447",
+          quantity: 1100,
+          unit_price: 17000.00,
+          product_id: 1,
+        },
+        {
+          batch_number: "SAL20250448",
+          quantity: 440,
+          unit_price: 16800.00,
+          product_id: 2,
+        },
+      ],
+    },
+    {
+      condition: "P30",
+      client_id: 5,
+      proof_code: "F1071234",
+      proof_type: "FACTA",
+      created_at: "2025-06-12",
+      products_details: [
+        {
+          batch_number: "SAL20250449",
+          quantity: 660,
+          unit_price: 17200.00,
+          product_id: 1,
+        },
+        {
+          batch_number: "SAL20250450",
+          quantity: 220,
+          unit_price: 16900.00,
+          product_id: 2,
+        },
+      ],
+    },
   ];
 
+  // Create sales
   for (const sale of sales) {
-    const response = await fetch(`${baseUrl}/sale/post/1`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(sale),
-    });
-    await handleResponse(
-      response,
-      `Sale order created successfully`,
-      "Failed to create sale order"
-    );
+    await createSale(sale, token, baseUrl);
   }
+
+  // Create ghost purchases for products that were sold but not purchased
+  await createGhostPurchasesForSales(sales, purchases, token, baseUrl);
 }
 
 seedDatabase();
