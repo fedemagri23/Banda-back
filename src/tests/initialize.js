@@ -1,9 +1,33 @@
 import fetch from "node-fetch";
 import dotenv from "dotenv";
+import pkg from 'pg';
+const { Client } = pkg;
+import fs from "fs/promises"
 
 dotenv.config();
 
 const baseUrl = `http://${process.env.DB_HOST}:${process.env.PORT}`;
+
+async function resetDatabase(){
+  const client = new Client({
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT,
+  });
+
+  await client.connect();
+
+  console.log("DB reset in progress...");
+
+  const sql = await fs.readFile("database/db.sql", "utf-8");
+
+  await client.query(sql);
+  await client.end();
+
+  console.log("DB Reset completed")
+}
 
 async function handleResponse(response, successMessage, errorMessage) {
   if (!response.ok) {
@@ -18,6 +42,7 @@ async function handleResponse(response, successMessage, errorMessage) {
 }
 
 async function seedDatabase() {
+  await resetDatabase();
   console.log("Seeding database...");
 
   const users = [

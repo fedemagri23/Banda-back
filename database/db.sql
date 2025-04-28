@@ -3,10 +3,10 @@
 -- \c company_system
 -- \d
 
-DROP DATABASE IF EXISTS company_system;
-CREATE DATABASE company_system;
+-- DROP DATABASE IF EXISTS company_system;
+-- CREATE DATABASE company_system;
 
-\c company_system
+-- \c company_system
 
 DROP TYPE IF EXISTS address CASCADE;
 DROP TABLE IF EXISTS supplier CASCADE;
