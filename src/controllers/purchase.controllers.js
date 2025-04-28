@@ -210,7 +210,7 @@ export const getPurchaseOrders = async (req, res) => {
     );
 
     if (response.rowCount == 0) {
-      return res.status(404).json([]);
+      return res.json([]);
     }
 
     const rows = response.rows;

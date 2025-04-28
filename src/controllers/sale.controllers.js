@@ -219,7 +219,7 @@ export const getSaleOrders = async (req, res) => {
     );
 
     if (response.rowCount == 0) {
-      return res.status(404).json({ error: "No sale orders found." });
+      return res.json([]);
     }
 
     const rows = response.rows;
