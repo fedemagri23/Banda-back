@@ -7,6 +7,7 @@ import {
   changePassword,
   addEmployee,
   removeEmployee,
+  getUser,
 } from "../controllers/user.controllers.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import {
@@ -71,6 +72,7 @@ router.post("/user/login", login);
 router.post("/user/request-password-change", requestPasswordChange);
 router.post("/user/change-password", changePassword);
 router.get("/user/get-all", getUsers);
+router.get("/user/get", verifyToken, getUser);
 router.post("/employee/post/:companyId", verifyToken, checkCompanyRole(1), addEmployee);
 router.delete("/employee/delete/:companyId", verifyToken, checkCompanyRole(1), removeEmployee);
 
