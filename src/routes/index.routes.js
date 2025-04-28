@@ -8,6 +8,7 @@ import {
   addEmployee,
   removeEmployee,
   getUser,
+  getEmployees,
 } from "../controllers/user.controllers.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import {
@@ -76,6 +77,7 @@ router.get("/user/get-all", getUsers);
 router.get("/user/get", verifyToken, getUser);
 router.post("/employee/post/:companyId", verifyToken, checkCompanyRole(1), addEmployee);
 router.delete("/employee/delete/:companyId", verifyToken, checkCompanyRole(1), removeEmployee);
+router.get("/employee/get-all/:companyId", verifyToken, checkCompanyRole(1), getEmployees);
 
 
 router.post("/company/post", verifyToken, addCompany);

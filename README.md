@@ -818,11 +818,95 @@ Authorization: Bearer <your_token>
 {
   "metrics": [
     {
-      "date": "YY
-      YY-MM-DDT03:00:00.000Z",
+      "date": "YYYY-MM-DDT03:00:00.000Z",
       "balance": "number"
     }
   ],
   "balance": "number"
 }
+```
+
+---
+
+## Employee
+
+### POST | /employee/post/:companyId
+
+**Headers:**
+
+```
+Authorization: Bearer <your_token>
+```
+
+**Body:**
+
+```json
+{
+  "employeeId": "number",
+  "employeeRole": "string"
+}
+```
+
+**Response:**
+
+```json
+{
+  "id": "number",
+  "user_id": "number",
+  "company_id": "number",
+  "role": "string"
+}
+```
+
+---
+
+### DELETE | /employee/delete/:companyId
+
+**Headers:**
+
+```
+Authorization: Bearer <your_token>
+```
+
+**Body:**
+
+```json
+{
+  "employeeId": "number",
+  "employeeRole": "string"
+}
+```
+
+**Response:**
+
+```json
+{
+  "id": "number",
+  "user_id": "number",
+  "company_id": "number",
+  "role": "string"
+}
+```
+
+---
+
+### GET | /employee/get-all/:companyId
+
+**Headers:**
+
+```
+Authorization: Bearer <your_token>
+```
+
+**Response:**
+
+```json
+[
+  {
+    "id": "number",
+    "user_id": "number",
+    "company_id": "number",
+    "role": "string"
+  }
+]
 ```

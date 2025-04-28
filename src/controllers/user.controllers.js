@@ -258,3 +258,19 @@ export const removeEmployee = async (req, res) => {
   
   res.json(response.rows);
 };
+
+export const getEmployees = async (req, res) => {
+  const userId = req.user.userId;
+  const company_id = req.params.companyId;
+
+  const response = await pool.query(
+    `
+    SELECT u.id, u.username, u.phone, u.mail, w.role
+    FROM useraccount u
+    JOIN works_for w ON u.id = w.user_id
+    WHERE w.company_id = $1 AND w.user_id != $2`,
+    [company_id, userId]
+  );
+  
+  res.json(response.rows);
+};
