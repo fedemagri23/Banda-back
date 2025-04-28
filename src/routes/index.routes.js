@@ -102,8 +102,8 @@ router.get("/sale/get-all/:companyId", verifyToken, checkCompanyRole(2), getSale
 router.get("/inventory/get-all/:companyId", verifyToken, checkCompanyRole(2), getInventoryByCompany); 
 
 router.get("/metric/order/balance-chart/:companyId", verifyToken, checkCompanyRole(2), getOrderBalanceChart); 
-router.get("/metric/supplier-distirbution-chart/:companyId", verifyToken, checkCompanyRole(2), getSupplierDistributionChart);
-router.get("/client/client-distirbution-chart/:companyId", verifyToken, checkCompanyRole(2), getClientDistributionChart);
+router.get("/metric/supplier-distribution-chart/:companyId", verifyToken, checkCompanyRole(2), getSupplierDistributionChart);
+router.get("/metric/client-distribution-chart/:companyId", verifyToken, checkCompanyRole(2), getClientDistributionChart);
 
 
 // TODO: Al final BORRAR estos controllers
