@@ -13,6 +13,7 @@ import { verifyToken } from "../middleware/authMiddleware.js";
 import {
   addCompany,
   getCompaniesFromUser,
+  getCompanyById,
 } from "../controllers/company.controllers.js";
 import { getToken } from "../controllers/test.controllers.js";
 import { addSupplier, getSuppliersByCompany, deleteSupplier, getSuppliersWithPurchases } from "../controllers/supplier.controllers.js";
@@ -79,6 +80,7 @@ router.delete("/employee/delete/:companyId", verifyToken, checkCompanyRole(1), r
 
 router.post("/company/post", verifyToken, addCompany);
 router.get("/company/get-all", verifyToken, getCompaniesFromUser);
+router.get("/company/get/:companyId", verifyToken, checkCompanyRole(1), getCompanyById);
 
 router.post("/supplier/post/:companyId", verifyToken, checkCompanyRole(2), addSupplier);
 router.get("/supplier/get-all/:companyId", verifyToken, checkCompanyRole(2), getSuppliersByCompany);

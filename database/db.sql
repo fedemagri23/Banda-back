@@ -27,6 +27,16 @@ DROP TABLE IF EXISTS sale_order CASCADE;
 
 DROP TABLE IF EXISTS session CASCADE;
 
+DROP TABLE IF EXISTS user_arca_tokens CASCADE;
+DROP TABLE IF EXISTS user_certificates CASCADE;
+DROP TABLE IF EXISTS sale_invoice CASCADE;
+DROP TABLE IF EXISTS sale_invoice_tax CASCADE;
+DROP TABLE IF EXISTS sale_invoice_vat CASCADE;
+DROP TABLE IF EXISTS sale_invoice_related CASCADE;
+DROP TABLE IF EXISTS sale_invoice_optional CASCADE;
+DROP TABLE IF EXISTS sale_invoice_buyer CASCADE;
+DROP TABLE IF EXISTS sale_invoice_payment CASCADE;
+
 CREATE TYPE address AS (
     town VARCHAR,
     street VARCHAR,
@@ -53,6 +63,7 @@ CREATE TABLE useraccount (
 CREATE TABLE company (
     id SERIAL PRIMARY KEY,
     name VARCHAR,
+    cuit VARCHAR,
     email VARCHAR UNIQUE NOT NULL,
     app_password VARCHAR,
     user_id INT REFERENCES useraccount(id) ON DELETE CASCADE

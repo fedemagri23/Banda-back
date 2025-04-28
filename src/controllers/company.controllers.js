@@ -13,7 +13,7 @@ Get ID from auth token:
 export const addCompany = async (req, res) => {
   try {
     const userId = req.user.userId;
-    const { name, email, app_password } = req.body;
+    const { name, email, cuit, app_password } = req.body;
 
     /*
     Validaciones: 
@@ -66,9 +66,9 @@ export const addCompany = async (req, res) => {
 
     const response = await pool.query(
       `
-      INSERT INTO company (name, email, app_password, user_id) VALUES ($1, $2, $3, $4) RETURNING *
+      INSERT INTO company (name, cuit, email, app_password, user_id) VALUES ($1, $2, $3, $4, $5) RETURNING *
       `,
-      [normalizedName, email, app_password, userId]
+      [normalizedName, cuit, email, app_password, userId]
     );
 
     res.json(response.rows[0]);
@@ -83,4 +83,20 @@ export const getCompaniesFromUser = async (req, res) => {
   const response = await pool.query("SELECT * FROM company WHERE user_id=$1", [userId]);
   res.json(response.rows);
 };
+
+export const getCompanyById = async (req, res) => {
+  const userId = req.user.userId;
+  const companyId = req.params.companyId;
+
+  const response = await pool.query(
+    "SELECT * FROM company WHERE id=$1 AND user_id=$2",
+    [companyId, userId]
+  );
+
+  if (response.rows.length === 0) {
+    return res.status(404).json({ error: "Company not found" });
+  }
+
+  res.json(response.rows[0]);
+}
 
