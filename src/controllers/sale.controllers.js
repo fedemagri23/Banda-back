@@ -1,5 +1,5 @@
 import { pool } from "../db.js";
-
+import { sendSaleOrderEmail } from "../services/emailservices.js";
 export const addSaleOrder = async (req, res) => {
   const { condition, client_id, proof_code, proof_type, products_details } =
     req.body;
@@ -67,6 +67,8 @@ export const addSaleOrder = async (req, res) => {
     if (supplierCheck.rowCount === 0) {
       return res.status(400).json({ error: "Supplier not found." });
     }
+
+
 
     if (!/^[A-Za-z0-9]{1,8}$/.test(proof_code)) {
       return res.status(400).json({
@@ -165,6 +167,17 @@ export const addSaleOrder = async (req, res) => {
     }
 
     res.json(response_order.rows[0]);
+    
+    // Enviar email después de crear la orden exitosamente
+    try {
+      const clientEmail = supplierCheck.rows[0].mail;
+
+      await sendSaleOrderEmail(clientEmail, company_id);
+    } catch (error) {
+      console.error('Error sending email notification:', error.message);
+      // No retornamos error aquí para no afectar la creación de la orden
+    }
+    
   } catch (error) {
     console.error("Error sale sale item:", error.message);
     res.status(500).json({ error: error.message });
@@ -255,3 +268,4 @@ export const getSaleOrders = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+

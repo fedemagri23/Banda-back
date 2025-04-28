@@ -53,6 +53,8 @@ CREATE TABLE useraccount (
 CREATE TABLE company (
     id SERIAL PRIMARY KEY,
     name VARCHAR,
+    email VARCHAR UNIQUE NOT NULL,
+    app_password VARCHAR,
     user_id INT REFERENCES useraccount(id) ON DELETE CASCADE
 );
 

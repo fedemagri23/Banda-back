@@ -13,15 +13,23 @@ Get ID from auth token:
 export const addCompany = async (req, res) => {
   try {
     const userId = req.user.userId;
-    const { name } = req.body;
+    const { name, email, app_password } = req.body;
 
     /*
     Validaciones: 
     name: Al menos 3 caracteres, sin caracteres especiales, acepta espacios, estos se normalizan.
+    email: Debe ser un email válido
+    app_password: Debe ser un password válido para el email de la compañía
     */
+
+    //TODO: Validar app_password
 
     if (!name || typeof name !== 'string') {
       return res.status(400).json({ error: "Company name is required and must be text" });
+    }
+
+    if (!email || typeof email !== 'string') {
+      return res.status(400).json({ error: "Company email is required" });
     }
 
     const normalizedName = name.trim().replace(/\s+/g, ' ');
@@ -34,6 +42,10 @@ export const addCompany = async (req, res) => {
       return res.status(400).json({ error: "Name cannot contain special characters" });
     }
 
+    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+      return res.status(400).json({ error: "Invalid email format" });
+    }
+
     const companyExists = await pool.query(
       `SELECT * FROM company WHERE name = $1 AND user_id = $2`,
       [normalizedName, userId]
@@ -43,11 +55,20 @@ export const addCompany = async (req, res) => {
       return res.status(400).json({ error: "Company already exists" });
     }
 
+    const emailExists = await pool.query(
+      `SELECT * FROM company WHERE email = $1`,
+      [email]
+    );
+    
+    if (emailExists.rows.length > 0) {
+      return res.status(400).json({ error: "Email already in use" });
+    }
+
     const response = await pool.query(
       `
-      INSERT INTO company (name, user_id) VALUES ($1, $2) RETURNING *
+      INSERT INTO company (name, email, app_password, user_id) VALUES ($1, $2, $3, $4) RETURNING *
       `,
-      [normalizedName, userId]
+      [normalizedName, email, app_password, userId]
     );
 
     res.json(response.rows[0]);
@@ -62,3 +83,4 @@ export const getCompaniesFromUser = async (req, res) => {
   const response = await pool.query("SELECT * FROM company WHERE user_id=$1", [userId]);
   res.json(response.rows);
 };
+
