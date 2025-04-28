@@ -290,30 +290,3 @@ export const deleteSupplier = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
-export const getSuppliersWithPurchases = async (req, res) => {
-  try {
-    const company_id = req.params.companyId;
-
-    const response = await pool.query(
-      `
-      SELECT 
-        s.name AS supplier_name,
-        COALESCE(SUM(product_purchase_detail.total), 0) AS total_purchases
-      FROM supplier s
-      LEFT JOIN purchase_order po ON s.id = po.supplier_id
-      LEFT JOIN purchase_proof pp ON po.id = pp.order_id
-      LEFT JOIN product_purchase_detail ON pp.id = product_purchase_detail.proof_id
-      WHERE s.company_id = $1
-      GROUP BY s.name
-      ORDER BY s.name
-      `,
-      [company_id]
-    );
-
-    res.json(response.rows);
-  } catch (error) {
-    console.error("Error fetching suppliers with purchases:", error.message);
-    res.status(500).json({ error: error.message });
-  }
-};
