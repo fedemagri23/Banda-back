@@ -49,7 +49,7 @@ export const addSupplier = async (req, res) => {
     const phoneRegex = /^\d{10,}$/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const urlRegex = /^(https?:\/\/)?([\w-]+(\.[\w-]+)+)(\/[\w-]*)*$/;
-    const idRegex = /^\d+$/;
+    const idRegex = /^[\d-]+$/;
 
     if (
       !address ||
@@ -81,7 +81,10 @@ export const addSupplier = async (req, res) => {
       return res.status(400).json({ error: "The country is required." });
     }
 
-    if (!phone || !phoneRegex.test(phone)) {
+    // Normalize phone number by removing all non-digit characters
+    const normalizedPhone = phone.replace(/\D/g, '');
+    
+    if (!phone || !phoneRegex.test(normalizedPhone)) {
       return res
         .status(400)
         .json({ error: "The phone number must contain at least 10 digits." });
@@ -117,13 +120,13 @@ export const addSupplier = async (req, res) => {
     const normalizedCountry = normalizeCountry(country);
 
     if (
-      (normalizedCUIT && !idRegex.test(normalizedCUIT)) ||
-      (normalizedCUIL && !idRegex.test(normalizedCUIL)) ||
-      (normalizedDNI && !idRegex.test(normalizedDNI)) ||
-      (normalizedCDI && !idRegex.test(normalizedCDI))
+      (normalizedCUIT && !/^\d+$/.test(normalizedCUIT)) ||
+      (normalizedCUIL && !/^\d+$/.test(normalizedCUIL)) ||
+      (normalizedDNI && !/^\d+$/.test(normalizedDNI)) ||
+      (normalizedCDI && !/^[a-zA-Z0-9]+$/.test(normalizedCDI))
     ) {
       return res.status(400).json({
-        error: "The fields CUIT, CUIL, DNI, and CDI must contain only numbers.",
+        error: "The CUIT, CUIL, and DNI fields must contain only numbers. CDI can contain letters and numbers.",
       });
     }
 
@@ -200,7 +203,7 @@ export const addSupplier = async (req, res) => {
         addressPG.departament,
         addressPG.zip_code,
         addressPG.observations,
-        phone,
+        normalizedPhone,
         mail,
         web,
         description,

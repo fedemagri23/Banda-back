@@ -1,7 +1,7 @@
 import { pool } from "../db.js";
 import { sendSaleOrderEmail } from "../services/emailservices.js";
 export const addSaleOrder = async (req, res) => {
-  const { condition, client_id, proof_code, proof_type, products_details } =
+  const { condition, client_id, proof_code, proof_type, products_details, created_at } =
     req.body;
   const company_id = req.params.companyId;
 
@@ -68,8 +68,6 @@ export const addSaleOrder = async (req, res) => {
       return res.status(400).json({ error: "Supplier not found." });
     }
 
-
-
     if (!/^[A-Za-z0-9]{1,8}$/.test(proof_code)) {
       return res.status(400).json({
         error:
@@ -116,9 +114,11 @@ export const addSaleOrder = async (req, res) => {
     // Sale order
     const response_order = await pool.query(
       `
-      INSERT INTO sale_order (condition, client_id, company_id) VALUES ($1, $2, $3) RETURNING *
+      INSERT INTO sale_order (condition, client_id, company_id, created_at) 
+      VALUES ($1, $2, $3, $4) 
+      RETURNING *
       `,
-      [condition, client_id, company_id]
+      [condition, client_id, company_id, created_at || null]
     );
 
     if (response_order.rowCount == 0) {
@@ -147,7 +147,7 @@ export const addSaleOrder = async (req, res) => {
     for (const detail of products_details) {
       const response_detail = await pool.query(
         `
-        INSERT INTO product_sale_detail (batch_number, total, product_id, proof_id, company_id, unit_price, quantity) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *
+        INSERT INTO product_sale_detail (batch_number, total, product_id, proof_id, company_id, unit_price, quantity, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *
         `,
         [
           detail.batch_number,
@@ -157,6 +157,7 @@ export const addSaleOrder = async (req, res) => {
           company_id,
           detail.unit_price,
           detail.quantity,
+          created_at || new Date()
         ]
       );
 

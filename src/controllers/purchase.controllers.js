@@ -1,7 +1,7 @@
 import { pool } from "../db.js";
 
 export const addPurchaseOrder = async (req, res) => {
-  const { condition, supplier_id, proof_code, proof_type, products_details } =
+  const { condition, supplier_id, proof_code, proof_type, products_details, created_at } =
     req.body;
   const company_id = req.params.companyId;
 
@@ -115,9 +115,11 @@ export const addPurchaseOrder = async (req, res) => {
     // Purchase order
     const response_order = await pool.query(
       `
-      INSERT INTO purchase_order (condition, supplier_id, company_id) VALUES ($1, $2, $3) RETURNING *
+      INSERT INTO purchase_order (condition, supplier_id, company_id, created_at) 
+      VALUES ($1, $2, $3, $4) 
+      RETURNING *
       `,
-      [condition, supplier_id, company_id]
+      [condition, supplier_id, company_id, created_at || null]
     );
 
     if (response_order.rowCount == 0) {
@@ -146,7 +148,7 @@ export const addPurchaseOrder = async (req, res) => {
     for (const detail of products_details) {
       const response_detail = await pool.query(
         `
-        INSERT INTO product_purchase_detail (batch_number, total, product_id, proof_id, company_id, quantity, unit_price) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *
+        INSERT INTO product_purchase_detail (batch_number, total, product_id, proof_id, company_id, quantity, unit_price, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *
         `,
         [
           detail.batch_number,
@@ -156,6 +158,7 @@ export const addPurchaseOrder = async (req, res) => {
           company_id,
           detail.quantity,
           detail.unit_price,
+          created_at || new Date()
         ]
       );
 

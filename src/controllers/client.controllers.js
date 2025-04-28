@@ -35,11 +35,11 @@ export const addClient = async (req, res) => {
 
     // Validaciones
     const codeRegex = /^[a-zA-Z0-9]{4,}$/;
-    const nameRegex = /^[a-zA-ZÀ-ÿ\s]{3,}$/;
+    const nameRegex = /^[a-zA-ZÀ-ÿ\s.]{3,}$/;
     const phoneRegex = /^\d{10,}$/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const urlRegex = /^(https?:\/\/)?([\w-]+(\.[\w-]+)+)(\/[\w-]*)*$/;
-    const idRegex = /^\d+$/;
+    const idRegex = /^[\d-]+$/;
 
     if (
       !address ||
@@ -71,10 +71,13 @@ export const addClient = async (req, res) => {
       return res.status(400).json({ error: "The country is required." });
     }
 
-    if (!phone || !phoneRegex.test(phone)) {
+    // Normalize phone number by removing all non-digit characters
+    const normalizedPhone = phone.replace(/\D/g, '');
+    
+    if (!phone || !phoneRegex.test(normalizedPhone)) {
       return res
         .status(400)
-        .json({ error: "The phone number must have at least 10 digits." });
+        .json({ error: "The phone number must contain at least 10 digits." });
     }
 
     if (!mail || !emailRegex.test(mail)) {
@@ -107,13 +110,13 @@ export const addClient = async (req, res) => {
     const normalizedCountry = normalizeCountry(country);
 
     if (
-      (normalizedCUIT && !idRegex.test(normalizedCUIT)) ||
-      (normalizedCUIL && !idRegex.test(normalizedCUIL)) ||
-      (normalizedDNI && !idRegex.test(normalizedDNI)) ||
-      (normalizedCDI && !idRegex.test(normalizedCDI))
+      (normalizedCUIT && !/^\d+$/.test(normalizedCUIT)) ||
+      (normalizedCUIL && !/^\d+$/.test(normalizedCUIL)) ||
+      (normalizedDNI && !/^\d+$/.test(normalizedDNI)) ||
+      (normalizedCDI && !/^[a-zA-Z0-9]+$/.test(normalizedCDI))
     ) {
       return res.status(400).json({
-        error: "The CUIT, CUIL, DNI, and CDI fields must contain only numbers.",
+        error: "The CUIT, CUIL, and DNI fields must contain only numbers. CDI can contain letters and numbers.",
       });
     }
 
@@ -187,7 +190,7 @@ export const addClient = async (req, res) => {
         addressPG.departament,
         addressPG.zip_code,
         addressPG.observations,
-        phone,
+        normalizedPhone,
         mail,
         web,
         description,

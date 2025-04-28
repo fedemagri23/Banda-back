@@ -16,10 +16,10 @@ export const addProduct = async (req, res) => {
         company_id: Debe existir una company relacionada
     */
 
-    if (sku && !/^[a-zA-Z0-9]+$/.test(sku)) {
+    if (sku && !/^[a-zA-Z0-9-]+$/.test(sku)) {
       return res
         .status(400)
-        .json({ error: "SKU must contain only letters and numbers" });
+        .json({ error: "SKU must contain only letters, numbers and hyphens" });
     }
 
     if (upc && !/^[a-zA-Z0-9]{12}$/.test(upc)) {

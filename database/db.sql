@@ -120,7 +120,7 @@ CREATE TABLE product (
     upc VARCHAR(12),
     EAN VARCHAR(13),
     name VARCHAR,
-    list_price NUMERIC(10, 2),
+    list_price NUMERIC(16, 2),
     currency VARCHAR(3),
     company_id INT REFERENCES company(id) ON DELETE CASCADE
 );
@@ -147,10 +147,10 @@ CREATE TABLE product_purchase_detail (
     id SERIAL PRIMARY KEY,
     created_at DATE DEFAULT now(),
     batch_number VARCHAR,
-    total NUMERIC(10, 2),
-    canceled NUMERIC(10, 2) DEFAULT 0,
+    total NUMERIC(16, 2),
+    canceled NUMERIC(16, 2) DEFAULT 0,
     quantity INT,
-    unit_price NUMERIC(10, 2),
+    unit_price NUMERIC(16, 2),
     product_id INT REFERENCES product(id) ON DELETE CASCADE,
     proof_id INT REFERENCES purchase_proof(id) ON DELETE CASCADE,
     company_id INT REFERENCES company(id) ON DELETE CASCADE
@@ -178,10 +178,10 @@ CREATE TABLE product_sale_detail (
     id SERIAL PRIMARY KEY,
     created_at DATE DEFAULT now(),
     batch_number VARCHAR,
-    total NUMERIC(10, 2),
-    canceled NUMERIC(10, 2) DEFAULT 0,
+    total NUMERIC(16, 2),
+    canceled NUMERIC(16, 2) DEFAULT 0,
     quantity INT,
-    unit_price NUMERIC(10, 2),
+    unit_price NUMERIC(16, 2),
     product_id INT REFERENCES product(id) ON DELETE CASCADE,
     proof_id INT REFERENCES sale_proof(id) ON DELETE CASCADE,
     company_id INT REFERENCES company(id) ON DELETE CASCADE
