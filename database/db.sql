@@ -63,6 +63,8 @@ CREATE TABLE useraccount (
 CREATE TABLE company (
     id SERIAL PRIMARY KEY,
     name VARCHAR,
+    country VARCHAR,
+    industry VARCHAR,
     cuit VARCHAR,
     email VARCHAR UNIQUE NOT NULL,
     app_password VARCHAR,

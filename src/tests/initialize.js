@@ -259,6 +259,8 @@ async function seedDatabase() {
     cuit: "20-12345678-9", 
     email: "intelbanda@gmail.com", 
     app_password: "lfks znej beny msbz", 
+    country: "United States",
+    industry: "Semiconductors, CPUs, GPUs, Servers, Computers",
     userId: 1 
   }];
 

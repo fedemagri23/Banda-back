@@ -13,7 +13,7 @@ Get ID from auth token:
 export const addCompany = async (req, res) => {
   try {
     const userId = req.user.userId;
-    const { name, email, cuit, app_password } = req.body;
+    const { name, email, cuit, app_password, country, industry } = req.body;
 
     /*
     Validaciones: 
@@ -66,9 +66,9 @@ export const addCompany = async (req, res) => {
 
     const response = await pool.query(
       `
-      INSERT INTO company (name, cuit, email, app_password, user_id) VALUES ($1, $2, $3, $4, $5) RETURNING *
+      INSERT INTO company (name, cuit, email, app_password, user_id, country, industry) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *
       `,
-      [normalizedName, cuit, email, app_password, userId]
+      [normalizedName, cuit, email, app_password, userId, country, industry]
     );
 
     res.json(response.rows[0]);
@@ -83,7 +83,7 @@ export const getCompaniesFromUser = async (req, res) => {
     const userId = req.user.userId;
     
     const response = await pool.query(`
-      SELECT c.name, c.cuit, c.id,
+      SELECT c.name, c.cuit, c.id, c.country, c.industry,
              CASE WHEN c.user_id = $1 THEN true ELSE false END as "isOwner"
       FROM company c
       LEFT JOIN works_for wf ON c.id = wf.company_id
