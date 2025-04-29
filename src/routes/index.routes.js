@@ -88,24 +88,24 @@ router.post("/supplier/post/:companyId", verifyToken, checkCompanyRole(2), addSu
 router.get("/supplier/get-all/:companyId", verifyToken, checkCompanyRole(2), getSuppliersByCompany);
 router.delete("/supplier/delete/:companyId/:supplierId", verifyToken, checkCompanyRole(2), deleteSupplier);
 
-router.post("/product/post/:companyId", verifyToken, checkCompanyRole(2), addProduct);
-router.get("/product/get-all/:companyId", verifyToken, checkCompanyRole(2), getProductsByCompany);
+router.post("/product/post/:companyId", verifyToken, checkCompanyRole(4), addProduct);
+router.get("/product/get-all/:companyId", verifyToken, checkCompanyRole(4), getProductsByCompany);
 
-router.post("/purchase/post/:companyId", verifyToken, checkCompanyRole(2), addPurchaseOrder);
-router.get("/purchase/get-all/:companyId", verifyToken, checkCompanyRole(2), getPurchaseOrders);
+router.post("/purchase/post/:companyId", verifyToken, checkCompanyRole(3), addPurchaseOrder);
+router.get("/purchase/get-all/:companyId", verifyToken, checkCompanyRole(3), getPurchaseOrders);
 
 router.post("/client/post/:companyId", verifyToken, checkCompanyRole(2), addClient);
 router.get("/client/get-all/:companyId", verifyToken, checkCompanyRole(2), getClientsByCompany);
 router.delete("/client/delete/:companyId/:clientId", verifyToken, checkCompanyRole(2), deleteClient);
 
-router.post("/sale/post/:companyId", verifyToken, checkCompanyRole(2), addSaleOrder);
-router.get("/sale/get-all/:companyId", verifyToken, checkCompanyRole(2), getSaleOrders);
+router.post("/sale/post/:companyId", verifyToken, checkCompanyRole(4), addSaleOrder);
+router.get("/sale/get-all/:companyId", verifyToken, checkCompanyRole(4), getSaleOrders);
 
-router.get("/inventory/get-all/:companyId", verifyToken, checkCompanyRole(2), getInventoryByCompany); 
+router.get("/inventory/get-all/:companyId", verifyToken, checkCompanyRole(3), getInventoryByCompany); 
 
-router.get("/metric/order/balance-chart/:companyId", verifyToken, checkCompanyRole(2), getOrderBalanceChart); 
-router.get("/metric/supplier-distribution-chart/:companyId", verifyToken, checkCompanyRole(2), getSupplierDistributionChart);
-router.get("/metric/client-distribution-chart/:companyId", verifyToken, checkCompanyRole(2), getClientDistributionChart);
+router.get("/metric/order/balance-chart/:companyId", verifyToken, checkCompanyRole(4), getOrderBalanceChart); 
+router.get("/metric/supplier-distribution-chart/:companyId", verifyToken, checkCompanyRole(4), getSupplierDistributionChart);
+router.get("/metric/client-distribution-chart/:companyId", verifyToken, checkCompanyRole(4), getClientDistributionChart);
 
 
 // TODO: Al final BORRAR estos controllers

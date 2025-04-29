@@ -32,11 +32,9 @@ export function checkCompanyRole(privilege) {
           .json({ error: "Permission denied - User is not employee or owner" });
       }
 
-      console.log("rows", rows);
-
       const role = rows[0]?.role;
 
-      if (role != privilege) {
+      if (role > privilege) {
         return res
           .status(403)
           .json({ error: "Permission denied - Role not accepted" });

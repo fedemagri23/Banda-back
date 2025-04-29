@@ -79,9 +79,22 @@ export const addCompany = async (req, res) => {
 };
 
 export const getCompaniesFromUser = async (req, res) => {
-  const userId = req.user.userId;
-  const response = await pool.query("SELECT * FROM company WHERE user_id=$1", [userId]);
-  res.json(response.rows);
+  try {
+    const userId = req.user.userId;
+    
+    const response = await pool.query(`
+      SELECT c.name, c.cuit, c.id,
+             CASE WHEN c.user_id = $1 THEN true ELSE false END as "isOwner"
+      FROM company c
+      LEFT JOIN works_for wf ON c.id = wf.company_id
+      WHERE c.user_id = $1 OR (wf.user_id = $1 AND wf.accepted = false)
+    `, [userId]);
+
+    res.json(response.rows);
+  } catch (error) {
+    console.error("Error getting companies:", error.message);
+    res.status(500).json({ error: error.message });
+  }
 };
 
 export const getCompanyById = async (req, res) => {

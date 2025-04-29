@@ -233,17 +233,40 @@ export const changePassword = async (req, res) => {
 };
 
 export const addEmployee = async (req, res) => {
-  const { employeeId, employeeRole } = req.body;
-  const userId = req.user.userId;
-  const company_id = req.params.companyId;
+  try {
+    const { username, employeeRole } = req.body;
+    const company_id = req.params.companyId;
 
-  const response = await pool.query("INSERT INTO works_for (user_id, company_id, role) VALUES ($1, $2, $3) RETURNING *", [
-    employeeId,
-    company_id,
-    employeeRole,
-  ]);
-  
-  res.json(response.rows);
+    const userResult = await pool.query(
+      "SELECT id FROM useraccount WHERE username = $1",
+      [username]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const employeeId = userResult.rows[0].id;
+
+    const existingEmployee = await pool.query(
+      "SELECT * FROM works_for WHERE user_id = $1 AND company_id = $2",
+      [employeeId, company_id]
+    );
+
+    if (existingEmployee.rows.length > 0) {
+      return res.status(400).json({ error: "Employee is already part of this company" });
+    }
+
+    const response = await pool.query(
+      "INSERT INTO works_for (user_id, company_id, role) VALUES ($1, $2, $3) RETURNING *",
+      [employeeId, company_id, employeeRole]
+    );
+    
+    res.json(response.rows[0]);
+  } catch (error) {
+    console.error("Error adding employee:", error.message);
+    res.status(500).json({ error: error.message });
+  }
 };
 
 export const removeEmployee = async (req, res) => {

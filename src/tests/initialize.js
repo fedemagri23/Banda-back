@@ -238,7 +238,7 @@ async function seedDatabase() {
       password: "intelbanda2025",
     },
     {
-      username: "john_setavans",
+      username: "john_evans",
       phone: "5551146640",
       mail: "johnevans@gmail.com",
       password: "johnevans1990",
