@@ -6,32 +6,17 @@ export const addClient = async (req, res) => {
       code,
       name,
       country,
-      address,
       phone,
       mail,
       web,
       description,
-      CUIT,
-      CUIL,
-      DNI,
-      CDI,
+      address,
+      preferred_cbte_type,
+      doc_type,
+      preferred_vat_type,
+      doc_number,
     } = req.body;
     const company_id = req.params.companyId;
-
-    /*
-      Validaciones: 
-      code: Solo letras y números, sin espacios, sin caracteres especiales, al menos 4 caracteres.
-      name: Al menos 3 caracteres, sin caracteres especiales, acepta espacios, estos se normalizan.
-      country: Debe existir, se envia el nombre nada mas.
-      address: Al menos 3 caracteres, sin caracteres especiales, acepta espacios, estos se normalizan.
-      phone: Solo números, sin caracteres especiales, los espacios se normalizan al menos 10 caracteres.
-      mail: Debe ser un email válido, se valida con regex.
-      web: Debe ser un URL válido, se valida con regex.
-      description: sin caracteres especiales, acepta espacios, estos se normalizan, puede ser vacio.
-      CUIT, CUIL, DNI, CDI: Al menos uno de estos cuatro campos debe ser enviado, se valida con regex, 
-        acepta espacios (se normalizan), guiones (se eliminan) y puntos (se eliminan), solo números.
-      company_id: Debe existir, se envia el id de la compañia.
-      */
 
     // Validaciones
     const codeRegex = /^[a-zA-Z0-9]{4,}$/;
@@ -72,8 +57,8 @@ export const addClient = async (req, res) => {
     }
 
     // Normalize phone number by removing all non-digit characters
-    const normalizedPhone = phone.replace(/\D/g, '');
-    
+    const normalizedPhone = phone.replace(/\D/g, "");
+
     if (!phone || !phoneRegex.test(normalizedPhone)) {
       return res
         .status(400)
@@ -88,18 +73,11 @@ export const addClient = async (req, res) => {
       return res.status(400).json({ error: "The website URL is not valid." });
     }
 
-    if (!CUIT && !CUIL && !DNI && !CDI) {
-      return res.status(400).json({
-        error:
-          "You must provide at least one of the following fields: CUIT, CUIL, DNI, or CDI.",
-      });
+    if (doc_type && !doc_number) {
+      return res
+        .status(400)
+        .json({ error: "If a document type is provided, you must provide a document number." });
     }
-
-    const normalizeId = (id) => id?.replace(/[\s.-]/g, "");
-    const normalizedCUIT = normalizeId(CUIT);
-    const normalizedCUIL = normalizeId(CUIL);
-    const normalizedDNI = normalizeId(DNI);
-    const normalizedCDI = normalizeId(CDI);
 
     const normalizeCountry = (country) => {
       return country
@@ -108,17 +86,6 @@ export const addClient = async (req, res) => {
     };
 
     const normalizedCountry = normalizeCountry(country);
-
-    if (
-      (normalizedCUIT && !/^\d+$/.test(normalizedCUIT)) ||
-      (normalizedCUIL && !/^\d+$/.test(normalizedCUIL)) ||
-      (normalizedDNI && !/^\d+$/.test(normalizedDNI)) ||
-      (normalizedCDI && !/^[a-zA-Z0-9]+$/.test(normalizedCDI))
-    ) {
-      return res.status(400).json({
-        error: "The CUIT, CUIL, and DNI fields must contain only numbers. CDI can contain letters and numbers.",
-      });
-    }
 
     if (!company_id || !idRegex.test(company_id)) {
       return res.status(400).json({
@@ -160,12 +127,15 @@ export const addClient = async (req, res) => {
             code, name, country, 
             address, 
             phone, mail, web, description, 
-            CUIT, CUIL, DNI, CDI, company_id
+            doc_type, doc_number, preferred_cbte_type, preferred_vat_type,
+            company_id
           ) 
           VALUES (
             $1, $2, $3, 
             (SELECT ROW($4, $5, $6::integer, $7::integer, $8, $9, $10)::address), 
-            $11, $12, $13, $14, $15, $16, $17, $18, $19
+            $11, $12, $13, $14, 
+            $15, $16, $17, 
+            $18, $19
           ) 
           RETURNING *
         )
@@ -194,10 +164,10 @@ export const addClient = async (req, res) => {
         mail,
         web,
         description,
-        normalizedCUIT,
-        normalizedCUIL,
-        normalizedDNI,
-        normalizedCDI,
+        doc_type,
+        doc_number,
+        preferred_cbte_type,
+        preferred_vat_type,
         company_id,
       ]
     );

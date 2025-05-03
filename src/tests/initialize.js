@@ -790,10 +790,11 @@ async function seedDatabase() {
       mail: "purchasing@dell.com",
       web: "https://www.dell.com",
       description: "Major PC manufacturer and server integrator.",
-      CUIT: "20-98765432-1",
-      CUIL: "20-98765432-1",
-      DNI: "98765432",
-      CDI: "US123456789",
+      doc_type: 80,
+      doc_number: "20-98765432-1",
+      preferred_cbte_type: 1,
+      preferred_vat_type: 5,
+      company_id: 1, // Replace with actual company_id
     },
     {
       code: "CLUSA002",
@@ -812,10 +813,11 @@ async function seedDatabase() {
       mail: "suppliers@hp.com",
       web: "https://www.hp.com",
       description: "Personal computing and printing leader.",
-      CUIT: "20-87654321-2",
-      CUIL: "20-87654321-2",
-      DNI: "87654321",
-      CDI: "US987654321",
+      doc_type: 80,
+      doc_number: "20-87654321-2",
+      preferred_cbte_type: 1,
+      preferred_vat_type: 5,
+      company_id: 1, // Replace with actual company_id
     },
     {
       code: "CLCHN001",
@@ -834,10 +836,11 @@ async function seedDatabase() {
       mail: "procurement@lenovo.com",
       web: "https://www.lenovo.com",
       description: "Leading global PC and mobile device manufacturer.",
-      CUIT: "20-76543210-3",
-      CUIL: "20-76543210-3",
-      DNI: "76543210",
-      CDI: "CN123456789",
+      doc_type: 80,
+      doc_number: "20-76543210-3",
+      preferred_cbte_type: 1,
+      preferred_vat_type: 5,
+      company_id: 1, // Replace with actual company_id
     },
     {
       code: "CLUSA003",
@@ -856,10 +859,11 @@ async function seedDatabase() {
       mail: "awsprocurement@amazon.com",
       web: "https://aws.amazon.com",
       description: "Cloud computing services and datacenter solutions.",
-      CUIT: "20-65432109-4",
-      CUIL: "20-65432109-4",
-      DNI: "65432109",
-      CDI: "US112233445",
+      doc_type: 80, 
+      doc_number: "20-45582230-1",
+      preferred_cbte_type: 1,
+      preferred_vat_type: 5,
+      company_id: 1, // Replace with actual company_id
     },
     {
       code: "CLUSA004",
@@ -878,10 +882,11 @@ async function seedDatabase() {
       mail: "supplier@microsoft.com",
       web: "https://www.microsoft.com",
       description: "Leading software, cloud, and hardware provider.",
-      CUIT: "20-54321098-5",
-      CUIL: "20-54321098-5",
-      DNI: "54321098",
-      CDI: "US556677889",
+      doc_type: 80, 
+      doc_number: "20-54321098-5",
+      preferred_cbte_type: 1,
+      preferred_vat_type: 5,
+      company_id: 1, // Replace with actual company_id
     },
   ];
 

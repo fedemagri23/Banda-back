@@ -91,10 +91,10 @@ CREATE TABLE client (
     mail VARCHAR,
     web VARCHAR,
     description VARCHAR,
-    CUIT VARCHAR DEFAULT NULL,
-    CUIL VARCHAR DEFAULT NULL,
-    DNI VARCHAR DEFAULT NULL,
-    CDI VARCHAR DEFAULT NULL,
+    doc_type INT DEFAULT 0, 
+    doc_number VARCHAR DEFAULT NULL,
+    preferred_cbte_type INT DEFAULT 0,
+    preferred_vat_type INT DEFAULT 0,
     company_id INT REFERENCES company(id) ON DELETE CASCADE
 );
 
