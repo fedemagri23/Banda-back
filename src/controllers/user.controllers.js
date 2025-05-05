@@ -27,27 +27,41 @@ export const register = async (req, res) => {
     */
 
     if (!username || username.length < 6) {
-      return res.status(400).json({ error: "Username must be at least 6 characters long" });
+      return res
+        .status(400)
+        .json({ error: "Username must be at least 6 characters long" });
     }
-    
+
     if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      return res.status(400).json({ error: "Username can only contain letters, numbers or underscores" });
+      return res
+        .status(400)
+        .json({
+          error: "Username can only contain letters, numbers or underscores",
+        });
     }
 
     if (!phone || phone.length < 10) {
-      return res.status(400).json({ error: "Phone number must be at least 10 characters long" });
-    }
-    
-    if (!/^\d+$/.test(phone)) {
-      return res.status(400).json({ error: "Phone number can only contain numbers" });
+      return res
+        .status(400)
+        .json({ error: "Phone number must be at least 10 characters long" });
     }
 
-    if (!mail || !mail.includes('@')) {
-      return res.status(400).json({ error: "Email must contain @ symbol and be valid" });
+    if (!/^\d+$/.test(phone)) {
+      return res
+        .status(400)
+        .json({ error: "Phone number can only contain numbers" });
+    }
+
+    if (!mail || !mail.includes("@")) {
+      return res
+        .status(400)
+        .json({ error: "Email must contain @ symbol and be valid" });
     }
 
     if (!password || password.length < 6) {
-      return res.status(400).json({ error: "Password must be at least 6 characters long" });
+      return res
+        .status(400)
+        .json({ error: "Password must be at least 6 characters long" });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -63,12 +77,14 @@ export const register = async (req, res) => {
     res.json(response.rows[0]);
   } catch (error) {
     console.error("Registration error:", error.message);
-    res.status(500).json({ error: error.message }); 
+    res.status(500).json({ error: error.message });
   }
 };
 
 export const getUsers = async (req, res) => {
-  const response = await pool.query("SELECT username, phone, mail FROM useraccount");
+  const response = await pool.query(
+    "SELECT username, phone, mail FROM useraccount"
+  );
   res.json(response.rows);
 };
 
@@ -113,10 +129,12 @@ export const login = async (req, res) => {
       id: user.id,
       username: user.username,
       phone: user.phone,
-      mail: user.mail
+      mail: user.mail,
     };
 
-    res.status(200).json({ message: "Login successful", token, user: userResponse });
+    res
+      .status(200)
+      .json({ message: "Login successful", token, user: userResponse });
   } catch (error) {
     console.error("Error during login:", error.message);
     res.status(500).json({ error: error.message });
@@ -155,8 +173,10 @@ export const requestPasswordChange = async (req, res) => {
   try {
     const { mail } = req.body;
 
-    if (!mail || !mail.includes('@')) {
-      return res.status(400).json({ error: "Email is required and must be valid" });
+    if (!mail || !mail.includes("@")) {
+      return res
+        .status(400)
+        .json({ error: "Email is required and must be valid" });
     }
 
     const { rows } = await pool.query(
@@ -165,7 +185,9 @@ export const requestPasswordChange = async (req, res) => {
     );
 
     if (rows.length === 0) {
-      return res.status(404).json({ error: "No user found with this email address" });
+      return res
+        .status(404)
+        .json({ error: "No user found with this email address" });
     }
 
     const verificationCode = generateVerificationCode();
@@ -198,7 +220,9 @@ export const changePassword = async (req, res) => {
     }
 
     if (newPassword.length < 6) {
-      return res.status(400).json({ error: "New password must be at least 6 characters long" });
+      return res
+        .status(400)
+        .json({ error: "New password must be at least 6 characters long" });
     }
 
     const { rows } = await pool.query(
@@ -210,7 +234,9 @@ export const changePassword = async (req, res) => {
     );
 
     if (rows.length === 0) {
-      return res.status(400).json({ error: "Invalid or expired verification code" });
+      return res
+        .status(400)
+        .json({ error: "Invalid or expired verification code" });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -254,14 +280,16 @@ export const addEmployee = async (req, res) => {
     );
 
     if (existingEmployee.rows.length > 0) {
-      return res.status(400).json({ error: "Employee is already part of this company" });
+      return res
+        .status(400)
+        .json({ error: "Employee is already part of this company" });
     }
 
     const response = await pool.query(
       "INSERT INTO works_for (user_id, company_id, role) VALUES ($1, $2, $3) RETURNING *",
       [employeeId, company_id, employeeRole]
     );
-    
+
     res.json(response.rows[0]);
   } catch (error) {
     console.error("Error adding employee:", error.message);
@@ -278,7 +306,7 @@ export const removeEmployee = async (req, res) => {
     "DELETE FROM works_for WHERE user_id = $1 AND company_id = $2 AND role = $3 RETURNING *",
     [employeeId, company_id, employeeRole]
   );
-  
+
   res.json(response.rows);
 };
 
@@ -291,9 +319,9 @@ export const getEmployees = async (req, res) => {
     SELECT u.id, u.username, u.phone, u.mail, w.role
     FROM useraccount u
     JOIN works_for w ON u.id = w.user_id
-    WHERE w.company_id = $1 AND w.user_id != $2`,
+    WHERE w.company_id = $1 AND w.user_id != $2 AND w.accepted = true`,
     [company_id, userId]
   );
-  
+
   res.json(response.rows);
 };

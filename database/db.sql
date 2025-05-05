@@ -77,7 +77,7 @@ CREATE TABLE works_for (
     company_id INT REFERENCES company(id) ON DELETE CASCADE,
     role INT DEFAULT 2, -- 1: owner, 2: employee
     accepted BOOLEAN DEFAULT FALSE,
-    added_at DATE DEFAULT now()
+    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE client (
