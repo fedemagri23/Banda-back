@@ -6,6 +6,7 @@ export async function createSaleInvoice(req, res) {
     await pool.query("BEGIN");
 
     const {
+      sale_id,
       company_id,
       concepto,
       doc_tipo,
@@ -47,9 +48,14 @@ export async function createSaleInvoice(req, res) {
       cbte_tipo, cbte_pto_vta, cbte_nro_desde, cbte_nro_hasta, cbte_fecha,
       imp_total, imp_tot_conc, imp_neto, imp_op_ex, imp_trib, imp_iva,
       fch_serv_desde, fch_serv_hasta, fch_vto_pago,
-      moneda_id, moneda_cotiz, cae, cae_vencimiento
+      moneda_id, moneda_cotiz, cae, cae_vencimiento, sale_id
     ) VALUES (
-      $1,$2,$3,$4, $5,$6,$7,$8,$9, $10,$11,$12,$13,$14,$15, $16,$17,$18, $19,$20,$21,$22
+      $1,$2,$3,$4, 
+      $5,$6,$7,$8,$9, 
+      $10,$11,$12,$13,$14,$15, 
+      $16,$17,$18, 
+      $19,$20,$21,$22, 
+      $23
     ) RETURNING id`,
       [
         company_id,
@@ -74,6 +80,7 @@ export async function createSaleInvoice(req, res) {
         moneda_cotiz || 1,
         cae,
         cae_vencimiento,
+        sale_id,
       ]
     );
 
@@ -238,5 +245,25 @@ export async function deleteSaleInvoice(req, res) {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error eliminando factura" });
+  }
+}
+
+export async function checkSaleInvoiceExists(req, res) {
+  const { companyId, saleId } = req.params;
+
+  try {
+    const { rowCount } = await pool.query(
+      `SELECT 1 FROM sale_invoice WHERE company_id = $1 AND sale_id = $2`,
+      [companyId, saleId]
+    );
+
+    if (rowCount > 0) {
+      return res.json({ exists: true, message: "Invoice exists for the given sale." });
+    }
+
+    res.json({ exists: false, message: "No invoice found for the given sale." });
+  } catch (err) {
+    console.error("Error checking sale invoice existence:", err.message);
+    res.status(500).json({ message: "Error checking sale invoice existence", error: err.message });
   }
 }

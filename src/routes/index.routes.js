@@ -40,6 +40,7 @@ import {
   upsertUserCertificate,
 } from "../controllers/arcatoken.controllers.js";
 import {
+  checkSaleInvoiceExists,
   createSaleInvoice,
   deleteSaleInvoice,
   getAllSaleInvoices,
@@ -54,6 +55,7 @@ router.post("/sale-invoice/create", createSaleInvoice); // Crear una nueva factu
 router.get("/sale-invoice/get-all/:companyId", getAllSaleInvoices); // Obtener resumen de todas las facturas de una empresa
 router.get("/sale-invoice/:id", getSaleInvoiceById); // Obtener detalle completo de una factura
 router.delete("/sale-invoice/delete/:id", deleteSaleInvoice); // Eliminar una factura
+router.get("/sale-invoice/exists/:companyId/:saleId", checkSaleInvoiceExists);
 
 // Token ARCA
 router.get("/arca/token/:user_id/:cuit", getArcaToken); // obtener TA si está vigente

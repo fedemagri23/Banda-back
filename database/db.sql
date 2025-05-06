@@ -230,6 +230,7 @@ CREATE TABLE sale_invoice (
     company_id INT REFERENCES company(id) ON DELETE CASCADE, -- quien emitió
 
     status SMALLINT DEFAULT 0,                  -- Estado de la factura (0: pendiente, 1: autorizada, 2: rechazada, 3: anulado)
+    sale_id INT REFERENCES sale_order(id) ON DELETE CASCADE, -- ID de la venta asociada
 
     concepto SMALLINT NOT NULL,           -- Concepto (productos, servicios, etc.)
     doc_tipo SMALLINT NOT NULL,            -- Tipo de documento del receptor
