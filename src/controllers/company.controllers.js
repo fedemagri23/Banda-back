@@ -87,7 +87,7 @@ export const getCompaniesFromUser = async (req, res) => {
              CASE WHEN c.user_id = $1 THEN true ELSE false END as "isOwner"
       FROM company c
       LEFT JOIN works_for wf ON c.id = wf.company_id
-      WHERE c.user_id = $1 OR (wf.user_id = $1 AND wf.accepted = false)
+      WHERE c.user_id = $1 OR (wf.user_id = $1 AND wf.accepted = true)
     `, [userId]);
 
     res.json(response.rows);
