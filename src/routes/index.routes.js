@@ -46,7 +46,7 @@ import {
   getSaleInvoiceById,
 } from "../controllers/invoice.controllers.js";
 import { getAiInterests } from "../controllers/ai.controllers.js";
-import { acceptInvitation, getNotifications } from "../controllers/notification.controllers.js";
+import { acceptInvitation, getNotifications, rejectInvitation } from "../controllers/notification.controllers.js";
 
 const router = Router();
 
@@ -112,7 +112,9 @@ router.get("/metric/client-distribution-chart/:companyId", verifyToken, checkCom
 router.get("/ai/interests/:companyId", verifyToken, checkCompanyRole(4), getAiInterests);
 
 router.get("/notification/get-all", verifyToken, getNotifications);
-router.put("/notification/accept/:companyId", verifyToken, acceptInvitation);
+router.post("/notification/accept/:companyId", verifyToken, acceptInvitation);
+router.delete("/notification/reject/:companyId", verifyToken, rejectInvitation);
+
 
 // TODO: Al final BORRAR estos controllers
 router.get("/token", getToken);
