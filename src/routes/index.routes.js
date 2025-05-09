@@ -5,10 +5,7 @@ import {
   login,
   requestPasswordChange,
   changePassword,
-  addEmployee,
-  removeEmployee,
   getUser,
-  getEmployees,
 } from "../controllers/user.controllers.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import {
@@ -47,6 +44,9 @@ import {
 } from "../controllers/invoice.controllers.js";
 import { getAiInterests } from "../controllers/ai.controllers.js";
 import { acceptInvitation, getNotifications, rejectInvitation } from "../controllers/notification.controllers.js";
+import { addEmployee, createRole, getEmployees, getRoles, removeEmployee } from "../controllers/employee.controllers.js";
+
+const ROLE_COMPANY_OWNER = "111111111";
 
 const router = Router();
 
@@ -77,39 +77,41 @@ router.post("/user/request-password-change", requestPasswordChange);
 router.post("/user/change-password", changePassword);
 router.get("/user/get-all", getUsers);
 router.get("/user/get", verifyToken, getUser);
-router.post("/employee/post/:companyId", verifyToken, checkCompanyRole(1), addEmployee);
-router.delete("/employee/delete/:companyId", verifyToken, checkCompanyRole(1), removeEmployee);
-router.get("/employee/get-all/:companyId", verifyToken, checkCompanyRole(1), getEmployees);
+router.post("/employee/post/:companyId", verifyToken, checkCompanyRole(ROLE_COMPANY_OWNER), addEmployee);
+router.delete("/employee/delete/:companyId", verifyToken, checkCompanyRole(ROLE_COMPANY_OWNER), removeEmployee);
+router.get("/employee/get-all/:companyId", verifyToken, checkCompanyRole(ROLE_COMPANY_OWNER), getEmployees);
+router.post("/employee/role/post/:companyId", verifyToken, checkCompanyRole(ROLE_COMPANY_OWNER), createRole);
+router.get("/employee/role/get-all/:companyId", verifyToken, checkCompanyRole(ROLE_COMPANY_OWNER), getRoles);
 
 
 router.post("/company/post", verifyToken, addCompany);
 router.get("/company/get-all", verifyToken, getCompaniesFromUser);
-router.get("/company/get/:companyId", verifyToken, checkCompanyRole(1), getCompanyById);
+router.get("/company/get/:companyId", verifyToken, checkCompanyRole(ROLE_COMPANY_OWNER), getCompanyById);
 
-router.post("/supplier/post/:companyId", verifyToken, checkCompanyRole(2), addSupplier);
-router.get("/supplier/get-all/:companyId", verifyToken, checkCompanyRole(2), getSuppliersByCompany);
-router.delete("/supplier/delete/:companyId/:supplierId", verifyToken, checkCompanyRole(2), deleteSupplier);
+router.post("/supplier/post/:companyId", verifyToken, checkCompanyRole("000011000"), addSupplier);
+router.get("/supplier/get-all/:companyId", verifyToken, checkCompanyRole("000010000"), getSuppliersByCompany);
+router.delete("/supplier/delete/:companyId/:supplierId", verifyToken, checkCompanyRole("000011000"), deleteSupplier);
 
-router.post("/product/post/:companyId", verifyToken, checkCompanyRole(4), addProduct);
-router.get("/product/get-all/:companyId", verifyToken, checkCompanyRole(4), getProductsByCompany);
+router.post("/product/post/:companyId", verifyToken, checkCompanyRole("000000000"), addProduct);
+router.get("/product/get-all/:companyId", verifyToken, checkCompanyRole("000000000"), getProductsByCompany);
 
-router.post("/purchase/post/:companyId", verifyToken, checkCompanyRole(3), addPurchaseOrder);
-router.get("/purchase/get-all/:companyId", verifyToken, checkCompanyRole(3), getPurchaseOrders);
+router.post("/purchase/post/:companyId", verifyToken, checkCompanyRole("110000000"), addPurchaseOrder);
+router.get("/purchase/get-all/:companyId", verifyToken, checkCompanyRole("110000000"), getPurchaseOrders);
 
-router.post("/client/post/:companyId", verifyToken, checkCompanyRole(2), addClient);
-router.get("/client/get-all/:companyId", verifyToken, checkCompanyRole(2), getClientsByCompany);
-router.delete("/client/delete/:companyId/:clientId", verifyToken, checkCompanyRole(2), deleteClient);
+router.post("/client/post/:companyId", verifyToken, checkCompanyRole("000011000"), addClient);
+router.get("/client/get-all/:companyId", verifyToken, checkCompanyRole("000010000"), getClientsByCompany);
+router.delete("/client/delete/:companyId/:clientId", verifyToken, checkCompanyRole("000011000"), deleteClient);
 
-router.post("/sale/post/:companyId", verifyToken, checkCompanyRole(4), addSaleOrder);
-router.get("/sale/get-all/:companyId", verifyToken, checkCompanyRole(4), getSaleOrders);
+router.post("/sale/post/:companyId", verifyToken, checkCompanyRole("110000000"), addSaleOrder);
+router.get("/sale/get-all/:companyId", verifyToken, checkCompanyRole("110000000"), getSaleOrders);
 
-router.get("/inventory/get-all/:companyId", verifyToken, checkCompanyRole(3), getInventoryByCompany); 
+router.get("/inventory/get-all/:companyId", verifyToken, checkCompanyRole("000000001"), getInventoryByCompany); 
 
-router.get("/metric/order/balance-chart/:companyId", verifyToken, checkCompanyRole(4), getOrderBalanceChart); 
-router.get("/metric/supplier-distribution-chart/:companyId", verifyToken, checkCompanyRole(4), getSupplierDistributionChart);
-router.get("/metric/client-distribution-chart/:companyId", verifyToken, checkCompanyRole(4), getClientDistributionChart);
+router.get("/metric/order/balance-chart/:companyId", verifyToken, checkCompanyRole("000000000"), getOrderBalanceChart); 
+router.get("/metric/supplier-distribution-chart/:companyId", verifyToken, checkCompanyRole("000000000"), getSupplierDistributionChart);
+router.get("/metric/client-distribution-chart/:companyId", verifyToken, checkCompanyRole("000000000"), getClientDistributionChart);
 
-router.get("/ai/interests/:companyId", verifyToken, checkCompanyRole(4), getAiInterests);
+router.get("/ai/interests/:companyId", verifyToken, checkCompanyRole("000000000"), getAiInterests);
 
 router.get("/notification/get-all", verifyToken, getNotifications);
 router.post("/notification/accept/:companyId", verifyToken, acceptInvitation);
