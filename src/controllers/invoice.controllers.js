@@ -187,7 +187,21 @@ export async function getSaleInvoiceById(req, res) {
   const { id } = req.params;
   try {
     const { rows: invoiceRows } = await pool.query(
-      `SELECT * FROM sale_invoice WHERE id = $1`,
+      `SELECT si.*, 
+              so.id AS sale_id, 
+              so.created_at AS sale_created_at, 
+              so.condition AS sale_condition,
+              c.id AS client_id, 
+              c.name AS client_name, 
+              c.code AS client_code,
+              c.doc_type AS client_doc_type,
+              c.doc_number AS client_doc_number,
+              c.country AS client_country,
+              c.preferred_cbte_type AS client_preferred_cbte_type
+       FROM sale_invoice si
+       LEFT JOIN sale_order so ON si.sale_id = so.id
+       LEFT JOIN client c ON so.client_id = c.id
+       WHERE si.id = $1`,
       [id]
     );
     if (invoiceRows.length === 0) {
@@ -217,6 +231,15 @@ export async function getSaleInvoiceById(req, res) {
       [id]
     );
 
+    const { rows: saleItems } = await pool.query(
+      `SELECT pid.id AS product_id, pid.name AS product_name, psd.quantity, psd.unit_price, psd.total
+       FROM sale_proof sp
+       JOIN product_sale_detail psd ON sp.id = psd.proof_id
+       JOIN product pid ON psd.product_id = pid.id
+       WHERE sp.order_id = $1`,
+      [saleInvoice.sale_id]
+    );
+
     res.json({
       ...saleInvoice,
       taxes,
@@ -224,6 +247,7 @@ export async function getSaleInvoiceById(req, res) {
       related,
       optional,
       buyers,
+      saleItems,
     });
   } catch (err) {
     console.error(err);
@@ -258,12 +282,23 @@ export async function checkSaleInvoiceExists(req, res) {
     );
 
     if (rowCount > 0) {
-      return res.json({ exists: true, message: "Invoice exists for the given sale." });
+      return res.json({
+        exists: true,
+        message: "Invoice exists for the given sale.",
+      });
     }
 
-    res.json({ exists: false, message: "No invoice found for the given sale." });
+    res.json({
+      exists: false,
+      message: "No invoice found for the given sale.",
+    });
   } catch (err) {
     console.error("Error checking sale invoice existence:", err.message);
-    res.status(500).json({ message: "Error checking sale invoice existence", error: err.message });
+    res
+      .status(500)
+      .json({
+        message: "Error checking sale invoice existence",
+        error: err.message,
+      });
   }
 }
