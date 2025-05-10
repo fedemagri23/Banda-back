@@ -98,14 +98,14 @@ router.post("/product/post/:companyId", verifyToken, checkCompanyRole("000000000
 router.get("/product/get-all/:companyId", verifyToken, checkCompanyRole("000000000"), getProductsByCompany);
 
 router.post("/purchase/post/:companyId", verifyToken, checkCompanyRole("110000000"), addPurchaseOrder);
-router.get("/purchase/get-all/:companyId", verifyToken, checkCompanyRole("110000000"), getPurchaseOrders);
+router.get("/purchase/get-all/:companyId", verifyToken, checkCompanyRole("100000000"), getPurchaseOrders);
 
 router.post("/client/post/:companyId", verifyToken, checkCompanyRole("000011000"), addClient);
 router.get("/client/get-all/:companyId", verifyToken, checkCompanyRole("000010000"), getClientsByCompany);
 router.delete("/client/delete/:companyId/:clientId", verifyToken, checkCompanyRole("000011000"), deleteClient);
 
 router.post("/sale/post/:companyId", verifyToken, checkCompanyRole("110000000"), addSaleOrder);
-router.get("/sale/get-all/:companyId", verifyToken, checkCompanyRole("110000000"), getSaleOrders);
+router.get("/sale/get-all/:companyId", verifyToken, checkCompanyRole("100000000"), getSaleOrders);
 
 router.get("/inventory/get-all/:companyId", verifyToken, checkCompanyRole("000000001"), getInventoryByCompany); 
 

@@ -166,6 +166,38 @@ async function createSale(sale, token, baseUrl) {
   );
 }
 
+async function createRole(role, token, baseUrl) {
+  const response = await fetch(`${baseUrl}/employee/role/post/1`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(role),
+  });
+  return handleResponse(
+    response,
+    `Role created successfully`,
+    "Failed to create role"
+  );
+}
+
+async function createInvite(invite, token, baseUrl) {
+  const response = await fetch(`${baseUrl}/employee/post/1`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(invite),
+  });
+  return handleResponse(
+    response,
+    `Employee invited successfully`,
+    "Failed to invite employee"
+  );
+}
+
 async function createGhostPurchase(productId, quantity, saleDate, token, baseUrl) {
   // Generate a valid proof code: G + 3 digits for product ID + 4 digits for date
   const proofCode = `G${String(productId).padStart(3, '0')}${saleDate.replace(/-/g, '').slice(4)}`;
@@ -242,6 +274,12 @@ async function seedDatabase() {
       phone: "5551146640",
       mail: "johnevans@gmail.com",
       password: "johnevans1990",
+    },
+    {
+      username: "adam_taylor",
+      phone: "5551714900",
+      mail: "adamtaylor@gmail.com",
+      password: "adamtaylor1990",
     },
   ];
 
@@ -1427,6 +1465,42 @@ async function seedDatabase() {
   for (const sale of sales) {
     await createSale(sale, token, baseUrl);
   }
+
+  // Seed roles
+  const roles = [
+    {
+      name: "Counter",
+      movements_view: true,
+      movements_edit: false,
+      employees_view: false,
+      employees_edit: false,
+      contact_view: true,
+      contact_edit: false,
+      billing_view: true,
+      Billing_edit: true,
+      inventory_view: true,
+    },
+  ];
+
+  // Create roles
+  for (const role of roles) {
+    await createRole(role, token, baseUrl);
+  }
+
+  // Seed invites
+  const invites = [
+    {
+      username: "adam_taylor",
+      employeeRole: 1
+    },
+  ];
+
+  // Create invites
+  for (const invite of invites) {
+    await createInvite(invite, token, baseUrl);
+  }
+
+
 
   // Create ghost purchases for products that were sold but not purchased
   await createGhostPurchasesForSales(sales, purchases, token, baseUrl);

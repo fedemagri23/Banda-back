@@ -78,6 +78,10 @@ export function checkCompanyRole(
 
       const role = rows[0];
 
+      
+      console.log("role", role);
+      console.log("privilege_code", privilege_code);
+
       if (
         !checkPrivilege(
           role,
