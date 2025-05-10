@@ -16,6 +16,7 @@ DROP TABLE IF EXISTS company CASCADE;
 DROP TABLE IF EXISTS useraccount CASCADE;
 DROP TABLE IF EXISTS product CASCADE;
 DROP TABLE IF EXISTS works_for CASCADE;
+DROP TABLE IF EXISTS company_role CASCADE;
 
 DROP TABLE IF EXISTS product_purchase_detail CASCADE;
 DROP TABLE IF EXISTS purchase_proof CASCADE;
@@ -71,13 +72,28 @@ CREATE TABLE company (
     user_id INT REFERENCES useraccount(id) ON DELETE CASCADE
 );
 
+CREATE TABLE company_role (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR NOT NULL,
+    movements_view BOOLEAN DEFAULT FALSE,
+    movements_edit BOOLEAN DEFAULT FALSE,
+    employees_view BOOLEAN DEFAULT FALSE,
+    employees_edit BOOLEAN DEFAULT FALSE,
+    contact_view BOOLEAN DEFAULT FALSE,
+    contact_edit BOOLEAN DEFAULT FALSE,
+    billing_view BOOLEAN DEFAULT FALSE,
+    Billing_edit BOOLEAN DEFAULT FALSE,
+    inventory_view BOOLEAN DEFAULT FALSE,
+    company_id INT REFERENCES company(id) ON DELETE CASCADE
+);
+
 CREATE TABLE works_for (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES useraccount(id) ON DELETE CASCADE,
     company_id INT REFERENCES company(id) ON DELETE CASCADE,
-    role INT DEFAULT 2, -- 1: owner, 2: employee
     accepted BOOLEAN DEFAULT FALSE,
-    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    role INT REFERENCES company_role(id)
 );
 
 CREATE TABLE client (

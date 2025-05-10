@@ -6,9 +6,9 @@ export const getNotifications = async (req, res) => {
     const userId = req.user.userId;
 
     const notifications = await pool.query(
-      `SELECT useraccount.username, company.name, works_for.added_at FROM works_for 
+      `SELECT useraccount.username, company.name, company.id, works_for.added_at FROM works_for 
        JOIN company ON works_for.company_id = company.id
-       JOIN useraccount ON works_for.user_id = useraccount.id
+       JOIN useraccount ON company.user_id = useraccount.id
        WHERE works_for.user_id = $1 AND accepted = false ORDER BY added_at DESC`,
       [userId]
     );
@@ -16,6 +16,7 @@ export const getNotifications = async (req, res) => {
     const formattedNotifications = notifications.rows.map(notification => ({
       message: "You have a new company invitation",
       from_company: notification.name,
+      company_id: notification.id,
       from_username: notification.username,
       created_at: notification.added_at, 
     }));
@@ -45,6 +46,27 @@ export const acceptInvitation = async (req, res) => {
     res.json({ message: "Invitation accepted successfully" });
   } catch (error) {
     console.error("Error accepting invitation:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const rejectInvitation = async (req, res) => {
+  try {
+    const { companyId } = req.params;
+    const userId = req.user.userId;
+
+    const response = await pool.query(
+      `DELETE FROM works_for WHERE company_id = $1 AND user_id = $2 RETURNING *`,
+      [companyId, userId]
+    );
+
+    if (response.rows.length === 0) {
+      return res.status(404).json({ error: "Invitation not found" });
+    }
+
+    res.json({ message: "Invitation rejected successfully" });
+  } catch (error) {
+    console.error("Error rejecting invitation:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };

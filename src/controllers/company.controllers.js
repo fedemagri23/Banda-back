@@ -24,22 +24,28 @@ export const addCompany = async (req, res) => {
 
     //TODO: Validar app_password
 
-    if (!name || typeof name !== 'string') {
-      return res.status(400).json({ error: "Company name is required and must be text" });
+    if (!name || typeof name !== "string") {
+      return res
+        .status(400)
+        .json({ error: "Company name is required and must be text" });
     }
 
-    if (!email || typeof email !== 'string') {
+    if (!email || typeof email !== "string") {
       return res.status(400).json({ error: "Company email is required" });
     }
 
-    const normalizedName = name.trim().replace(/\s+/g, ' ');
+    const normalizedName = name.trim().replace(/\s+/g, " ");
 
     if (normalizedName.length < 3) {
-      return res.status(400).json({ error: "Name must be at least 3 characters long" });
+      return res
+        .status(400)
+        .json({ error: "Name must be at least 3 characters long" });
     }
 
     if (!/^[a-zA-Z0-9\s]+$/.test(normalizedName)) {
-      return res.status(400).json({ error: "Name cannot contain special characters" });
+      return res
+        .status(400)
+        .json({ error: "Name cannot contain special characters" });
     }
 
     if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
@@ -50,7 +56,7 @@ export const addCompany = async (req, res) => {
       `SELECT * FROM company WHERE name = $1 AND user_id = $2`,
       [normalizedName, userId]
     );
-    
+
     if (companyExists.rows.length > 0) {
       return res.status(400).json({ error: "Company already exists" });
     }
@@ -59,7 +65,7 @@ export const addCompany = async (req, res) => {
       `SELECT * FROM company WHERE email = $1`,
       [email]
     );
-    
+
     if (emailExists.rows.length > 0) {
       return res.status(400).json({ error: "Email already in use" });
     }
@@ -74,21 +80,42 @@ export const addCompany = async (req, res) => {
     res.json(response.rows[0]);
   } catch (error) {
     console.error("Error adding company:", error.message);
-    res.status(500).json({ error: error.message }); 
+    res.status(500).json({ error: error.message });
   }
 };
 
 export const getCompaniesFromUser = async (req, res) => {
   try {
     const userId = req.user.userId;
-    
-    const response = await pool.query(`
-      SELECT c.name, c.cuit, c.id, c.country, c.industry,
-             CASE WHEN c.user_id = $1 THEN true ELSE false END as "isOwner"
+
+    const response = await pool.query(
+      `
+      SELECT 
+      c.name, c.cuit, c.id, c.country, c.industry,
+      CASE
+        WHEN c.user_id = $1 THEN '111111111'
+        ELSE 
+        (cr.movements_view::int)::text ||
+        (cr.movements_edit::int)::text ||
+        (cr.employees_view::int)::text ||
+        (cr.employees_edit::int)::text ||
+        (cr.contact_view::int)::text ||
+        (cr.contact_edit::int)::text ||
+        (cr.billing_view::int)::text ||
+        (cr.Billing_edit::int)::text ||
+        (cr.inventory_view::int)::text
+      END AS privilege_code,
+      CASE 
+        WHEN c.user_id = $1 THEN true 
+        ELSE false 
+      END AS "isOwner"
       FROM company c
       LEFT JOIN works_for wf ON c.id = wf.company_id
-      WHERE c.user_id = $1 OR (wf.user_id = $1 AND wf.accepted = false)
-    `, [userId]);
+      JOIN company_role cr ON wf.role = cr.id
+      WHERE c.user_id = $1 OR (wf.user_id = $1 AND wf.accepted = true)
+    `,
+      [userId]
+    );
 
     res.json(response.rows);
   } catch (error) {
@@ -111,5 +138,4 @@ export const getCompanyById = async (req, res) => {
   }
 
   res.json(response.rows[0]);
-}
-
+};
