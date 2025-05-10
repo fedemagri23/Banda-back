@@ -111,7 +111,7 @@ export const getCompaniesFromUser = async (req, res) => {
       END AS "isOwner"
       FROM company c
       LEFT JOIN works_for wf ON c.id = wf.company_id
-      JOIN company_role cr ON wf.role = cr.id
+      LEFT JOIN company_role cr ON wf.role = cr.id
       WHERE c.user_id = $1 OR (wf.user_id = $1 AND wf.accepted = true)
     `,
       [userId]
