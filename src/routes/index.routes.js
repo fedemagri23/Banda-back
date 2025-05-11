@@ -47,6 +47,10 @@ import { getAiInterests } from "../controllers/ai.controllers.js";
 import { acceptInvitation, getNotifications, rejectInvitation } from "../controllers/notification.controllers.js";
 import { addEmployee, createRole, getEmployees, getRoles, removeEmployee } from "../controllers/employee.controllers.js";
 
+//Email services
+
+import {sendSaleOrderEmail} from "../services/emailservices.js";
+
 const ROLE_COMPANY_OWNER = "111111111";
 
 const router = Router();
@@ -119,6 +123,9 @@ router.get("/notification/get-all", verifyToken, getNotifications);
 router.post("/notification/accept/:companyId", verifyToken, acceptInvitation);
 router.delete("/notification/reject/:companyId", verifyToken, rejectInvitation);
 
+// Emails / Whatsapp
+
+router.post("/email/send",verifyToken,sendSaleOrderEmail)
 
 // TODO: Al final BORRAR estos controllers
 router.get("/token", getToken);
