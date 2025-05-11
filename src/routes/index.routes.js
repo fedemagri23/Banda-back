@@ -32,7 +32,7 @@ import {
   deleteArcaToken,
   deleteUserCertificate,
   getArcaToken,
-  getUserCertificate,
+  getCompanyCertificate,
   upsertArcaToken,
   upsertUserCertificate,
 } from "../controllers/arcatoken.controllers.js";
@@ -64,9 +64,9 @@ router.post("/arca/token/:user_id/:cuit", upsertArcaToken); // crear o actualiza
 router.delete("/arca/token/:user_id/:cuit", deleteArcaToken); // eliminar manualmente
 
 // Certificados de usuario para AFIP (WSAA)
-router.get("/arca/certificate/:user_id/:cuit", getUserCertificate); // Obtener certificado+private_key para un user y cuit
-router.post("/arca/certificate/:user_id/:cuit", upsertUserCertificate); // Crear o actualizar certificado+private_key para un user y cuit
-router.delete("/arca/certificate/:user_id/:cuit", deleteUserCertificate); // Eliminar certificado+private_key para un user y cuit
+router.get("/arca/certificate/:companyId", getCompanyCertificate); // Obtener certificado+private_key para un user y cuit
+router.post("/arca/certificate/:companyId", upsertUserCertificate); // Crear o actualizar certificado+private_key para un user y cuit
+router.delete("/arca/certificate/:companyId", deleteUserCertificate); // Eliminar certificado+private_key para un user y cuit
 
 router.post("/session/create", createSession);
 router.get("/session/:id", getSession);

@@ -62,23 +62,19 @@ export async function deleteArcaToken(req, res) {
 }
 
 // Obtener certificado y llave privada (encriptados) para un usuario y cuit
-export async function getUserCertificate(req, res) {
-  const { user_id, cuit } = req.params;
+export async function getCompanyCertificate(req, res) {
+  const { companyId } = req.params;
 
-  if (!user_id || typeof user_id !== "string" || user_id.trim() === "") {
-    return res.status(400).json({ error: "Invalid user ID" });
-  }
-
-  if (!cuit || typeof cuit !== "string" || cuit.trim() === "") {
+  if (!companyId || typeof companyId !== "string" || companyId.trim() === "") {
     return res.status(400).json({ error: "Invalid CUIT" });
   }
 
   const certificate = await pool.query(
     `
-    SELECT certificate, private_key FROM user_certificates
-    WHERE user_id = $1 AND cuit = $2
+    SELECT certificate, private_key FROM company_certificates
+    WHERE company_id = $1
   `,
-    [user_id, cuit]
+    [companyId]
   );
 
   if (certificate.rows.length === 0) {
@@ -90,8 +86,12 @@ export async function getUserCertificate(req, res) {
 
 // Crear o actualizar certificado y llave privada para un usuario y cuit
 export async function upsertUserCertificate(req, res) {
-  const { user_id, cuit } = req.params;
+  const { companyId } = req.params;
   const { certificate, private_key } = req.body;
+
+  if (!companyId || typeof companyId !== "string" || companyId.trim() === "") {
+    return res.status(400).json({ error: "Invalid company id" });
+  }
 
   if (
     !certificate ||
@@ -111,12 +111,12 @@ export async function upsertUserCertificate(req, res) {
 
   await pool.query(
     `
-    INSERT INTO user_certificates (user_id, cuit, certificate, private_key, updated_at)
-    VALUES ($1, $2, $3, $4, now())
-    ON CONFLICT (user_id, cuit)
-    DO UPDATE SET certificate = $3, private_key = $4, updated_at = now()
+    INSERT INTO company_certificates (company_id, certificate, private_key, updated_at)
+    VALUES ($1, $2, $3, now())
+    ON CONFLICT (company_id)
+    DO UPDATE SET certificate = $2, private_key = $3, updated_at = now()
   `,
-    [user_id, cuit, certificate, private_key]
+    [companyId, certificate, private_key]
   );
 
   res.status(200).json({ message: "Certificate saved" });
@@ -124,19 +124,15 @@ export async function upsertUserCertificate(req, res) {
 
 // Eliminar certificado y llave privada para un usuario y cuit
 export async function deleteUserCertificate(req, res) {
-  const { user_id, cuit } = req.params;
+  const { companyId } = req.params;
 
-  if (!user_id || typeof user_id !== "string" || user_id.trim() === "") {
-    return res.status(400).json({ error: "Invalid user ID" });
-  }
-
-  if (!cuit || typeof cuit !== "string" || cuit.trim() === "") {
-    return res.status(400).json({ error: "Invalid CUIT" });
+  if (!companyId || typeof companyId !== "string" || companyId.trim() === "") {
+    return res.status(400).json({ error: "Invalid company id" });
   }
 
   await pool.query(
     `
-    DELETE FROM user_certificates WHERE user_id = $1 AND cuit = $2
+    DELETE FROM company_certificates WHERE company_id = $1
   `,
     [user_id, cuit]
   );

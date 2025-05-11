@@ -294,7 +294,7 @@ async function seedDatabase() {
   // Seed company
   const companies = [{ 
     name: "Intel", 
-    cuit: "20-12345678-9", 
+    cuit: "20123456789", 
     email: "intelbanda@gmail.com", 
     app_password: "lfks znej beny msbz", 
     country: "United States",
@@ -829,7 +829,7 @@ async function seedDatabase() {
       web: "https://www.dell.com",
       description: "Major PC manufacturer and server integrator.",
       doc_type: 80,
-      doc_number: "20-98765432-1",
+      doc_number: "20987654321",
       preferred_cbte_type: 1,
       preferred_vat_type: 5,
       company_id: 1, // Replace with actual company_id
@@ -852,7 +852,7 @@ async function seedDatabase() {
       web: "https://www.hp.com",
       description: "Personal computing and printing leader.",
       doc_type: 80,
-      doc_number: "20-87654321-2",
+      doc_number: "20876543212",
       preferred_cbte_type: 1,
       preferred_vat_type: 5,
       company_id: 1, // Replace with actual company_id
@@ -875,7 +875,7 @@ async function seedDatabase() {
       web: "https://www.lenovo.com",
       description: "Leading global PC and mobile device manufacturer.",
       doc_type: 80,
-      doc_number: "20-76543210-3",
+      doc_number: "20765432103",
       preferred_cbte_type: 1,
       preferred_vat_type: 5,
       company_id: 1, // Replace with actual company_id
@@ -898,7 +898,7 @@ async function seedDatabase() {
       web: "https://aws.amazon.com",
       description: "Cloud computing services and datacenter solutions.",
       doc_type: 80, 
-      doc_number: "20-45582230-1",
+      doc_number: "20455822301",
       preferred_cbte_type: 1,
       preferred_vat_type: 5,
       company_id: 1, // Replace with actual company_id

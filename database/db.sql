@@ -29,7 +29,7 @@ DROP TABLE IF EXISTS sale_order CASCADE;
 DROP TABLE IF EXISTS session CASCADE;
 
 DROP TABLE IF EXISTS user_arca_tokens CASCADE;
-DROP TABLE IF EXISTS user_certificates CASCADE;
+DROP TABLE IF EXISTS company_certificates CASCADE;
 DROP TABLE IF EXISTS sale_invoice CASCADE;
 DROP TABLE IF EXISTS sale_invoice_tax CASCADE;
 DROP TABLE IF EXISTS sale_invoice_vat CASCADE;
@@ -224,11 +224,10 @@ CREATE TABLE user_arca_tokens (
   UNIQUE (user_id, cuit)
 );
 
-CREATE TABLE user_certificates (
+CREATE TABLE company_certificates (
   id SERIAL PRIMARY KEY,
   
-  user_id INTEGER NOT NULL REFERENCES useraccount(id) ON DELETE CASCADE,
-  cuit BIGINT NOT NULL,
+  company_id INTEGER NOT NULL REFERENCES company(id) ON DELETE CASCADE,
 
   certificate TEXT NOT NULL, -- Certificado público (en formato PEM)
   private_key TEXT NOT NULL, -- Llave privada ENCRIPTADA (no texto plano)
@@ -236,7 +235,7 @@ CREATE TABLE user_certificates (
   created_at TIMESTAMP DEFAULT now(),
   updated_at TIMESTAMP DEFAULT now(),
 
-  UNIQUE (user_id, cuit) -- Un mismo usuario no puede tener dos certificados distintos para el mismo CUIT
+  UNIQUE (company_id)
 );
 
 CREATE TABLE sale_invoice (
