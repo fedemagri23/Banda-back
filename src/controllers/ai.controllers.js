@@ -58,7 +58,7 @@ export const getAiInterests = async (req, res) => {
 };
 
 export const askWithIaDatabase = async (req, res) => {
-  const { query, companyId, userId } = req.body;
+  const { query, companyId, userId , history } = req.body;
 
   const schema = `
 Tablas principales:
@@ -114,10 +114,12 @@ Si tienes suficiente información, responde con:
 Si necesitas aclarar algo, responde con:
 { "type": "question", "message": "AQUÍ LA PREGUNTA ACLARATORIA" }
 No agregues texto extra.
+IMPORTANTE : Tene en cuenta en todas las consultas las previas :  ${history.map(h => `${h.role}: ${h.content}`).join('\n')}
 Pregunta: "${query}"
 `;
-
   try {
+
+    console.log("El historial : ",history);
 
 
     const aiResponse = await aiPrompt(prompt);
@@ -130,7 +132,7 @@ Pregunta: "${query}"
     const parsed = JSON.parse(cleanResponse);
     
     if (parsed.type === "sql") {
-      // Ejecutar la query solo si el usuario ya confirmó (puedes agregar un flag de confirmación)
+
       const cleanSql = parsed.query.trim();
       if (!/^select/i.test(cleanSql)) {
         return res.status(400).json({ error: "Solo se permiten consultas SELECT." });
