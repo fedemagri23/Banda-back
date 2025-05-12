@@ -60,7 +60,6 @@ export const getAiInterests = async (req, res) => {
 export const askWithIaDatabase = async (req, res) => {
   const { query, companyId, userId } = req.body;
 
-  // Resumen de la base de datos
   const schema = `
 Tablas principales:
 - useraccount(id, username, phone, mail, passhash, joined_at, last_payment_at, companies_amount, verification_code, verification_code_expires)
@@ -107,29 +106,44 @@ Relaciones clave:
 `;
 
   const prompt = `
-Eres un asistente que responde preguntas sobre la base de datos de una empresa.
-La base de datos tiene la siguiente estructura:
+Eres un asistente para consultas SQL sobre la siguiente base de datos:
 ${schema}
-IMPORTANTE: Todas las consultas SQL deben estar filtradas por company_id = ${companyId} en las tablas que lo tengan, y por client_id = ${userId} en las tablas que lo tengan.
-Dada la siguiente pregunta, responde SOLO con la consulta SQL necesaria para obtener la respuesta.
+IMPORTANTE: Todas las consultas SQL deben estar filtradas por company_id = ${companyId} en las tablas que lo tengan, y por user_id = ${userId} en las tablas que lo tengan.
+Si tienes suficiente información, responde con:
+{ "type": "sql", "query": "AQUÍ LA CONSULTA SQL" }
+Si necesitas aclarar algo, responde con:
+{ "type": "question", "message": "AQUÍ LA PREGUNTA ACLARATORIA" }
+No agregues texto extra.
 Pregunta: "${query}"
-Solo responde con la consulta SQL, lista para ejecutarla en una BD, sin explicaciones ni texto adicional.
 `;
 
   try {
-    const sql = await aiPrompt(prompt);
-    // Aquí podrías validar el SQL antes de ejecutarlo
 
-    console.log("SQL generado:", sql);
 
-    let cleanSql = sql.trim();
-    cleanSql = cleanSql.replace(/^```sql\n?/i, "").replace(/```$/i, "").trim();
+    const aiResponse = await aiPrompt(prompt);
 
-    const {rows} = await pool.query(cleanSql);
+    console.log("AI Response:", aiResponse);
 
-    return res.json(rows);
-
+    let cleanResponse = aiResponse.trim();
+    cleanResponse = cleanResponse.replace(/^```json\n?/i, "").replace(/```$/i, "").trim();
+    
+    const parsed = JSON.parse(cleanResponse);
+    
+    if (parsed.type === "sql") {
+      // Ejecutar la query solo si el usuario ya confirmó (puedes agregar un flag de confirmación)
+      const cleanSql = parsed.query.trim();
+      if (!/^select/i.test(cleanSql)) {
+        return res.status(400).json({ error: "Solo se permiten consultas SELECT." });
+      }
+      const { rows } = await pool.query(cleanSql);
+      return res.json({ result: rows, sql: cleanSql });
+    } else if (parsed.type === "question") {
+      // Devuelve la pregunta aclaratoria al frontend
+      return res.json({ clarification: parsed.message });
+    } else {
+      return res.status(400).json({ error: "Respuesta de IA no reconocida." });
+    }
   } catch (error) {
-    res.status(500).json({ error: "Error generando la consulta SQL" });
+    res.status(500).json({ error: "Error procesando la consulta de IA." });
   }
 };
