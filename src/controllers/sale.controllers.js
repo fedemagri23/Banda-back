@@ -169,15 +169,6 @@ export const addSaleOrder = async (req, res) => {
 
     res.json(response_order.rows[0]);
     
-    // Enviar email después de crear la orden exitosamente
-    try {
-      const clientEmail = supplierCheck.rows[0].mail;
-
-      await sendSaleOrderEmail(clientEmail, company_id);
-    } catch (error) {
-      console.error('Error sending email notification:', error.message);
-      // No retornamos error aquí para no afectar la creación de la orden
-    }
     
   } catch (error) {
     console.error("Error sale sale item:", error.message);
