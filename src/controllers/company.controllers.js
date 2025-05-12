@@ -129,7 +129,8 @@ export const getCompanyById = async (req, res) => {
   const companyId = req.params.companyId;
 
   const response = await pool.query(
-    "SELECT * FROM company WHERE id=$1 AND user_id=$2",
+    `SELECT id, name, cuit, email, country, industry, user_id FROM company 
+    WHERE id=$1 AND user_id=$2`,
     [companyId, userId]
   );
 
