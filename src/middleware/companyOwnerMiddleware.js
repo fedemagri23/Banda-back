@@ -38,6 +38,9 @@ export function checkCompanyRole(
   privilege_code,
 ) {
   return async (req, res, next) => {
+
+    console.log("privilege_code", privilege_code);
+
     const userId = req.user.userId;
     const companyId = req.params.companyId;
 
@@ -47,7 +50,10 @@ export function checkCompanyRole(
     );
 
     if (rows.length == 0) {
+
+      console.log("Company not found");
       return res.status(400).json({ error: "Company not found" });
+
     }
 
     const company = rows[0];
