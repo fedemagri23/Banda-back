@@ -921,7 +921,7 @@ async function seedDatabase() {
       web: "https://www.microsoft.com",
       description: "Leading software, cloud, and hardware provider.",
       doc_type: 80, 
-      doc_number: "20-54321098-5",
+      doc_number: "20543210985",
       preferred_cbte_type: 1,
       preferred_vat_type: 5,
       company_id: 1, // Replace with actual company_id

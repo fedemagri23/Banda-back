@@ -197,7 +197,10 @@ export async function getSaleInvoiceById(req, res) {
               c.doc_type AS client_doc_type,
               c.doc_number AS client_doc_number,
               c.country AS client_country,
-              c.preferred_cbte_type AS client_preferred_cbte_type
+              c.preferred_cbte_type AS client_preferred_cbte_type,
+              (c.address).town AS client_town,
+              (c.address).street AS client_street,
+              (c.address).number AS client_number
        FROM sale_invoice si
        LEFT JOIN sale_order so ON si.sale_id = so.id
        LEFT JOIN client c ON so.client_id = c.id
@@ -294,11 +297,9 @@ export async function checkSaleInvoiceExists(req, res) {
     });
   } catch (err) {
     console.error("Error checking sale invoice existence:", err.message);
-    res
-      .status(500)
-      .json({
-        message: "Error checking sale invoice existence",
-        error: err.message,
-      });
+    res.status(500).json({
+      message: "Error checking sale invoice existence",
+      error: err.message,
+    });
   }
 }
