@@ -5,7 +5,16 @@ dotenv.config();
 
 const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_GENAI_API_KEY });
 
-async function aiPrompt(prompt) {
+export async function aiPrompt(prompt) {
+  const response = await ai.models.generateContent({
+    model: "gemini-2.0-flash",
+    contents: prompt,
+    
+  });
+  return response.text;
+}
+
+export async function aiPromptWithSearch(prompt) {
   const response = await ai.models.generateContent({
     model: "gemini-2.0-flash",
     contents: prompt,
@@ -16,4 +25,3 @@ async function aiPrompt(prompt) {
   return response.text;
 }
 
-export default aiPrompt;
