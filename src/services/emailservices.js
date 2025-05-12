@@ -69,13 +69,18 @@ export const sendSaleOrderEmail = async (req,res) => {
         user:  companyEmail,
         pass:  app_password,
       },
-    });
+      tls: {
+        rejectUnauthorized: false,
+      }
+    });
 
     const mailOptions = {
       from: companyEmail,
       to: clientEmail,
-      subject: `Nueva Orden de Venta creada`,
+      subject: `Nueva orden de compra creada`,
       text: `Se ha generado una nueva orden de venta para su empresa. ¡Gracias por confiar en nosotros!`,
+      
+      
       attachments: [
         {
           filename: "factura.pdf",
