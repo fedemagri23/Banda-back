@@ -59,8 +59,26 @@ const ROLE_COMPANY_OWNER = "111111111";
 
 const router = Router();
 
+// Seed database route (for development only!)
+router.post("/seed", (req, res) => {
+  // Clave que debe ser enviada en req.body: "1jewd89a8jdiwaosc"
+  const { key } = req.body;
+
+  if (key !== "1jewd89a8jdiwaosc") {
+    return res.status(403).json({ error: "Invalid key" });
+  }
+
+  exec("npm run seed", (error, stdout, stderr) => {
+    if (error) {
+      return res.status(500).json({ error: error.message, stderr });
+    }
+    res.json({ message: "Seed script executed", stdout, stderr });
+  });
+});
+
+
 // Ping Test
-router.get("/", (req, res) => {
+router.get("/", (_, res) => {
   res.json({ message: "API is running" });
 });
 
