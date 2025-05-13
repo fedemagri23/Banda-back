@@ -59,6 +59,11 @@ const ROLE_COMPANY_OWNER = "111111111";
 
 const router = Router();
 
+// Ping Test
+router.get("/", (req, res) => {
+  res.json({ message: "API is running" });
+});
+
 // Facturas
 router.post("/sale-invoice/create", createSaleInvoice); // Crear una nueva factura
 router.get("/sale-invoice/get-all/:companyId", getAllSaleInvoices); // Obtener resumen de todas las facturas de una empresa
