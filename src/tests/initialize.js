@@ -257,7 +257,7 @@ async function createGhostPurchasesForSales(sales, purchases, token, baseUrl) {
   }
 }
 
-async function seedDatabase() {
+export async function seedDatabase() {
   await resetDatabase();
   console.log("Seeding database...");
 
