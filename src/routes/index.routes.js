@@ -96,7 +96,7 @@ router.get("/employee/role/get-all/:companyId", verifyToken, checkCompanyRole(RO
 
 router.post("/company/post", verifyToken, addCompany);
 router.get("/company/get-all", verifyToken, getCompaniesFromUser);
-router.get("/company/get/:companyId", verifyToken, checkCompanyRole(ROLE_COMPANY_OWNER), getCompanyById);
+router.get("/company/get/:companyId", verifyToken, getCompanyById);
 
 router.post("/supplier/post/:companyId", verifyToken, checkCompanyRole("000011000"), addSupplier);
 router.get("/supplier/get-all/:companyId", verifyToken, checkCompanyRole("000010000"), getSuppliersByCompany);

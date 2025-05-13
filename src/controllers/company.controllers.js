@@ -125,13 +125,12 @@ export const getCompaniesFromUser = async (req, res) => {
 };
 
 export const getCompanyById = async (req, res) => {
-  const userId = req.user.userId;
   const companyId = req.params.companyId;
 
   const response = await pool.query(
     `SELECT id, name, cuit, email, country, industry, user_id FROM company 
-    WHERE id=$1 AND user_id=$2`,
-    [companyId, userId]
+    WHERE id=$1`,
+    [companyId]
   );
 
   if (response.rows.length === 0) {

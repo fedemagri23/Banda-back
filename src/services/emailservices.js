@@ -69,6 +69,9 @@ export const sendSaleOrderEmail = async (req,res) => {
         user:  companyEmail,
         pass:  app_password,
       },
+      tls: {
+        rejectUnauthorized: false,
+      }
     });
 
     const mailOptions = {
