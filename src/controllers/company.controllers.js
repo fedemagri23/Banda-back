@@ -90,7 +90,7 @@ export const getCompaniesFromUser = async (req, res) => {
 
     const response = await pool.query(
       `
-      SELECT 
+      SELECT DISTINCT ON (c.id)
       c.name, c.cuit, c.id, c.country, c.industry,
       CASE
         WHEN c.user_id = $1 THEN '111111111'

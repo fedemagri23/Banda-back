@@ -8,13 +8,9 @@ dotenv.config();
 
 const baseUrl = `http://${process.env.DB_HOST}:${process.env.PORT}`;
 
-async function resetDatabase(){
+async function resetDatabase() {
   const client = new Client({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT,
+    connectionString: process.env.DATABASE_URL,
   });
 
   await client.connect();
@@ -26,7 +22,7 @@ async function resetDatabase(){
   await client.query(sql);
   await client.end();
 
-  console.log("DB Reset completed")
+  console.log("DB Reset completed");
 }
 
 async function handleResponse(response, successMessage, errorMessage) {

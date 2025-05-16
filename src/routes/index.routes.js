@@ -92,29 +92,10 @@ import {
   exportSuppliersToCSV,
   exportPurchasesToCSV,
 } from "../controllers/export.controllers.js";
-import { seedDatabase } from "../tests/initialize.js";
 
 const ROLE_COMPANY_OWNER = "111111111";
 
 const router = Router();
-
-// Seed database route (for development only!)
-router.post("/seed", async (req, res) => {
-  // Clave que debe ser enviada en req.body: "1jewd89a8jdiwaosc"
-  const { key } = req.body;
-
-  if (key !== "1jewd89a8jdiwaosc") {
-    return res.status(403).json({ error: "Invalid key" });
-  }
-
-  try {
-    await seedDatabase();
-    res.status(200).json({ message: "Database seeded successfully" });
-  } catch (error) {
-    console.error("Error seeding database:", error);
-    res.status(500).json({ error: "Error seeding database" });
-  }
-});
 
 // Ping Test
 router.get("/", (_, res) => {
