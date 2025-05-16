@@ -87,11 +87,7 @@ import { sendSaleOrderEmail } from "../services/emailservices.js";
 
 //Export services
 
-import {
-  exportClientsToCSV,
-  exportSuppliersToCSV,
-  exportPurchasesToCSV,
-} from "../controllers/export.controllers.js";
+import { exportClientsToCSV, exportSuppliersToCSV ,exportPurchasesToCSV , exportSalesToCSV, exportInventoryToCSV, exportEmployeesToCSV} from "../controllers/export.controllers.js";
 
 const ROLE_COMPANY_OWNER = "111111111";
 
@@ -275,6 +271,10 @@ router.get(
   getAiInterests
 );
 router.post("/ai/ask-database", verifyToken, askWithIaDatabase);
+router.get("/ai/interests/:companyId", verifyToken, checkCompanyRole("000000000"), getAiInterests);
+router.post("/ai/ask-database/:companyId", verifyToken, checkCompanyRole("101010101"),askWithIaDatabase);
+
+
 
 router.get("/notification/get-all", verifyToken, getNotifications);
 router.post("/notification/accept/:companyId", verifyToken, acceptInvitation);
@@ -289,6 +289,13 @@ router.post("/email/send", verifyToken, sendSaleOrderEmail);
 router.get("/export/clients/csv", exportClientsToCSV); // Exportar a CSV
 router.get("/export/suppliers/csv", exportSuppliersToCSV); // Exportar a CSV
 router.get("/export/purchases/csv", exportPurchasesToCSV); // Exportar a CSV
+router.get("/export/clients/csv/:companyId", verifyToken, checkCompanyRole("000000000"),exportClientsToCSV); // Exportar a CSV 
+router.get("/export/suppliers/csv/:companyId", verifyToken, checkCompanyRole("000000000"),exportSuppliersToCSV); // Exportar a CSV
+router.get("/export/purchases/csv/:companyId", verifyToken, checkCompanyRole("000000000"),exportPurchasesToCSV); // Exportar a CSV
+router.get("/export/sales/csv/:companyId",verifyToken, checkCompanyRole("000000000"), exportSalesToCSV); // Exportar a CSV
+router.get("/export/inventory/csv/:companyId", verifyToken, checkCompanyRole("000000000"),exportInventoryToCSV); // Exportar a CSV
+router.get("/export/employeees/csv/:companyId", verifyToken, checkCompanyRole("000000000"),exportEmployeesToCSV); // Exportar a CSV
+
 
 // TODO: Al final BORRAR estos controllers
 router.get("/token", getToken);
