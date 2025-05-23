@@ -43,7 +43,7 @@ export const getInventoryByCompany = async (req, res) => {
     const soldProductsCompressed = Object.values(
       soldProducts.rows.reduce((acc, item) => {
         const id = item.product_id;
-        const quantity = item.quantity
+        const quantity = item.quantity;
         if (!acc[id]) {
           acc[id] = { product_id: id, amount: quantity };
         } else {
@@ -58,7 +58,9 @@ export const getInventoryByCompany = async (req, res) => {
       return acc;
     }, {});
 
-    const productIds = purchasedProductsCompressed.map((item) => item.product_id);
+    const productIds = purchasedProductsCompressed.map(
+      (item) => item.product_id
+    );
     const productsQuery = await pool.query(
       `
         SELECT * FROM product WHERE id = ANY($1::int[]);
@@ -74,8 +76,11 @@ export const getInventoryByCompany = async (req, res) => {
     const stock = purchasedProductsCompressed.map((item) => ({
       product: productMap[item.product_id],
       total_spent: item.total_spent,
-      stock_value: productMap[item.product_id].list_price * (item.amount - (soldMap[item.product_id] || 0)),
+      stock_value:
+        productMap[item.product_id].list_price *
+        (item.amount - (soldMap[item.product_id] || 0)),
       amount: item.amount - (soldMap[item.product_id] || 0),
+      stock_alert: productMap[item.product_id].stock_alert,
     }));
 
     res.json(stock);
