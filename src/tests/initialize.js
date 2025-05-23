@@ -1,14 +1,17 @@
 import fetch from "node-fetch";
 import dotenv from "dotenv";
-import pkg from 'pg';
+import pkg from "pg";
 const { Client } = pkg;
-import fs from "fs/promises"
+import fs from "fs/promises";
+import { purchases } from "./datasets.js";
 
 dotenv.config();
 
-const baseUrl = `http://${process.env.DB_HOST}:${process.env.PORT}`;
+const internalApiPort = process.env.PORT || 3001;
+const baseUrl = `http://localhost:${internalApiPort}`;
 
 async function resetDatabase() {
+  console.log("RESETTING: ", process.env.DATABASE_URL);
   const client = new Client({
     connectionString: process.env.DATABASE_URL,
   });
@@ -28,9 +31,13 @@ async function resetDatabase() {
 async function handleResponse(response, successMessage, errorMessage) {
   if (!response.ok) {
     const errorData = await response.json();
-    console.error(`\x1b[31m❌ ${errorMessage}: ${response.status} ${response.statusText}\x1b[0m`);
+    console.error(
+      `\x1b[31m❌ ${errorMessage}: ${response.status} ${response.statusText}\x1b[0m`
+    );
     console.error(`\x1b[31mError details: ${JSON.stringify(errorData)}\x1b[0m`);
-    throw new Error(`${errorMessage}: ${response.status} ${response.statusText}`);
+    throw new Error(
+      `${errorMessage}: ${response.status} ${response.statusText}`
+    );
   }
   const data = await response.json();
   console.log(`\x1b[32m✅ ${successMessage}\x1b[0m`);
@@ -194,10 +201,18 @@ async function createInvite(invite, token, baseUrl) {
   );
 }
 
-async function createGhostPurchase(productId, quantity, saleDate, token, baseUrl) {
+async function createGhostPurchase(
+  productId,
+  quantity,
+  saleDate,
+  token,
+  baseUrl
+) {
   // Generate a valid proof code: G + 3 digits for product ID + 4 digits for date
-  const proofCode = `G${String(productId).padStart(3, '0')}${saleDate.replace(/-/g, '').slice(4)}`;
-  
+  const proofCode = `G${String(productId).padStart(3, "0")}${saleDate
+    .replace(/-/g, "")
+    .slice(4)}`;
+
   const ghostPurchase = {
     condition: "CTE",
     supplier_id: 1, // Using ASML as default supplier
@@ -206,9 +221,9 @@ async function createGhostPurchase(productId, quantity, saleDate, token, baseUrl
     created_at: saleDate,
     products_details: [
       {
-        batch_number: `GHOST-${productId}-${saleDate.replace(/-/g, '')}`,
+        batch_number: `GHOST-${productId}-${saleDate.replace(/-/g, "")}`,
         quantity: quantity,
-        unit_price: 0.00,
+        unit_price: 0.0,
         product_id: productId,
       },
     ],
@@ -220,8 +235,8 @@ async function createGhostPurchase(productId, quantity, saleDate, token, baseUrl
 async function createGhostPurchasesForSales(sales, purchases, token, baseUrl) {
   // Create a map of product quantities purchased
   const purchasedQuantities = new Map();
-  purchases.forEach(purchase => {
-    purchase.products_details.forEach(detail => {
+  purchases.forEach((purchase) => {
+    purchase.products_details.forEach((detail) => {
       const current = purchasedQuantities.get(detail.product_id) || 0;
       purchasedQuantities.set(detail.product_id, current + detail.quantity);
     });
@@ -229,8 +244,8 @@ async function createGhostPurchasesForSales(sales, purchases, token, baseUrl) {
 
   // Create a map of product quantities sold
   const soldQuantities = new Map();
-  sales.forEach(sale => {
-    sale.products_details.forEach(detail => {
+  sales.forEach((sale) => {
+    sale.products_details.forEach((detail) => {
       const current = soldQuantities.get(detail.product_id) || 0;
       soldQuantities.set(detail.product_id, current + detail.quantity);
     });
@@ -242,12 +257,20 @@ async function createGhostPurchasesForSales(sales, purchases, token, baseUrl) {
     if (soldQty > purchasedQty) {
       const missingQty = soldQty - purchasedQty;
       // Find the first sale date for this product
-      const firstSale = sales.find(sale => 
-        sale.products_details.some(detail => detail.product_id === productId)
+      const firstSale = sales.find((sale) =>
+        sale.products_details.some((detail) => detail.product_id === productId)
       );
       if (firstSale) {
-        await createGhostPurchase(productId, missingQty, firstSale.created_at, token, baseUrl);
-        console.log(`Created ghost purchase for product ${productId} with quantity ${missingQty}`);
+        await createGhostPurchase(
+          productId,
+          missingQty,
+          firstSale.created_at,
+          token,
+          baseUrl
+        );
+        console.log(
+          `Created ghost purchase for product ${productId} with quantity ${missingQty}`
+        );
       }
     }
   }
@@ -284,19 +307,25 @@ export async function seedDatabase() {
   }
 
   // Login and get token
-  const loginData = await loginUser(users[0].username, users[0].password, baseUrl);
+  const loginData = await loginUser(
+    users[0].username,
+    users[0].password,
+    baseUrl
+  );
   const token = loginData.token;
 
   // Seed company
-  const companies = [{ 
-    name: "Intel", 
-    cuit: "20123456789", 
-    email: "intelbanda@gmail.com", 
-    app_password: "lfks znej beny msbz", 
-    country: "United States",
-    industry: "Semiconductors, CPUs, GPUs, Servers, Computers",
-    userId: 1 
-  }];
+  const companies = [
+    {
+      name: "Intel",
+      cuit: "20123456789",
+      email: "intelbanda@gmail.com",
+      app_password: "lfks znej beny msbz",
+      country: "United States",
+      industry: "Semiconductors, CPUs, GPUs, Servers, Computers",
+      userId: 1,
+    },
+  ];
 
   for (const company of companies) {
     await createCompany(company, token, baseUrl);
@@ -623,184 +652,6 @@ export async function seedDatabase() {
   }
 
   // Seed purchases
-  const purchases = [
-    {
-      condition: "P30",
-      supplier_id: 1,
-      proof_code: "F0012345",
-      proof_type: "FACTA",
-      created_at: "2025-03-29",
-      products_details: [
-        {
-          batch_number: "BCH20250401",
-          quantity: 1,
-          unit_price: 80000000.00,
-          product_id: 1,
-        },
-        {
-          batch_number: "BCH20250402",
-          quantity: 2,
-          unit_price: 35000000.00,
-          product_id: 2,
-        },
-      ],
-    },
-    {
-      condition: "P60",
-      supplier_id: 2,
-      proof_code: "F0056789",
-      proof_type: "FACTA",
-      created_at: "2025-04-02",
-      products_details: [
-        {
-          batch_number: "BCH20250403",
-          quantity: 3,
-          unit_price: 4000000.00,
-          product_id: 4,
-        },
-        {
-          batch_number: "BCH20250404",
-          quantity: 2,
-          unit_price: 3000000.00,
-          product_id: 5,
-        },
-        {
-          batch_number: "BCH20250405",
-          quantity: 1,
-          unit_price: 5000000.00,
-          product_id: 6,
-        },
-      ],
-    },
-    {
-      condition: "P90",
-      supplier_id: 3,
-      proof_code: "F0078901",
-      proof_type: "FACTB",
-      created_at: "2025-04-05",
-      products_details: [
-        {
-          batch_number: "BCH20250406",
-          quantity: 2,
-          unit_price: 3500000.00,
-          product_id: 7,
-        },
-        {
-          batch_number: "BCH20250407",
-          quantity: 1,
-          unit_price: 2000000.00,
-          product_id: 8,
-        },
-      ],
-    },
-    {
-      condition: "CTE",
-      supplier_id: 4,
-      proof_code: "F0012346",
-      proof_type: "FACTC",
-      created_at: "2025-04-08",
-      products_details: [
-        {
-          batch_number: "BCH20250408",
-          quantity: 5,
-          unit_price: 3000000.00,
-          product_id: 10,
-        },
-        {
-          batch_number: "BCH20250409",
-          quantity: 3,
-          unit_price: 2250000.00,
-          product_id: 11,
-        },
-      ],
-    },
-    {
-      condition: "CDF",
-      supplier_id: 5,
-      proof_code: "RC004567",
-      proof_type: "RECIB",
-      created_at: "2025-04-12",
-      products_details: [
-        {
-          batch_number: "BCH20250410",
-          quantity: 1000,
-          unit_price: 60.00,
-          product_id: 13,
-        },
-        {
-          batch_number: "BCH20250411",
-          quantity: 500,
-          unit_price: 80.00,
-          product_id: 14,
-        },
-      ],
-    },
-    {
-      condition: "P30",
-      supplier_id: 1,
-      proof_code: "F0034568",
-      proof_type: "FACTA",
-      created_at: "2025-04-26",
-      products_details: [
-        {
-          batch_number: "BCH20250421",
-          quantity: 1200,
-          unit_price: 75.00,
-          product_id: 16,
-        },
-        {
-          batch_number: "BCH20250422",
-          quantity: 800,
-          unit_price: 110.00,
-          product_id: 17,
-        },
-      ],
-    },
-    {
-      condition: "P60",
-      supplier_id: 2,
-      proof_code: "F0078913",
-      proof_type: "FACTM",
-      created_at: "2025-04-28",
-      products_details: [
-        {
-          batch_number: "BCH20250423",
-          quantity: 600,
-          unit_price: 90.00,
-          product_id: 19,
-        },
-        {
-          batch_number: "BCH20250424",
-          quantity: 500,
-          unit_price: 40.00,
-          product_id: 20,
-        },
-      ],
-    },
-    {
-      condition: "DBA",
-      supplier_id: 3,
-      proof_code: "F0098766",
-      proof_type: "FACTE",
-      created_at: "2025-04-30",
-      products_details: [
-        {
-          batch_number: "BCH20250425",
-          quantity: 150,
-          unit_price: 75.00,
-          product_id: 22,
-        },
-        {
-          batch_number: "BCH20250426",
-          quantity: 250,
-          unit_price: 300.00,
-          product_id: 23,
-        },
-      ],
-    },
-  ];
-
-  // Create initial purchases
   for (const purchase of purchases) {
     await createPurchase(purchase, token, baseUrl);
   }
@@ -893,7 +744,7 @@ export async function seedDatabase() {
       mail: "awsprocurement@amazon.com",
       web: "https://aws.amazon.com",
       description: "Cloud computing services and datacenter solutions.",
-      doc_type: 80, 
+      doc_type: 80,
       doc_number: "20455822301",
       preferred_cbte_type: 1,
       preferred_vat_type: 5,
@@ -916,7 +767,7 @@ export async function seedDatabase() {
       mail: "supplier@microsoft.com",
       web: "https://www.microsoft.com",
       description: "Leading software, cloud, and hardware provider.",
-      doc_type: 80, 
+      doc_type: 80,
       doc_number: "20543210985",
       preferred_cbte_type: 1,
       preferred_vat_type: 5,
@@ -940,13 +791,13 @@ export async function seedDatabase() {
         {
           batch_number: "SAL20250401",
           quantity: 15000,
-          unit_price: 1500.00,
+          unit_price: 1500.0,
           product_id: 13,
         },
         {
           batch_number: "SAL20250402",
           quantity: 9000,
-          unit_price: 1480.00,
+          unit_price: 1480.0,
           product_id: 14,
         },
       ],
@@ -961,13 +812,13 @@ export async function seedDatabase() {
         {
           batch_number: "SAL20250403",
           quantity: 6000,
-          unit_price: 1510.00,
+          unit_price: 1510.0,
           product_id: 13,
         },
         {
           batch_number: "SAL20250404",
           quantity: 4500,
-          unit_price: 1495.00,
+          unit_price: 1495.0,
           product_id: 16,
         },
       ],
@@ -982,13 +833,13 @@ export async function seedDatabase() {
         {
           batch_number: "SAL20250405",
           quantity: 24000,
-          unit_price: 1450.00,
+          unit_price: 1450.0,
           product_id: 13,
         },
         {
           batch_number: "SAL20250406",
           quantity: 19200,
-          unit_price: 1440.00,
+          unit_price: 1440.0,
           product_id: 17,
         },
       ],
@@ -1003,13 +854,13 @@ export async function seedDatabase() {
         {
           batch_number: "SAL20250407",
           quantity: 1200,
-          unit_price: 17000.00,
+          unit_price: 17000.0,
           product_id: 1,
         },
         {
           batch_number: "SAL20250408",
           quantity: 480,
-          unit_price: 16800.00,
+          unit_price: 16800.0,
           product_id: 2,
         },
       ],
@@ -1024,13 +875,13 @@ export async function seedDatabase() {
         {
           batch_number: "SAL20250409",
           quantity: 720,
-          unit_price: 17200.00,
+          unit_price: 17200.0,
           product_id: 1,
         },
         {
           batch_number: "SAL20250410",
           quantity: 240,
-          unit_price: 16900.00,
+          unit_price: 16900.0,
           product_id: 2,
         },
       ],
@@ -1045,13 +896,13 @@ export async function seedDatabase() {
         {
           batch_number: "SAL20250411",
           quantity: 9000,
-          unit_price: 1500.00,
+          unit_price: 1500.0,
           product_id: 13,
         },
         {
           batch_number: "SAL20250412",
           quantity: 6000,
-          unit_price: 1480.00,
+          unit_price: 1480.0,
           product_id: 14,
         },
       ],
@@ -1066,13 +917,13 @@ export async function seedDatabase() {
         {
           batch_number: "SAL20250413",
           quantity: 12000,
-          unit_price: 1510.00,
+          unit_price: 1510.0,
           product_id: 13,
         },
         {
           batch_number: "SAL20250414",
           quantity: 9000,
-          unit_price: 1495.00,
+          unit_price: 1495.0,
           product_id: 16,
         },
       ],
@@ -1087,13 +938,13 @@ export async function seedDatabase() {
         {
           batch_number: "SAL20250415",
           quantity: 18000,
-          unit_price: 1450.00,
+          unit_price: 1450.0,
           product_id: 13,
         },
         {
           batch_number: "SAL20250416",
           quantity: 14400,
-          unit_price: 1440.00,
+          unit_price: 1440.0,
           product_id: 17,
         },
       ],
@@ -1108,13 +959,13 @@ export async function seedDatabase() {
         {
           batch_number: "SAL20250417",
           quantity: 900,
-          unit_price: 17000.00,
+          unit_price: 17000.0,
           product_id: 1,
         },
         {
           batch_number: "SAL20250418",
           quantity: 360,
-          unit_price: 16800.00,
+          unit_price: 16800.0,
           product_id: 2,
         },
       ],
@@ -1129,13 +980,13 @@ export async function seedDatabase() {
         {
           batch_number: "SAL20250419",
           quantity: 540,
-          unit_price: 17200.00,
+          unit_price: 17200.0,
           product_id: 1,
         },
         {
           batch_number: "SAL20250420",
           quantity: 180,
-          unit_price: 16900.00,
+          unit_price: 16900.0,
           product_id: 2,
         },
       ],
@@ -1150,13 +1001,13 @@ export async function seedDatabase() {
         {
           batch_number: "SAL20250421",
           quantity: 12000,
-          unit_price: 1500.00,
+          unit_price: 1500.0,
           product_id: 13,
         },
         {
           batch_number: "SAL20250422",
           quantity: 8000,
-          unit_price: 1480.00,
+          unit_price: 1480.0,
           product_id: 14,
         },
       ],
@@ -1171,13 +1022,13 @@ export async function seedDatabase() {
         {
           batch_number: "SAL20250423",
           quantity: 16000,
-          unit_price: 1510.00,
+          unit_price: 1510.0,
           product_id: 13,
         },
         {
           batch_number: "SAL20250424",
           quantity: 12000,
-          unit_price: 1495.00,
+          unit_price: 1495.0,
           product_id: 16,
         },
       ],
@@ -1192,13 +1043,13 @@ export async function seedDatabase() {
         {
           batch_number: "SAL20250425",
           quantity: 24000,
-          unit_price: 1450.00,
+          unit_price: 1450.0,
           product_id: 13,
         },
         {
           batch_number: "SAL20250426",
           quantity: 19200,
-          unit_price: 1440.00,
+          unit_price: 1440.0,
           product_id: 17,
         },
       ],
@@ -1213,13 +1064,13 @@ export async function seedDatabase() {
         {
           batch_number: "SAL20250427",
           quantity: 1200,
-          unit_price: 17000.00,
+          unit_price: 17000.0,
           product_id: 1,
         },
         {
           batch_number: "SAL20250428",
           quantity: 480,
-          unit_price: 16800.00,
+          unit_price: 16800.0,
           product_id: 2,
         },
       ],
@@ -1234,13 +1085,13 @@ export async function seedDatabase() {
         {
           batch_number: "SAL20250429",
           quantity: 720,
-          unit_price: 17200.00,
+          unit_price: 17200.0,
           product_id: 1,
         },
         {
           batch_number: "SAL20250430",
           quantity: 240,
-          unit_price: 16900.00,
+          unit_price: 16900.0,
           product_id: 2,
         },
       ],
@@ -1255,13 +1106,13 @@ export async function seedDatabase() {
         {
           batch_number: "SAL20250431",
           quantity: 15000,
-          unit_price: 1500.00,
+          unit_price: 1500.0,
           product_id: 13,
         },
         {
           batch_number: "SAL20250432",
           quantity: 9000,
-          unit_price: 1480.00,
+          unit_price: 1480.0,
           product_id: 14,
         },
       ],
@@ -1276,13 +1127,13 @@ export async function seedDatabase() {
         {
           batch_number: "SAL20250433",
           quantity: 8000,
-          unit_price: 1510.00,
+          unit_price: 1510.0,
           product_id: 13,
         },
         {
           batch_number: "SAL20250434",
           quantity: 6000,
-          unit_price: 1495.00,
+          unit_price: 1495.0,
           product_id: 16,
         },
       ],
@@ -1297,13 +1148,13 @@ export async function seedDatabase() {
         {
           batch_number: "SAL20250435",
           quantity: 20000,
-          unit_price: 1450.00,
+          unit_price: 1450.0,
           product_id: 13,
         },
         {
           batch_number: "SAL20250436",
           quantity: 16000,
-          unit_price: 1440.00,
+          unit_price: 1440.0,
           product_id: 17,
         },
       ],
@@ -1318,13 +1169,13 @@ export async function seedDatabase() {
         {
           batch_number: "SAL20250437",
           quantity: 1000,
-          unit_price: 17000.00,
+          unit_price: 17000.0,
           product_id: 1,
         },
         {
           batch_number: "SAL20250438",
           quantity: 400,
-          unit_price: 16800.00,
+          unit_price: 16800.0,
           product_id: 2,
         },
       ],
@@ -1339,13 +1190,13 @@ export async function seedDatabase() {
         {
           batch_number: "SAL20250439",
           quantity: 600,
-          unit_price: 17200.00,
+          unit_price: 17200.0,
           product_id: 1,
         },
         {
           batch_number: "SAL20250440",
           quantity: 200,
-          unit_price: 16900.00,
+          unit_price: 16900.0,
           product_id: 2,
         },
       ],
@@ -1360,13 +1211,13 @@ export async function seedDatabase() {
         {
           batch_number: "SAL20250441",
           quantity: 10000,
-          unit_price: 1500.00,
+          unit_price: 1500.0,
           product_id: 13,
         },
         {
           batch_number: "SAL20250442",
           quantity: 7000,
-          unit_price: 1480.00,
+          unit_price: 1480.0,
           product_id: 14,
         },
       ],
@@ -1381,13 +1232,13 @@ export async function seedDatabase() {
         {
           batch_number: "SAL20250443",
           quantity: 14000,
-          unit_price: 1510.00,
+          unit_price: 1510.0,
           product_id: 13,
         },
         {
           batch_number: "SAL20250444",
           quantity: 10000,
-          unit_price: 1495.00,
+          unit_price: 1495.0,
           product_id: 16,
         },
       ],
@@ -1402,13 +1253,13 @@ export async function seedDatabase() {
         {
           batch_number: "SAL20250445",
           quantity: 22000,
-          unit_price: 1450.00,
+          unit_price: 1450.0,
           product_id: 13,
         },
         {
           batch_number: "SAL20250446",
           quantity: 18000,
-          unit_price: 1440.00,
+          unit_price: 1440.0,
           product_id: 17,
         },
       ],
@@ -1423,13 +1274,13 @@ export async function seedDatabase() {
         {
           batch_number: "SAL20250447",
           quantity: 1100,
-          unit_price: 17000.00,
+          unit_price: 17000.0,
           product_id: 1,
         },
         {
           batch_number: "SAL20250448",
           quantity: 440,
-          unit_price: 16800.00,
+          unit_price: 16800.0,
           product_id: 2,
         },
       ],
@@ -1444,13 +1295,13 @@ export async function seedDatabase() {
         {
           batch_number: "SAL20250449",
           quantity: 660,
-          unit_price: 17200.00,
+          unit_price: 17200.0,
           product_id: 1,
         },
         {
           batch_number: "SAL20250450",
           quantity: 220,
-          unit_price: 16900.00,
+          unit_price: 16900.0,
           product_id: 2,
         },
       ],
@@ -1487,7 +1338,7 @@ export async function seedDatabase() {
   const invites = [
     {
       username: "adam_taylor",
-      employeeRole: 1
+      employeeRole: 1,
     },
   ];
 
@@ -1496,10 +1347,6 @@ export async function seedDatabase() {
     await createInvite(invite, token, baseUrl);
   }
 
-
-
   // Create ghost purchases for products that were sold but not purchased
   await createGhostPurchasesForSales(sales, purchases, token, baseUrl);
 }
-
-seedDatabase();

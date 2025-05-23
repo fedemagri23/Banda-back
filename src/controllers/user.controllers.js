@@ -33,11 +33,9 @@ export const register = async (req, res) => {
     }
 
     if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      return res
-        .status(400)
-        .json({
-          error: "Username can only contain letters, numbers or underscores",
-        });
+      return res.status(400).json({
+        error: "Username can only contain letters, numbers or underscores",
+      });
     }
 
     if (!phone || phone.length < 10) {
@@ -103,6 +101,12 @@ export const getUser = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { identifier, password } = req.body;
+
+    if (!identifier || !password) {
+      return res
+        .status(404)
+        .json({ error: "Identifier and password are required" });
+    }
 
     const { rows } = await pool.query(
       "SELECT id, username, phone, mail, passhash FROM useraccount WHERE username = $1 OR mail = $1 OR phone = $1",

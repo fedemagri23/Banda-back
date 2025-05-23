@@ -1,5 +1,10 @@
 import pg from "pg";
-import { DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME } from "./config.js";
+
+/** 
+ * IMPORTANTE: Definir en .env la variable DATABASE_URL
+ * pero tambien definir las variables PGUSER, PGHOST, PGPASSWORD, PGDATABASE y PGPORT
+ * para que algunas cosas como los tests funcionen correctamente
+ */
 
 export const pool = new pg.Pool({
     connectionString: process.env.DATABASE_URL,
