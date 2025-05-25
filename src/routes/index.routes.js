@@ -55,6 +55,12 @@ import {sendSaleOrderEmail} from "../services/emailservices.js";
 
 import { exportClientsToCSV, exportSuppliersToCSV ,exportPurchasesToCSV , exportSalesToCSV, exportInventoryToCSV, exportEmployeesToCSV} from "../controllers/export.controllers.js";
 
+// Import services
+
+import { importCheckMiddleware } from '../middleware/importCheckMiddleware.js';
+
+import { processCSVWithAI } from "../controllers/ai.controllers.js" 
+
 const ROLE_COMPANY_OWNER = "111111111";
 
 const router = Router();
@@ -143,6 +149,9 @@ router.get("/export/sales/csv/:companyId",verifyToken, checkCompanyRole("0000000
 router.get("/export/inventory/csv/:companyId", verifyToken, checkCompanyRole("000000000"),exportInventoryToCSV); // Exportar a CSV
 router.get("/export/employeees/csv/:companyId", verifyToken, checkCompanyRole("000000000"),exportEmployeesToCSV); // Exportar a CSV
 
+//Imports 
+
+router.post('/import/:companyId/:type', importCheckMiddleware, processCSVWithAI );
 
 // TODO: Al final BORRAR estos controllers
 router.get("/token", getToken);
