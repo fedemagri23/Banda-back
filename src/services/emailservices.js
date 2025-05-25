@@ -1,6 +1,32 @@
 import nodemailer from 'nodemailer';
 import { pool } from '../db.js';
 
+export async function sendEmail({ from, fromPassword, to, subject, text, attachments = [] }) {
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    auth: {
+      user: from,
+      pass: fromPassword,
+    },
+    tls: {
+      rejectUnauthorized: false,
+    }
+  });
+
+  const mailOptions = {
+    from,
+    to,
+    subject,
+    text,
+    attachments,
+  };
+
+  await transporter.sendMail(mailOptions);
+  console.log('Email enviado correctamente a', to);
+}
+
 export const sendSaleOrderEmail = async (req,res) => {
 
   const authHeader = req.headers.authorization;
@@ -60,36 +86,30 @@ export const sendSaleOrderEmail = async (req,res) => {
     }
 
     const { email: companyEmail, app_password : app_password } = companyResult.rows[0];
-    // Crear transporter con las credenciales de la compañía
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
-      auth: {
-        user:  companyEmail,
-        pass:  app_password,
+
+    const subject = "Nueva orden de compra creada"
+    const text = "Se ha generado una nueva orden de venta para su empresa. ¡Gracias por confiar en nosotros!"
+    const html = null;
+    const attachments = [
+      {
+        filename: "factura.pdf",
+        content: pdfBuffer,
       },
-      tls: {
-        rejectUnauthorized: false,
-      }
-    });
+    ]
+     
+    console.log({companyEmail, app_password, clientEmail, subject, text, attachments});
 
-    const mailOptions = {
+    await sendEmail({
       from: companyEmail,
+      fromPassword: app_password,
       to: clientEmail,
-      subject: `Nueva orden de compra creada`,
-      text: `Se ha generado una nueva orden de venta para su empresa. ¡Gracias por confiar en nosotros!`,
-      
-      
-      attachments: [
-        {
-          filename: "factura.pdf",
-          content: pdfBuffer,
-        },
-      ],
-    };
-
-    await transporter.sendMail(mailOptions);
+      subject,
+      text,
+      html,
+      attachments
+    });
+    // Crear transporter con las credenciales de la compañía
+    
     console.log('Email enviado correctamente');
     return res.status(200).json({ message: "Email enviado correctamente" });
   } catch (error) {
@@ -99,7 +119,7 @@ export const sendSaleOrderEmail = async (req,res) => {
 };
 
 import fetch from "node-fetch"; // o import fetch from "node-fetch";
-
+import { sub } from 'date-fns';
 
 
 async function getInvoicePDF(invoiceId,jwt) {
