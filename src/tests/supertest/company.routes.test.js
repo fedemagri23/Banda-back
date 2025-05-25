@@ -8,16 +8,22 @@ setupTest(pool);
 describe("Company creation flow", () => {
   let token;
   let createdCompany;
+  let createdCompany2;
   const companyData = {
     name: "Test Company AI",
     email: "testcompanyai@example.com",
     cuit: "30712345678",
     app_password: "companypass2025",
     country: "Argentina",
-    industry: "Software"
+    industry: "Software",
   };
 
   beforeAll(async () => {
+    // Clean up any companies with the test names before running tests
+    await pool.query(
+      "DELETE FROM company WHERE name = $1 OR name = $2",
+      [companyData.name, "Test Company AI 2"]
+    );
     token = await loginAsUser("greg_lavender", "intelbanda2025");
   });
 
@@ -37,7 +43,7 @@ describe("Company creation flow", () => {
       .get("/company/get-all")
       .set("Authorization", `Bearer ${token}`);
     expect(getAllRes.status).toBe(200);
-    const found = getAllRes.body.find(c => c.id === createdCompany.id);
+    const found = getAllRes.body.find((c) => c.id === createdCompany.id);
     expect(found).toBeDefined();
     expect(found.name).toBe(companyData.name);
 
@@ -58,9 +64,9 @@ describe("Company creation flow", () => {
       .send(companyData);
     expect(duplicateRes.status).toBe(400);
     expect(duplicateRes.body).toHaveProperty("error");
-    expect(
-      duplicateRes.body.error.toLowerCase()
-    ).toMatch(/already exists|already in use/);
+    expect(duplicateRes.body.error.toLowerCase()).toMatch(
+      /already exists|already in use/
+    );
   });
 
   it("should create a second company and get both companies", async () => {
@@ -70,7 +76,7 @@ describe("Company creation flow", () => {
       cuit: "30712345679",
       app_password: "companypass2025",
       country: "Argentina",
-      industry: "Software"
+      industry: "Software",
     };
     // Create second company
     const createRes2 = await request(app)
@@ -79,29 +85,34 @@ describe("Company creation flow", () => {
       .send(secondCompanyData);
     expect(createRes2.status).toBe(200);
     expect(createRes2.body).toHaveProperty("id");
-    const createdCompany2 = createRes2.body;
+    createdCompany2 = createRes2.body;
 
     // Get all companies for user
     const getAllRes = await request(app)
       .get("/company/get-all")
       .set("Authorization", `Bearer ${token}`);
     expect(getAllRes.status).toBe(200);
-    const found1 = getAllRes.body.find(c => c.id === createdCompany.id);
-    const found2 = getAllRes.body.find(c => c.id === createdCompany2.id);
+    const found1 = getAllRes.body.find((c) => c.id === createdCompany.id);
+    const found2 = getAllRes.body.find((c) => c.id === createdCompany2.id);
     expect(found1).toBeDefined();
     expect(found2).toBeDefined();
     expect(found1.name).toBe(companyData.name);
     expect(found2.name).toBe(secondCompanyData.name);
-
-    // Cleanup second company
-    await pool.query('DELETE FROM company WHERE id = $1', [createdCompany2.id]);
   });
 
   afterAll(async () => {
     console.log("Cleaning up test data...");
     if (createdCompany && createdCompany.id) {
       console.log(`Deleting company with ID: ${createdCompany.id}`);
-      await pool.query('DELETE FROM company WHERE id = $1', [createdCompany.id]);
+      await pool.query("DELETE FROM company WHERE id = $1", [
+        createdCompany.id,
+      ]);
+    }
+    if (createdCompany2 && createdCompany2.id) {
+      console.log(`Deleting company with ID: ${createdCompany2.id}`);
+      await pool.query("DELETE FROM company WHERE id = $1", [
+        createdCompany2.id,
+      ]);
     }
   });
 });

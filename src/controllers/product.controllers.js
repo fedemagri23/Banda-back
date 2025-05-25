@@ -3,7 +3,7 @@ import { pool } from "../db.js";
 export const addProduct = async (req, res) => {
   try {
     const company_id = req.params.companyId;
-    const { sku, upc, ean, name, list_price, currency } = req.body;
+    const { sku, upc, ean, name, list_price, currency, stock_alert } = req.body;
 
     /*
         Validaciones: 
@@ -54,6 +54,15 @@ export const addProduct = async (req, res) => {
         .json({ error: "Currency must be exactly 3 letters" });
     }
 
+    if (
+      stock_alert !== undefined &&
+      (!Number.isInteger(stock_alert) || stock_alert < 0)
+    ) {
+      return res.status(400).json({
+        error: "Stock alert must be a non-negative integer",
+      });
+    }
+
     const normalizedCurrency = currency.toUpperCase();
 
     const companyExists = await pool.query(
@@ -70,7 +79,7 @@ export const addProduct = async (req, res) => {
       [ean, company_id]
     );
 
-    if ((ean != "") && eanExists.rows.length > 0) {
+    if (ean != "" && eanExists.rows.length > 0) {
       return res.status(400).json({ error: "EAN code repeated" });
     }
 
@@ -79,7 +88,7 @@ export const addProduct = async (req, res) => {
       [sku, company_id]
     );
 
-    if ((sku != "") && skuExists.rows.length > 0) {
+    if (sku != "" && skuExists.rows.length > 0) {
       return res.status(400).json({ error: "SKU code repeated" });
     }
 
@@ -88,13 +97,13 @@ export const addProduct = async (req, res) => {
       [upc, company_id]
     );
 
-    if ((upc != "") && upcExists.rows.length > 0) {
+    if (upc != "" && upcExists.rows.length > 0) {
       return res.status(400).json({ error: "UPC code repeated" });
     }
 
     const response = await pool.query(
       `
-          INSERT INTO product (sku, upc, ean, name, list_price, currency, company_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *
+          INSERT INTO product (sku, upc, ean, name, list_price, currency, company_id, stock_alert) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *
           `,
       [
         sku,
@@ -104,6 +113,7 @@ export const addProduct = async (req, res) => {
         list_price,
         normalizedCurrency,
         company_id,
+        stock_alert,
       ]
     );
 

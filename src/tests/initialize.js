@@ -11,7 +11,6 @@ const internalApiPort = process.env.PORT || 3001;
 const baseUrl = `http://localhost:${internalApiPort}`;
 
 async function resetDatabase() {
-  console.log("RESETTING: ", process.env.DATABASE_URL);
   const client = new Client({
     connectionString: process.env.DATABASE_URL,
   });
@@ -424,7 +423,7 @@ export async function seedDatabase() {
     await createSupplier(supplier, token, baseUrl);
   }
 
-  // Seed products
+  //send products
   const products = [
     {
       sku: "FAB-EUV-ASML-NXE3600D",
@@ -432,6 +431,7 @@ export async function seedDatabase() {
       name: "Twinscan NXE3600D 3nm",
       list_price: 160000000,
       currency: "USD",
+      stock_alert: 2,
     },
     {
       sku: "FAB-DUV-ASML-NXT1980DI",
@@ -439,6 +439,7 @@ export async function seedDatabase() {
       name: "Twinscan NXT1980Di",
       list_price: 70000000,
       currency: "USD",
+      stock_alert: 1,
     },
     {
       sku: "INSPEC-OPTIC-ASML-YS385",
@@ -446,14 +447,15 @@ export async function seedDatabase() {
       name: "YieldStar 385 Optical Metrology",
       list_price: 5000000,
       currency: "USD",
+      stock_alert: 10,
     },
-
     {
       sku: "DEPO-ALD-AMAT-CP1000",
       upc: "054321123456",
       name: "Centura Prismo ALD System",
       list_price: 8000000,
       currency: "USD",
+      stock_alert: 0,
     },
     {
       sku: "DEPO-PECVD-AMAT-PGT500",
@@ -461,6 +463,7 @@ export async function seedDatabase() {
       name: "Producer GT PECVD",
       list_price: 6000000,
       currency: "USD",
+      stock_alert: 5,
     },
     {
       sku: "DEPO-PVD-AMAT-ENDURA",
@@ -468,14 +471,15 @@ export async function seedDatabase() {
       name: "Endura PVD Platform",
       list_price: 10000000,
       currency: "USD",
+      stock_alert: 3,
     },
-
     {
       sku: "ETCH-PLASMA-TEL-TELINDYPLUS",
       upc: "076543210987",
       name: "TELINDY Plus Etch System",
       list_price: 7000000,
       currency: "USD",
+      stock_alert: 2,
     },
     {
       sku: "CLEAN-WAFER-TEL-ACT12",
@@ -483,6 +487,7 @@ export async function seedDatabase() {
       name: "ACT 12 Wafer Cleaning",
       list_price: 4000000,
       currency: "USD",
+      stock_alert: 1,
     },
     {
       sku: "PHOTO-COAT-TEL-LITHIUSPROZ",
@@ -490,14 +495,15 @@ export async function seedDatabase() {
       name: "Lithius Pro Z Coater Developer",
       list_price: 9000000,
       currency: "USD",
+      stock_alert: 0,
     },
-
     {
       sku: "ETCH-DRY-LAM-KIYO45",
       upc: "034567654321",
       name: "Kiyo45 Dry Etch System",
       list_price: 6000000,
       currency: "USD",
+      stock_alert: 4,
     },
     {
       sku: "INSPEC-PLASMA-LAM-SENSEI",
@@ -505,6 +511,7 @@ export async function seedDatabase() {
       name: "Sensei Plasma Inspection Platform",
       list_price: 4500000,
       currency: "USD",
+      stock_alert: 2,
     },
     {
       sku: "ETCH-CONTACT-LAM-VERSYS2300",
@@ -512,14 +519,15 @@ export async function seedDatabase() {
       name: "2300 Versys Contact Etcher",
       list_price: 5000000,
       currency: "USD",
+      stock_alert: 1,
     },
-
     {
       sku: "INSPEC-ELECTRON-KLA-EBEAM5",
       upc: "023456789012",
       name: "eBeam 5 Electron Inspection",
       list_price: 6000000,
       currency: "USD",
+      stock_alert: 0,
     },
     {
       sku: "INSPEC-LAYER-KLA-2925",
@@ -527,6 +535,7 @@ export async function seedDatabase() {
       name: "2925 Series Layer Inspection",
       list_price: 3000000,
       currency: "USD",
+      stock_alert: 2,
     },
     {
       sku: "INSPEC-DEFECT-KLA-SP7XP",
@@ -534,14 +543,15 @@ export async function seedDatabase() {
       name: "SP7XP Defect Review",
       list_price: 4000000,
       currency: "USD",
+      stock_alert: 5,
     },
-
     {
       sku: "WAFER-STD-SUMCO-300PRIME",
       upc: "490123456789",
       name: "Prime Silicon Wafer 300mm",
       list_price: 120,
       currency: "USD",
+      stock_alert: 10,
     },
     {
       sku: "WAFER-EPI-SUMCO-300EPI",
@@ -549,6 +559,7 @@ export async function seedDatabase() {
       name: "EPI Silicon Wafer 300mm",
       list_price: 160,
       currency: "USD",
+      stock_alert: 8,
     },
     {
       sku: "WAFER-TEST-SUMCO-200TEST",
@@ -556,14 +567,15 @@ export async function seedDatabase() {
       name: "Test Silicon Wafer 200mm",
       list_price: 60,
       currency: "USD",
+      stock_alert: 6,
     },
-
     {
       sku: "WAFER-UFLAT-SHIN-300UF",
       upc: "490987654321",
       name: "Ultra Flat Silicon Wafer 300mm",
       list_price: 150,
       currency: "USD",
+      stock_alert: 2,
     },
     {
       sku: "WAFER-SOI-SHIN-SOI",
@@ -571,6 +583,7 @@ export async function seedDatabase() {
       name: "Silicon on Insulator Wafer",
       list_price: 220,
       currency: "USD",
+      stock_alert: 1,
     },
     {
       sku: "WAFER-LDD-SHIN-LDDW",
@@ -578,14 +591,15 @@ export async function seedDatabase() {
       name: "Low Defect Density Wafer",
       list_price: 180,
       currency: "USD",
+      stock_alert: 0,
     },
-
     {
       sku: "WAFER-EPI-GWA-EPI300",
       upc: "471234567890",
       name: "Epitaxial Wafer 300mm",
       list_price: 180,
       currency: "USD",
+      stock_alert: 3,
     },
     {
       sku: "WAFER-POL-GWA-POL200",
@@ -593,6 +607,7 @@ export async function seedDatabase() {
       name: "Polished Wafer 200mm",
       list_price: 80,
       currency: "USD",
+      stock_alert: 2,
     },
     {
       sku: "WAFER-SIC-GWA-SIC",
@@ -600,14 +615,15 @@ export async function seedDatabase() {
       name: "Specialty SiC Wafer",
       list_price: 500,
       currency: "USD",
+      stock_alert: 1,
     },
-
     {
       sku: "CHEM-ACID-BASF-HFUP",
       upc: "400123456789",
       name: "Ultra High Purity HF Acid",
       list_price: 75,
       currency: "USD",
+      stock_alert: 0,
     },
     {
       sku: "CHEM-REMOVER-BASF-PRR600",
@@ -615,6 +631,7 @@ export async function seedDatabase() {
       name: "Photoresist Remover AR 600-71",
       list_price: 300,
       currency: "USD",
+      stock_alert: 2,
     },
     {
       sku: "CHEM-DEVELOPER-BASF-AZ400K",
@@ -622,14 +639,15 @@ export async function seedDatabase() {
       name: "Developer Solution AZ 400K",
       list_price: 250,
       currency: "USD",
+      stock_alert: 1,
     },
-
     {
       sku: "CHEM-RESIST-MERCK-AZ701MI",
       upc: "402123456789",
       name: "AZ 701Mi Photoresist",
       list_price: 2000,
       currency: "USD",
+      stock_alert: 0,
     },
     {
       sku: "CHEM-SLURRY-MERCK-PLANIX",
@@ -637,6 +655,7 @@ export async function seedDatabase() {
       name: "Planarization Slurry Planix",
       list_price: 500,
       currency: "USD",
+      stock_alert: 1,
     },
     {
       sku: "CHEM-BARC-MERCK-EUVBARC",
@@ -644,6 +663,7 @@ export async function seedDatabase() {
       name: "EUV Bottom Anti Reflective Coating",
       list_price: 1500,
       currency: "USD",
+      stock_alert: 2,
     },
   ];
 

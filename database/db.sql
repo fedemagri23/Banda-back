@@ -139,6 +139,7 @@ CREATE TABLE product (
     name VARCHAR,
     list_price NUMERIC(16, 2),
     currency VARCHAR(3),
+    stock_alert INT DEFAULT 0,
     company_id INT REFERENCES company(id) ON DELETE CASCADE
 );
 
