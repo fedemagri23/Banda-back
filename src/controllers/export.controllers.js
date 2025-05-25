@@ -3,9 +3,6 @@ import fs from 'fs';
 import path from 'path';
 import { pool } from '../db.js';
 
-// Helper para obtener company_id (puedes ajustar según tu flujo)
-
-
 const exportClientsToCSV = async (req, res) => {
 
   const companyId = req.params.companyId;

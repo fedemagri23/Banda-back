@@ -99,36 +99,38 @@ CREATE TABLE client (
     id SERIAL PRIMARY KEY,
     code VARCHAR,
     added_at DATE DEFAULT now(),
-    name VARCHAR,
+    name VARCHAR NOT NULL,
     country VARCHAR,
     address ADDRESS,
     phone VARCHAR,
-    mail VARCHAR,
+    mail VARCHAR NOT NULL,
     web VARCHAR,
     description VARCHAR,
     doc_type INT DEFAULT 0, 
     doc_number VARCHAR DEFAULT NULL,
     preferred_cbte_type INT DEFAULT 0,
     preferred_vat_type INT DEFAULT 0,
-    company_id INT REFERENCES company(id) ON DELETE CASCADE
+    company_id INT NOT NULL REFERENCES company(id) ON DELETE CASCADE,
+    UNIQUE(company_id, mail)
 );
 
 CREATE TABLE supplier (
     id SERIAL PRIMARY KEY,
     code VARCHAR,
     added_at DATE DEFAULT now(),
-    name VARCHAR,
+    name VARCHAR NOT NULL,
     country VARCHAR,
     address ADDRESS,
     phone VARCHAR,
-    mail VARCHAR,
+    mail VARCHAR NOT NULL,
     web VARCHAR,
     description VARCHAR,
     CUIT VARCHAR DEFAULT NULL,
     CUIL VARCHAR DEFAULT NULL,
     DNI VARCHAR DEFAULT NULL,
     CDI VARCHAR DEFAULT NULL,
-    company_id INT REFERENCES company(id) ON DELETE CASCADE
+    company_id INT NOT NULL REFERENCES company(id) ON DELETE CASCADE,
+    UNIQUE(company_id, mail)
 );
 
 CREATE TABLE product (
@@ -136,11 +138,12 @@ CREATE TABLE product (
     sku VARCHAR,
     upc VARCHAR(12),
     EAN VARCHAR(13),
-    name VARCHAR,
-    list_price NUMERIC(16, 2),
-    currency VARCHAR(3),
+    name VARCHAR NOT NULL,
+    list_price NUMERIC(16, 2) NOT NULL,
+    currency VARCHAR(3) NOT NULL,
     stock_alert INT DEFAULT 0,
-    company_id INT REFERENCES company(id) ON DELETE CASCADE
+    company_id INT NOT NULL REFERENCES company(id) ON DELETE CASCADE,
+    UNIQUE(company_id, name)
 );
 
 CREATE TABLE purchase_order (

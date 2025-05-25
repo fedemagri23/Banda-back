@@ -334,6 +334,95 @@ export async function seedDatabase() {
     await createCompany(company, token, baseUrl);
   }
 
+  // Seed suppliers
+  const suppliers = [
+    {
+      code: "SNL001",
+      name: "ASML",
+      country: "Netherlands",
+      address: {
+        town: "Veldhoven",
+        street: "De Run",
+        number: "6501",
+        zip_code: "5504 DR",
+      },
+      phone: "31402683000",
+      mail: "contact@asml.com",
+      web: "https://www.asml.com",
+      CDI: "00577765401",
+      description:
+        "Extreme Ultraviolet Lithography (EUV) systems for semiconductor manufacturing.",
+    },
+    {
+      code: "SCA001",
+      name: "Applied Materials",
+      country: "United States",
+      address: {
+        town: "Santa Clara, California",
+        street: "Bowers Avenue",
+        number: "3050",
+        zip_code: "95054",
+      },
+      phone: "14087275555",
+      mail: "info@appliedmaterials.com",
+      web: "https://www.appliedmaterials.com",
+      CUIT: "20123456789",
+      description:
+        "ALD, CVD, PVD, and etch equipment for semiconductor fabrication.",
+    },
+    {
+      code: "SJP001",
+      name: "Tokyo Electron",
+      country: "Japan",
+      address: {
+        town: "Minato-ku, Tokyo",
+        street: "Akasaka",
+        number: 3,
+        floor: 5,
+        departament: 1,
+        zip_code: "107 6325",
+      },
+      phone: "81355617000",
+      mail: "globalinfo@tel.com",
+      web: "https://www.tel.com",
+      CUIT: "123456789",
+      description:
+        "Etch, deposition, and cleaning equipment for semiconductor manufacturing.",
+    },
+    {
+      code: "SNL002",
+      name: "KLA Corporation",
+      country: "United States",
+      address: {
+        town: "Milpitas, California",
+        street: "North McCarthy Blvd",
+        number: "1",
+        zip_code: "95035",
+      },
+      phone: "14088753000",
+      mail: "klacorp@gmail.com",
+      web: "https://www.kla.com",
+      CUIT: "20123456789",
+      description: "Silicon wafer inspection and metrology equipment.",
+    },
+    {
+      code: "SNL003",
+      name: "Lam Research",
+      country: "United States",
+      address: {
+        town: "Fremont, California",
+        street: "Cushing Parkway",
+        number: "4650",
+        zip_code: "94538",
+      },
+      phone: "1 510 572 0200",
+      mail: "lamresearch@lam.com",
+      web: "https://www.lamresearch.com",
+      CUIT: "20987654321",
+      description: "Semiconductor process equipment for wafer fabrication.",
+    },
+  ];
+
   for (const supplier of suppliers) {
     await createSupplier(supplier, token, baseUrl);
   }
