@@ -130,7 +130,7 @@ CREATE TABLE supplier (
     CUIL VARCHAR DEFAULT NULL,
     DNI VARCHAR DEFAULT NULL,
     CDI VARCHAR DEFAULT NULL,
-    company_id INT REFERENCES company(id) ON DELETE CASCADE,
+    company_id INT NOT NULL REFERENCES company(id) ON DELETE CASCADE,
     UNIQUE(company_id, mail)
 );
 
@@ -143,7 +143,7 @@ CREATE TABLE product (
     list_price NUMERIC(16, 2) NOT NULL,
     currency VARCHAR(3) NOT NULL,
     stock_alert INT DEFAULT 0,
-    company_id INT REFERENCES company(id) ON DELETE CASCADE,
+    company_id INT NOT NULL REFERENCES company(id) ON DELETE CASCADE,
     UNIQUE(company_id, name)
 );
 
