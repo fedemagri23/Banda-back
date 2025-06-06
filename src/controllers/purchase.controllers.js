@@ -203,6 +203,7 @@ export const getPurchaseOrders = async (req, res) => {
         product_purchase_detail.id AS detail_id,
         product_purchase_detail.batch_number,
         product_purchase_detail.total,
+        product_purchase_detail.currency,
         product_purchase_detail.quantity,
         product_purchase_detail.unit_price,
         product_purchase_detail.canceled,
@@ -251,6 +252,7 @@ export const getPurchaseOrders = async (req, res) => {
         quantity: row.quantity,
         unit_price: row.unit_price,
         total: row.total,
+        currency: row.currency,
         canceled: row.canceled,
         product_id: row.product_id,
       });
