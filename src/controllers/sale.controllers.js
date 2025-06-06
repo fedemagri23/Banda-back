@@ -147,11 +147,12 @@ export const addSaleOrder = async (req, res) => {
     for (const detail of products_details) {
       const response_detail = await pool.query(
         `
-        INSERT INTO product_sale_detail (batch_number, total, product_id, proof_id, company_id, unit_price, quantity, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *
+        INSERT INTO product_sale_detail (batch_number, total, currency, product_id, proof_id, company_id, unit_price, quantity, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *
         `,
         [
           detail.batch_number,
           parseFloat(detail.unit_price) * detail.quantity,
+          detail.currency,
           detail.product_id,
           proof_id,
           company_id,

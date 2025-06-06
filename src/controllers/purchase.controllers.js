@@ -146,13 +146,17 @@ export const addPurchaseOrder = async (req, res) => {
 
     // Purchase details
     for (const detail of products_details) {
+
+      console.log("Creating purchase detail:", detail);
+
       const response_detail = await pool.query(
         `
-        INSERT INTO product_purchase_detail (batch_number, total, product_id, proof_id, company_id, quantity, unit_price, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *
+        INSERT INTO product_purchase_detail (batch_number, total, currency, product_id, proof_id, company_id, quantity, unit_price, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *
         `,
         [
           detail.batch_number,
           detail.unit_price * detail.quantity,
+          detail.currency,
           detail.product_id,
           proof_id,
           company_id,
