@@ -1,8 +1,6 @@
 import { Router } from "express";
-import {
-  getAiInterests,
-  askWithIaDatabase,
-} from "../controllers/ai.controllers.js";
+import { askWithIaDatabase } from "../controllers/ai/ai.ask-database.js";
+import { getAiInterests } from "../controllers/ai/ai.interests.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import { checkCompanyRole } from "../middleware/companyOwnerMiddleware.js";
 

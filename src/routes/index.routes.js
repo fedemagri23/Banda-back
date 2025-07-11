@@ -50,10 +50,7 @@ import {
   getAllSaleInvoices,
   getSaleInvoiceById,
 } from "../controllers/invoice.controllers.js";
-import {
-  getAiInterests,
-  askWithIaDatabase,
-} from "../controllers/ai.controllers.js";
+
 import {
   acceptInvitation,
   getNotifications,
@@ -86,7 +83,7 @@ import {
 
 import { importCheckMiddleware } from "../middleware/importCheckMiddleware.js";
 
-import { processCSVWithAI } from "../controllers/ai.controllers.js";
+import { processCSVWithAI } from "../controllers/ai/ai.import.js";
 
 const ROLE_COMPANY_OWNER = "111111111";
 
