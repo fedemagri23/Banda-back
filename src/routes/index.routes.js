@@ -1,83 +1,6 @@
 import { Router } from "express";
 import { getToken } from "../controllers/test.controllers.js";
-import {
-  addSupplier,
-  getSuppliersByCompany,
-  deleteSupplier,
-} from "../controllers/supplier.controllers.js";
-import {
-  addProduct,
-  getProductsByCompany,
-} from "../controllers/product.controllers.js";
-import { checkCompanyRole } from "../middleware/companyOwnerMiddleware.js";
-import {
-  addPurchaseOrder,
-  getPurchaseOrders,
-} from "../controllers/purchase.controllers.js";
-import {
-  addClient,
-  getClientsByCompany,
-  deleteClient,
-} from "../controllers/client.controllers.js";
-import {
-  addSaleOrder,
-  getSaleOrders,
-} from "../controllers/sale.controllers.js";
-import { getInventoryByCompany } from "../controllers/inventory.controllers.js";
-import {
-  getClientDistributionChart,
-  getOrderBalanceChart,
-  getSupplierDistributionChart,
-} from "../controllers/metric.controllers.js";
-import {
-  createSession,
-  getSession,
-  invalidateSession,
-  invalidateUserSessions,
-} from "../controllers/session.controllers.js";
-import {
-  deleteArcaToken,
-  deleteUserCertificate,
-  getArcaToken,
-  getCompanyCertificate,
-  upsertArcaToken,
-  upsertUserCertificate,
-} from "../controllers/arcatoken.controllers.js";
-import {
-  checkSaleInvoiceExists,
-  createSaleInvoice,
-  deleteSaleInvoice,
-  getAllSaleInvoices,
-  getSaleInvoiceById,
-} from "../controllers/invoice.controllers.js";
 
-import {
-  acceptInvitation,
-  getNotifications,
-  rejectInvitation,
-} from "../controllers/notification.controllers.js";
-import {
-  addEmployee,
-  createRole,
-  getEmployees,
-  getRoles,
-  removeEmployee,
-} from "../controllers/employee.controllers.js";
-
-//Email services
-
-import { sendSaleOrderEmail } from "../services/emailservices.js";
-
-//Export services
-
-import {
-  exportClientsToCSV,
-  exportSuppliersToCSV,
-  exportPurchasesToCSV,
-  exportSalesToCSV,
-  exportInventoryToCSV,
-  exportEmployeesToCSV,
-} from "../controllers/export.controllers.js";
 
 // Import services
 
@@ -105,6 +28,7 @@ import aiRoutes from "./ai.routes.js";
 import notificationRoutes from "./notification.routes.js";
 import communicationRoutes from "./communication.routes.js";
 import exportRoutes from "./export.routes.js";
+import inflationRoutes from "./inflation.routes.js";
 
 const router = Router();
 
@@ -138,6 +62,7 @@ router.use("/ai", aiRoutes);
 router.use("/notification", notificationRoutes);
 router.use("/communication", communicationRoutes);
 router.use("/export", exportRoutes);
+router.use("/inflation", inflationRoutes);
 
 // TODO: Al final BORRAR estos controllers
 router.get("/token", getToken);

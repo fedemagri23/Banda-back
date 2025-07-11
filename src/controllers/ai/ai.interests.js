@@ -22,7 +22,7 @@ export const getAiInterests = async (req, res) => {
     const industry = company.industry;
 
     const data_prompt = `
-      Give me current values ​​for the ten most relevant 
+      Give me current values for the ten most relevant 
       indicators for a company in the country of ${country}
       based on the industry of ${industry} and general ${country} 
       econmy interests.

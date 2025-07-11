@@ -132,8 +132,6 @@ async function getInvoicePDF(invoiceId,jwt) {
     body: JSON.stringify({ invoiceId}),
   });
   
-  if (!response.ok) {
-  }
   const arrayBuffer = await response.arrayBuffer();
   return Buffer.from(arrayBuffer);
 

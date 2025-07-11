@@ -97,7 +97,7 @@ export const addSaleOrder = async (req, res) => {
     for (const detail of products_details) {
       if (
         !detail.batch_number ||
-        !/^[A-Za-z0-9\-]+$/.test(detail.batch_number)
+        !/^[A-Za-z0-9-]+$/.test(detail.batch_number)
       ) {
         return res.status(400).json({
           error:

@@ -24,8 +24,12 @@ async function resetDatabase() {
   console.log("DB reset in progress...");
 
   const sql = await fs.readFile("database/db.sql", "utf-8");
+  const invoice_sql = await fs.readFile("database/invoices.sql", "utf-8");
+  const inflation_sql = await fs.readFile("database/inflation.sql", "utf-8");
 
   await client.query(sql);
+  await client.query(invoice_sql);
+  await client.query(inflation_sql);
   await client.end();
 
   console.log("DB Reset completed");

@@ -29,13 +29,6 @@ DROP TABLE IF EXISTS session CASCADE;
 
 DROP TABLE IF EXISTS user_arca_tokens CASCADE;
 DROP TABLE IF EXISTS company_certificates CASCADE;
-DROP TABLE IF EXISTS sale_invoice CASCADE;
-DROP TABLE IF EXISTS sale_invoice_tax CASCADE;
-DROP TABLE IF EXISTS sale_invoice_vat CASCADE;
-DROP TABLE IF EXISTS sale_invoice_related CASCADE;
-DROP TABLE IF EXISTS sale_invoice_optional CASCADE;
-DROP TABLE IF EXISTS sale_invoice_buyer CASCADE;
-DROP TABLE IF EXISTS sale_invoice_payment CASCADE;
 
 DROP TYPE IF EXISTS type_currency CASCADE;
 CREATE TYPE type_currency AS ENUM ('ARS', 'USD', 'EUR', 'GBP', 'JPY', 'CNY', 'BRL', 'CLP', 'UYU', 'PEN', 'COP', 'MXN', 'AUD', 'CAD', 'CHF', 'ZAR');
@@ -244,94 +237,6 @@ CREATE TABLE company_certificates (
   updated_at TIMESTAMP DEFAULT now(),
 
   UNIQUE (company_id)
-);
-
-CREATE TABLE sale_invoice (
-    id SERIAL PRIMARY KEY,
-    created_at TIMESTAMP DEFAULT now(),
-
-    company_id INT REFERENCES company(id) ON DELETE CASCADE, -- quien emitió
-
-    status SMALLINT DEFAULT 0,                  -- Estado de la factura (0: pendiente, 1: autorizada, 2: rechazada, 3: anulado)
-    sale_id INT REFERENCES sale_order(id) ON DELETE CASCADE, -- ID de la venta asociada
-
-    concepto SMALLINT NOT NULL,           -- Concepto (productos, servicios, etc.)
-    doc_tipo SMALLINT NOT NULL,            -- Tipo de documento del receptor
-    doc_nro BIGINT NOT NULL,               -- Número de documento del receptor
-
-    cbte_tipo SMALLINT NOT NULL,           -- Tipo de comprobante (ej. Factura A, B, etc.)
-    cbte_pto_vta SMALLINT NOT NULL,        -- Punto de venta
-    cbte_nro_desde INT NOT NULL,           -- Número de comprobante desde
-    cbte_nro_hasta INT NOT NULL,           -- Número de comprobante hasta
-    cbte_fecha CHAR(8) NOT NULL,            -- Fecha del comprobante (YYYYMMDD)
-
-    imp_total NUMERIC(15, 2) NOT NULL,     -- Importe total
-    imp_tot_conc NUMERIC(15, 2) NOT NULL,  -- Importe no gravado
-    imp_neto NUMERIC(15, 2) NOT NULL,      -- Importe neto gravado
-    imp_op_ex NUMERIC(15, 2) NOT NULL,     -- Importe operaciones exentas
-    imp_trib NUMERIC(15, 2) NOT NULL,      -- Importe de otros tributos
-    imp_iva NUMERIC(15, 2) NOT NULL,       -- Importe de IVA
-
-    fch_serv_desde CHAR(8),                -- Fecha inicio servicio
-    fch_serv_hasta CHAR(8),                -- Fecha fin servicio
-    fch_vto_pago CHAR(8),                  -- Fecha de vencimiento de pago
-
-    moneda_id CHAR(3) DEFAULT 'PES',       -- Moneda (PES por pesos argentinos)
-    moneda_cotiz NUMERIC(15, 6) DEFAULT 1, -- Cotización de moneda
-
-    cae CHAR(14),                          -- Código de autorización electrónico
-    cae_vencimiento CHAR(8)                 -- Fecha de vencimiento del CAE
-);
-
-CREATE TABLE sale_invoice_tax (
-    id SERIAL PRIMARY KEY,
-    sale_invoice_id INT REFERENCES sale_invoice(id) ON DELETE CASCADE,
-    tributo_id SMALLINT NOT NULL,            -- ID de AFIP
-    description VARCHAR(255),                -- Descripción del tributo
-    base_amount NUMERIC(15, 2) NOT NULL,      -- Base imponible
-    aliquot NUMERIC(5, 2) NOT NULL,           -- Alicuota %
-    amount NUMERIC(15, 2) NOT NULL            -- Importe del tributo
-);
-
-CREATE TABLE sale_invoice_vat (
-    id SERIAL PRIMARY KEY,
-    sale_invoice_id INT REFERENCES sale_invoice(id) ON DELETE CASCADE,
-    vat_id SMALLINT NOT NULL,                 -- ID de alícuota de IVA (5, 4, etc.)
-    base_amount NUMERIC(15, 2) NOT NULL,       -- Base imponible
-    amount NUMERIC(15, 2) NOT NULL             -- Importe de IVA
-);
-
-CREATE TABLE sale_invoice_related (
-    id SERIAL PRIMARY KEY,
-    sale_invoice_id INT REFERENCES sale_invoice(id) ON DELETE CASCADE,
-    related_cbte_tipo SMALLINT NOT NULL,       -- Tipo de comprobante asociado
-    related_pto_vta SMALLINT NOT NULL,         -- Punto de venta del comprobante asociado
-    related_nro INT NOT NULL,                  -- Número de comprobante asociado
-    related_cuit BIGINT,                       -- CUIT de la empresa receptora (opcional)
-    related_cbte_fch CHAR(8)                   -- Fecha del comprobante asociado (opcional)
-);
-
-CREATE TABLE sale_invoice_optional (
-    id SERIAL PRIMARY KEY,
-    sale_invoice_id INT REFERENCES sale_invoice(id) ON DELETE CASCADE,
-    optional_id VARCHAR(10) NOT NULL,           -- ID de campo opcional
-    value VARCHAR(255) NOT NULL                 -- Valor
-);
-
-CREATE TABLE sale_invoice_buyer (
-    id SERIAL PRIMARY KEY,
-    sale_invoice_id INT REFERENCES sale_invoice(id) ON DELETE CASCADE,
-    doc_tipo SMALLINT NOT NULL,          -- Tipo de documento (CUIT, DNI, etc.)
-    doc_nro BIGINT NOT NULL,              -- Número de documento
-    porcentaje NUMERIC(5, 2) NOT NULL     -- Porcentaje de participación
-);
-
-CREATE TABLE sale_invoice_payment (
-    id SERIAL PRIMARY KEY,
-    sale_invoice_id INT REFERENCES sale_invoice(id) ON DELETE CASCADE,
-    payment_method VARCHAR(50) NOT NULL,
-    amount NUMERIC(15, 2) NOT NULL,
-    payment_date TIMESTAMP NOT NULL
 );
 
 DROP TRIGGER IF EXISTS trigger_increase_company_count ON company;
