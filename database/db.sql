@@ -37,6 +37,9 @@ DROP TABLE IF EXISTS sale_invoice_optional CASCADE;
 DROP TABLE IF EXISTS sale_invoice_buyer CASCADE;
 DROP TABLE IF EXISTS sale_invoice_payment CASCADE;
 
+DROP TYPE IF EXISTS type_currency CASCADE;
+CREATE TYPE type_currency AS ENUM ('ARS', 'USD', 'EUR', 'GBP', 'JPY', 'CNY', 'BRL', 'CLP', 'UYU', 'PEN', 'COP', 'MXN', 'AUD', 'CAD', 'CHF', 'ZAR');
+
 CREATE TYPE address AS (
     town VARCHAR,
     street VARCHAR,
@@ -140,7 +143,7 @@ CREATE TABLE product (
     EAN VARCHAR(13),
     name VARCHAR NOT NULL,
     list_price NUMERIC(16, 2) NOT NULL,
-    currency VARCHAR(3) NOT NULL,
+    currency type_currency NOT NULL,
     stock_alert INT DEFAULT 0,
     company_id INT NOT NULL REFERENCES company(id) ON DELETE CASCADE,
     UNIQUE(company_id, name)
@@ -172,6 +175,7 @@ CREATE TABLE product_purchase_detail (
     canceled NUMERIC(16, 2) DEFAULT 0,
     quantity INT,
     unit_price NUMERIC(16, 2),
+    currency type_currency NOT NULL,
     product_id INT REFERENCES product(id) ON DELETE CASCADE,
     proof_id INT REFERENCES purchase_proof(id) ON DELETE CASCADE,
     company_id INT REFERENCES company(id) ON DELETE CASCADE
@@ -203,6 +207,7 @@ CREATE TABLE product_sale_detail (
     canceled NUMERIC(16, 2) DEFAULT 0,
     quantity INT,
     unit_price NUMERIC(16, 2),
+    currency type_currency NOT NULL,
     product_id INT REFERENCES product(id) ON DELETE CASCADE,
     proof_id INT REFERENCES sale_proof(id) ON DELETE CASCADE,
     company_id INT REFERENCES company(id) ON DELETE CASCADE

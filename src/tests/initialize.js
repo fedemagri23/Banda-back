@@ -227,6 +227,7 @@ async function createGhostPurchase(
         batch_number: `GHOST-${productId}-${saleDate.replace(/-/g, "")}`,
         quantity: quantity,
         unit_price: 0.0,
+        currency: "USD",
         product_id: productId,
       },
     ],
