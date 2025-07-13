@@ -5,14 +5,14 @@
 -- 1. Insert Users
 -- Passwords would typically be hashed, but are stored as plain text for this example.
 INSERT INTO useraccount (username, phone, mail, passhash) VALUES
-('greg_lavender', '5553107049', 'intelbanda@gmail.com', 'intelbanda2025'),
-('john_evans', '5551146640', 'johnevans@gmail.com', 'johnevans1990'),
-('adam_taylor', '5551714900', 'adamtaylor@gmail.com', 'adamtaylor1990');
+('greg_lavender', '5553107049', 'intelbanda@gmail.com', '$2b$10$xE43miQJI2XnbhKHTFB9AOlzoCBQYd4lxXii/14rwdH0tpDo5nqBG'),
+('john_evans', '5551146640', 'johnevans@gmail.com', '$2b$10$NVa0WgytHmz.6RfRjvbKpOKMEMQ/nRAXPigbav.oiYaE2QWq8E4R.'),
+('adam_taylor', '5551714900', 'adamtaylor@gmail.com', '$2b$10$nFdNxYbREeHha1sk3esrge6nYi5izg2N7gA8occ3/JvDA1QwgsDXG');
 
 -- 2. Insert Company
 -- Linked to the first user (greg_lavender, id=1).
 INSERT INTO company (name, cuit, email, app_password, country, industry, user_id) VALUES
-('Intel', '20123456789', 'intelbanda@gmail.com', 'lfks znej beny msbz', 'United States', 'Semiconductors, CPUs, GPUs, Servers, Computers', 1);
+('Intel', '20409378472', 'intelbanda@gmail.com', 'lfks znej beny msbz', 'United States', 'Semiconductors, CPUs, GPUs, Servers, Computers', 1);
 
 -- 3. Insert Suppliers
 -- All linked to the first company (Intel, id=1).
@@ -107,8 +107,18 @@ BEGIN
 
         FOR p_detail IN SELECT * FROM json_array_elements(p_item->'products_details')
         LOOP
-            INSERT INTO product_purchase_detail (batch_number, quantity, unit_price, currency, product_id, proof_id, company_id, created_at)
-            VALUES (p_detail->>'batch_number', (p_detail->>'quantity')::INT, (p_detail->>'unit_price')::NUMERIC, (p_detail->>'currency')::type_currency, (p_detail->>'product_id')::INT, proof_id, 1, (p_item->>'created_at')::DATE);
+            INSERT INTO product_purchase_detail (batch_number, quantity, unit_price, total, currency, product_id, proof_id, company_id, created_at)
+            VALUES (
+                p_detail->>'batch_number',
+                (p_detail->>'quantity')::INT,
+                (p_detail->>'unit_price')::NUMERIC,
+                ((p_detail->>'quantity')::NUMERIC * (p_detail->>'unit_price')::NUMERIC),
+                (p_detail->>'currency')::type_currency,
+                (p_detail->>'product_id')::INT,
+                proof_id,
+                1,
+                (p_item->>'created_at')::DATE
+            );
         END LOOP;
     END LOOP;
 END $$;
@@ -160,8 +170,18 @@ BEGIN
 
         FOR s_detail IN SELECT * FROM json_array_elements(s_item->'products_details')
         LOOP
-            INSERT INTO product_sale_detail (batch_number, quantity, unit_price, currency, product_id, proof_id, company_id, created_at)
-            VALUES (s_detail->>'batch_number', (s_detail->>'quantity')::INT, (s_detail->>'unit_price')::NUMERIC, (s_detail->>'currency')::type_currency, (s_detail->>'product_id')::INT, proof_id, 1, (s_item->>'created_at')::DATE);
+            INSERT INTO product_sale_detail (batch_number, quantity, unit_price, total, currency, product_id, proof_id, company_id, created_at)
+            VALUES (
+                s_detail->>'batch_number',
+                (s_detail->>'quantity')::INT,
+                (s_detail->>'unit_price')::NUMERIC,
+                ((s_detail->>'quantity')::NUMERIC * (s_detail->>'unit_price')::NUMERIC),
+                (s_detail->>'currency')::type_currency,
+                (s_detail->>'product_id')::INT,
+                proof_id,
+                1,
+                (s_item->>'created_at')::DATE
+            );
         END LOOP;
     END LOOP;
 END $$;
@@ -174,25 +194,25 @@ DECLARE
     order_id INT;
     proof_id INT;
 BEGIN
-    -- Deficit for product_id 1: 8405 units. First sale: 2025-04-10
+    -- Deficit for product_id 1: 20000 units. First sale: 2025-04-10
     INSERT INTO purchase_order (condition, supplier_id, company_id, created_at) VALUES ('CTE', 1, 1, '2025-04-10') RETURNING id INTO order_id;
     INSERT INTO purchase_proof (code, type, supplier_id, order_id, company_id, created_at) VALUES ('G0010410', 'FACTA', 1, order_id, 1, '2025-04-10') RETURNING id INTO proof_id;
-    INSERT INTO product_purchase_detail (batch_number, quantity, unit_price, currency, product_id, proof_id, company_id, created_at) VALUES ('GHOST-1-20250410', 8405, 0.0, 'USD', 1, proof_id, 1, '2025-04-10');
+    INSERT INTO product_purchase_detail (batch_number, quantity, unit_price, currency, product_id, proof_id, company_id, created_at) VALUES ('GHOST-1-20250410', 8625, 0.0, 'USD', 1, proof_id, 1, '2025-04-10');
 
-    -- Deficit for product_id 2: 2635 units. First sale: 2025-04-10
+    -- Deficit for product_id 2: 6000 units. First sale: 2025-04-10
     INSERT INTO purchase_order (condition, supplier_id, company_id, created_at) VALUES ('CTE', 1, 1, '2025-04-10') RETURNING id INTO order_id;
     INSERT INTO purchase_proof (code, type, supplier_id, order_id, company_id, created_at) VALUES ('G0020410', 'FACTA', 1, order_id, 1, '2025-04-10') RETURNING id INTO proof_id;
-    INSERT INTO product_purchase_detail (batch_number, quantity, unit_price, currency, product_id, proof_id, company_id, created_at) VALUES ('GHOST-2-20250410', 2635, 0.0, 'USD', 2, proof_id, 1, '2025-04-10');
+    INSERT INTO product_purchase_detail (batch_number, quantity, unit_price, currency, product_id, proof_id, company_id, created_at) VALUES ('GHOST-2-20250410', 3233, 0.0, 'USD', 2, proof_id, 1, '2025-04-10');
 
-    -- Deficit for product_id 13: 224000 units. First sale: 2025-03-30
+    -- Deficit for product_id 13: 250000 units. First sale: 2025-03-30
     INSERT INTO purchase_order (condition, supplier_id, company_id, created_at) VALUES ('CTE', 1, 1, '2025-03-30') RETURNING id INTO order_id;
     INSERT INTO purchase_proof (code, type, supplier_id, order_id, company_id, created_at) VALUES ('G0130330', 'FACTA', 1, order_id, 1, '2025-03-30') RETURNING id INTO proof_id;
-    INSERT INTO product_purchase_detail (batch_number, quantity, unit_price, currency, product_id, proof_id, company_id, created_at) VALUES ('GHOST-13-20250330', 224000, 0.0, 'USD', 13, proof_id, 1, '2025-03-30');
+    INSERT INTO product_purchase_detail (batch_number, quantity, unit_price, currency, product_id, proof_id, company_id, created_at) VALUES ('GHOST-13-20250330', 224001, 0.0, 'USD', 13, proof_id, 1, '2025-03-30');
 
     -- Deficit for product_id 14: 29500 units. First sale: 2025-03-30
     INSERT INTO purchase_order (condition, supplier_id, company_id, created_at) VALUES ('CTE', 1, 1, '2025-03-30') RETURNING id INTO order_id;
     INSERT INTO purchase_proof (code, type, supplier_id, order_id, company_id, created_at) VALUES ('G0140330', 'FACTA', 1, order_id, 1, '2025-03-30') RETURNING id INTO proof_id;
-    INSERT INTO product_purchase_detail (batch_number, quantity, unit_price, currency, product_id, proof_id, company_id, created_at) VALUES ('GHOST-14-20250330', 29500, 0.0, 'USD', 14, proof_id, 1, '2025-03-30');
+    INSERT INTO product_purchase_detail (batch_number, quantity, unit_price, currency, product_id, proof_id, company_id, created_at) VALUES ('GHOST-14-20250330', 38500, 0.0, 'USD', 14, proof_id, 1, '2025-03-30');
 
     -- Deficit for product_id 16: 40300 units. First sale: 2025-04-03
     INSERT INTO purchase_order (condition, supplier_id, company_id, created_at) VALUES ('CTE', 1, 1, '2025-04-03') RETURNING id INTO order_id;

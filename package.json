@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "start": "node src/index.js",
     "test": "npx jest",
-    "prepare": "husky"
+    "prepare": "husky",
+    "reset": "node src/tests/reset.js"
   },
   "keywords": [],
   "author": "",

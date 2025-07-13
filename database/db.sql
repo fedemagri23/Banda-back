@@ -27,9 +27,6 @@ DROP TABLE IF EXISTS sale_order CASCADE;
 
 DROP TABLE IF EXISTS session CASCADE;
 
-DROP TABLE IF EXISTS user_arca_tokens CASCADE;
-DROP TABLE IF EXISTS company_certificates CASCADE;
-
 DROP TYPE IF EXISTS type_currency CASCADE;
 CREATE TYPE type_currency AS ENUM ('ARS', 'USD', 'EUR', 'GBP', 'JPY', 'CNY', 'BRL', 'CLP', 'UYU', 'PEN', 'COP', 'MXN', 'AUD', 'CAD', 'CHF', 'ZAR');
 
@@ -210,33 +207,6 @@ CREATE TABLE session (
     id VARCHAR PRIMARY KEY,
     user_id INT NOT NULL REFERENCES useraccount(id) ON DELETE CASCADE,
     expires_at TIMESTAMP WITH TIME ZONE NOT NULL
-);
-
-CREATE TABLE user_arca_tokens (
-  id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES useraccount(id) ON DELETE CASCADE,
-  cuit BIGINT NOT NULL,
-  token TEXT NOT NULL,
-  sign TEXT NOT NULL,
-  expiration TIMESTAMP NOT NULL,
-  created_at TIMESTAMP DEFAULT now(),
-  updated_at TIMESTAMP DEFAULT now(),
-
-  UNIQUE (user_id, cuit)
-);
-
-CREATE TABLE company_certificates (
-  id SERIAL PRIMARY KEY,
-  
-  company_id INTEGER NOT NULL REFERENCES company(id) ON DELETE CASCADE,
-
-  certificate TEXT NOT NULL, -- Certificado público (en formato PEM)
-  private_key TEXT NOT NULL, -- Llave privada ENCRIPTADA (no texto plano)
-  
-  created_at TIMESTAMP DEFAULT now(),
-  updated_at TIMESTAMP DEFAULT now(),
-
-  UNIQUE (company_id)
 );
 
 DROP TRIGGER IF EXISTS trigger_increase_company_count ON company;

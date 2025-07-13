@@ -1,3 +1,22 @@
+-- SCRIPT VIEJO. USAR seed.sql
+-- SCRIPT VIEJO. USAR seed.sql
+-- SCRIPT VIEJO. USAR seed.sql
+-- SCRIPT VIEJO. USAR seed.sql
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 -- SQL Script to Populate Database
 -- Generated based on initialize.js and provided datasets.
 
