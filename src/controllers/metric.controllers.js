@@ -1,10 +1,11 @@
+import { currencyExchange } from "../config.js";
 import { pool } from "../db.js";
 
 export const getOrderBalanceChart = async (req, res) => {
-  const { startDate, endDate } = req.query;
-  const company_id = req.params.companyId;
-
   try {
+    const { startDate, endDate, currency } = req.query;
+    const company_id = req.params.companyId;
+
     const purchaseResponse = await pool.query(
       `
       SELECT * FROM product_purchase_detail WHERE company_id = $1 AND created_at BETWEEN $2 AND $3 
@@ -19,7 +20,6 @@ export const getOrderBalanceChart = async (req, res) => {
       [company_id, startDate, endDate]
     );
 
-    // Si no hay datos en ninguna de las consultas, devolver array vacío
     if (purchaseResponse.rows.length === 0 && saleResponse.rows.length === 0) {
       return res.json({
         metrics: [],
@@ -31,14 +31,17 @@ export const getOrderBalanceChart = async (req, res) => {
       saleResponse.rows.reduce((acc, item) => {
         const created_at = item.created_at;
         const total = Number(item.total);
+        const itemCurrency = item.currency;
 
+        const usdBalance = total / currencyExchange[itemCurrency];
+        
         if (!acc[created_at]) {
           acc[created_at] = {
             date: created_at,
-            balance: total,
+            balance: usdBalance * currencyExchange[currency],
           };
         } else {
-          acc[created_at].balance += total;
+          acc[created_at].balance += usdBalance * currencyExchange[currency];
         }
         return acc;
       }, {})
@@ -48,14 +51,19 @@ export const getOrderBalanceChart = async (req, res) => {
       purchaseResponse.rows.reduce((acc, item) => {
         const created_at = item.created_at;
         const total = Number(item.total);
+        const itemCurrency = item.currency;
 
+        console.log(currencyExchange[itemCurrency]);
+
+        const usdBalance = total / currencyExchange[itemCurrency];
+        
         if (!acc[created_at]) {
           acc[created_at] = {
             date: created_at,
-            balance: total,
+            balance: usdBalance * currencyExchange[currency],
           };
         } else {
-          acc[created_at].balance += total;
+          acc[created_at].balance += usdBalance * currencyExchange[currency];
         }
         return acc;
       }, {})
@@ -88,14 +96,16 @@ export const getOrderBalanceChart = async (req, res) => {
     });
 
     const saleBalance = saleResponse.rows.reduce((acc, item) => {
-      const total = Number(item.total);
-      acc += total;
+      const itemCurrency = item.currency;
+      const usdTotal = Number(item.total)/currencyExchange[itemCurrency];
+      acc += usdTotal * currencyExchange[currency];
       return acc;
     }, 0);
 
     const purchaseBalance = purchaseResponse.rows.reduce((acc, item) => {
-      const total = Number(item.total);
-      acc += total;
+      const itemCurrency = item.currency;
+      const usdTotal = Number(item.total)/currencyExchange[itemCurrency];
+      acc += usdTotal * currencyExchange[currency];
       return acc;
     }, 0);
 
