@@ -159,19 +159,18 @@ function fillMissingDatesWithTimezone(data, categoryKeys) {
 export const getSupplierDistributionChart = async (req, res) => {
   try {
     const company_id = req.params.companyId;
-    const { startDate, endDate } = req.query;
+    const { startDate, endDate, currency } = req.query;
     const response = await pool.query(
       `
       SELECT 
         s.name AS supplier_name,
-        COALESCE(SUM(product_purchase_detail.total), 0) AS total_purchases
+        product_purchase_detail.total AS total,
+        product_purchase_detail.currency AS currency
       FROM supplier s
       LEFT JOIN purchase_order po ON s.id = po.supplier_id
       LEFT JOIN purchase_proof pp ON po.id = pp.order_id
       LEFT JOIN product_purchase_detail ON pp.id = product_purchase_detail.proof_id
       WHERE s.company_id = $1 AND product_purchase_detail.created_at BETWEEN $2 AND $3
-      GROUP BY s.name
-      ORDER BY s.name
       `,
       [company_id, startDate, endDate]
     );
@@ -180,7 +179,24 @@ export const getSupplierDistributionChart = async (req, res) => {
       return res.json([]);
     }
 
-    res.json(response.rows);
+    // Agrupar por supplier_name y sumar los totales convertidos
+    const supplierTotals = {};
+    response.rows.forEach(item => {
+      const supplier = item.supplier_name;
+      const total = Number(item.total);
+      const itemCurrency = item.currency;
+      const usdTotal = total / currencyExchange[itemCurrency];
+      const convertedTotal = usdTotal * currencyExchange[currency];
+      if (!supplierTotals[supplier]) supplierTotals[supplier] = 0;
+      supplierTotals[supplier] += convertedTotal;
+    });
+
+    const result = Object.entries(supplierTotals).map(([supplier_name, total_purchases]) => ({
+      supplier_name,
+      total_purchases: Math.round(total_purchases * 100) / 100
+    }));
+
+    res.json(result);
   } catch (error) {
     console.error("Error fetching suppliers with purchases:", error.message);
     res.status(500).json({ error: error.message });
@@ -190,30 +206,45 @@ export const getSupplierDistributionChart = async (req, res) => {
 export const getClientDistributionChart = async (req, res) => {
   try {
     const company_id = req.params.companyId;
-    const { startDate, endDate } = req.query;
+    const { startDate, endDate, currency } = req.query;
 
     const response = await pool.query(
       `
       SELECT 
         c.name AS client_name,
-        COALESCE(SUM(psd.total), 0) AS total_sales
+        psd.total AS total,
+        psd.currency AS currency
       FROM client c
       LEFT JOIN sale_order so ON c.id = so.client_id
       LEFT JOIN sale_proof sp ON so.id = sp.order_id
       LEFT JOIN product_sale_detail psd ON sp.id = psd.proof_id
       WHERE c.company_id = $1 AND psd.created_at BETWEEN $2 AND $3
-      GROUP BY c.name
-      ORDER BY c.name
       `,
       [company_id, startDate, endDate]
     );
 
-    // Si no hay datos, devolver array vacío
     if (response.rows.length === 0) {
       return res.json([]);
     }
 
-    res.json(response.rows);
+    // Agrupar por client_name y sumar los totales convertidos
+    const clientTotals = {};
+    response.rows.forEach(item => {
+      const client = item.client_name;
+      const total = Number(item.total);
+      const itemCurrency = item.currency;
+      const usdTotal = total / currencyExchange[itemCurrency];
+      const convertedTotal = usdTotal * currencyExchange[currency];
+      if (!clientTotals[client]) clientTotals[client] = 0;
+      clientTotals[client] += convertedTotal;
+    });
+
+    const result = Object.entries(clientTotals).map(([client_name, total_sales]) => ({
+      client_name,
+      total_sales: Math.round(total_sales * 100) / 100
+    }));
+
+    res.json(result);
   } catch (error) {
     console.error("Error fetching clients with sales:", error.message);
     res.status(500).json({ error: error.message });
