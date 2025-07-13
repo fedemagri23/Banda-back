@@ -21,9 +21,9 @@
 -- Generated based on initialize.js and provided datasets.
 
 -- Clear existing data (Optional - Use with caution!)
-/*
-TRUNCATE TABLE useraccount, company, supplier, product, purchase_order, purchase_proof, product_purchase_detail, client, sale_order, sale_proof, product_sale_detail, company_role, works_for RESTART IDENTITY CASCADE;
-*/
+
+-- TRUNCATE TABLE useraccount, company, supplier, product, purchase_order, purchase_proof, product_purchase_detail, client, sale_order, sale_proof, product_sale_detail, company_role, works_for RESTART IDENTITY CASCADE;
+
 
 -- Define Address Type (If not already defined)
 /*
