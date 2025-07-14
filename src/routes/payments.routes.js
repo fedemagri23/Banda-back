@@ -5,8 +5,8 @@ import { verifyToken } from '../middleware/authMiddleware.js';
 
 const router = Router();
 
-router.post('/process-payment', verifyToken, processPaymentController);
-router.post('/webhook', verifyToken, webhookController);
-router.get('/public-key', verifyToken, getPublicKey);
+router.post('/process-payment', processPaymentController);
+router.post('/webhook', webhookController);
+router.get('/public-key', getPublicKey);
 
 export default router;
