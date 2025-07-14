@@ -12,19 +12,19 @@ const router = Router();
 router.post(
   "/post/:companyId",
   verifyToken,
-  checkCompanyRole("000011000"),
+  checkCompanyRole("0000110000"),
   addSupplier
 );
 router.get(
   "/get-all/:companyId",
   verifyToken,
-  checkCompanyRole("000010000"),
+  checkCompanyRole("0000100000"),
   getSuppliersByCompany
 );
 router.delete(
   "/delete/:companyId/:supplierId",
   verifyToken,
-  checkCompanyRole("000011000"),
+  checkCompanyRole("0000110000"),
   deleteSupplier
 );
 

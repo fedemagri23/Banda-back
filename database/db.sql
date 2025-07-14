@@ -27,6 +27,13 @@ DROP TABLE IF EXISTS sale_order CASCADE;
 
 DROP TABLE IF EXISTS session CASCADE;
 
+DROP TABLE IF EXISTS mercado_pago_payments CASCADE;
+DROP TABLE IF EXISTS plan_limits CASCADE;
+
+
+DROP TYPE IF EXISTS type_currency CASCADE;
+DROP TYPE IF EXISTS plan_type CASCADE;
+
 DROP TYPE IF EXISTS type_currency CASCADE;
 CREATE TYPE type_currency AS ENUM ('ARS', 'USD', 'EUR', 'GBP', 'JPY', 'CNY', 'BRL', 'CLP', 'UYU', 'PEN', 'COP', 'MXN', 'AUD', 'CAD', 'CHF', 'ZAR');
 
@@ -40,6 +47,8 @@ CREATE TYPE address AS (
     observations VARCHAR
 );
 
+CREATE TYPE plan_type AS ENUM ('free_trial', 'standard', 'plus');
+
 CREATE TABLE useraccount (
     id SERIAL PRIMARY KEY,
     username VARCHAR UNIQUE NOT NULL,
@@ -47,10 +56,14 @@ CREATE TABLE useraccount (
     mail VARCHAR UNIQUE NOT NULL,
     passhash TEXT,
     joined_at DATE DEFAULT now(),
-    last_payment_at DATE DEFAULT NULL,
     companies_amount INT DEFAULT 0,
     verification_code VARCHAR(6),
-    verification_code_expires TIMESTAMP
+    verification_code_expires TIMESTAMP,
+
+    current_plan plan_type DEFAULT 'free_trial',
+    plan_activated_at DATE DEFAULT NULL,
+    plan_expires_at DATE DEFAULT NULL,
+    trial_used BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE company (
@@ -209,6 +222,48 @@ CREATE TABLE session (
     expires_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
+CREATE TABLE mercado_pago_payments (
+    id SERIAL PRIMARY KEY,
+    payment_id VARCHAR(255) NOT NULL,
+    status VARCHAR(50) DEFAULT 'pending',
+    amount DECIMAL(10,2) NOT NULL,
+    description TEXT,
+    payer_email VARCHAR(255),
+    user_id INTEGER REFERENCES useraccount(id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_payments_payment_id ON mercado_pago_payments(payment_id);
+CREATE INDEX idx_payments_status ON mercado_pago_payments(status);
+
+CREATE TABLE plan_limits (
+    id SERIAL PRIMARY KEY,
+    plan_name plan_type UNIQUE NOT NULL,
+    display_name VARCHAR(100) NOT NULL,
+    description TEXT,
+    price DECIMAL(10,2) NOT NULL,
+    max_companies INTEGER NOT NULL,
+    max_users_per_company INTEGER NOT NULL,
+    duration_days INTEGER NOT NULL,
+    features JSONB,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO plan_limits (plan_name, display_name, description, price, max_companies, max_users_per_company, duration_days, features) VALUES
+('free_trial', 'Prueba Gratuita', 'Prueba gratuita por 30 días', 0.00, 1, 2, 30, 
+  '{"movements_view": true, "billing_view": true, "employees_view": false, "inventory_view": true, "advanced_reports": false}'
+),
+('standard', 'Banda Standard', 'Plan básico', 40.00, 3, 5, 30, 
+  '{"movements_view": true, "billing_view": true, "employees_view": true, "inventory_view": true, "advanced_reports": false, "api_access": false}'
+),
+('plus', 'Banda Plus', 'Plan premium', 60.00, 10, 20, 30, 
+  '{"movements_view": true, "billing_view": true, "employees_view": true, "inventory_view": true, "advanced_reports": true, "api_access": true, "priority_support": true}'
+);
+
+
+
 DROP TRIGGER IF EXISTS trigger_increase_company_count ON company;
 DROP FUNCTION IF EXISTS increase_user_company_count();
 
@@ -226,3 +281,4 @@ CREATE TRIGGER trigger_increase_company_count
 AFTER INSERT ON company
 FOR EACH ROW
 EXECUTE FUNCTION increase_user_company_count();
+

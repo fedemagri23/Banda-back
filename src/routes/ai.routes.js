@@ -10,14 +10,14 @@ const router = Router();
 router.get(
   "/interests/:companyId",
   verifyToken,
-  checkCompanyRole("000000000"),
+  checkCompanyRole("0000000001"),
   getAiInterests
 );
 
 router.post(
   "/ask-database/:companyId",
   verifyToken,
-  checkCompanyRole("101010101"),
+  checkCompanyRole("1010101011"),
   askWithIaDatabase
 );
 

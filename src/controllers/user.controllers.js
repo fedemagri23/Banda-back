@@ -67,7 +67,17 @@ export const register = async (req, res) => {
 
     const response = await pool.query(
       `
-      INSERT INTO useraccount (username, phone, mail, passhash) VALUES ($1, $2, $3, $4) RETURNING username, phone, mail
+      INSERT INTO useraccount (
+        username, 
+        phone, 
+        mail, 
+        passhash,
+        current_plan,
+        plan_activated_at,
+        plan_expires_at,
+        trial_used
+      ) VALUES ($1, $2, $3, $4, 'free_trial', CURRENT_DATE, CURRENT_DATE + INTERVAL '30 days', TRUE) 
+      RETURNING id, username, phone, mail, current_plan, plan_activated_at, plan_expires_at
       `,
       [username, phone, mail, passhash]
     );

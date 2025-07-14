@@ -117,6 +117,18 @@ export const getCompaniesFromUser = async (req, res) => {
       [userId]
     );
 
+    for (const company of response.rows){
+      const plan = await pool.query(
+      `
+        SELECT current_plan FROM useraccount JOIN company ON useraccount.id = company.user_id WHERE company.id = $1;  
+      `,
+      [company.id]
+    );
+
+    const premium = (plan.rows[0].current_plan === "plus" ? "1" : "0");
+    company.privilege_code = company.privilege_code + premium;
+    }
+    
     res.json(response.rows);
   } catch (error) {
     console.error("Error getting companies:", error.message);

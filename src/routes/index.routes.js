@@ -28,6 +28,9 @@ import aiRoutes from "./ai.routes.js";
 import notificationRoutes from "./notification.routes.js";
 import communicationRoutes from "./communication.routes.js";
 import exportRoutes from "./export.routes.js";
+import paymentRoutes from "./payments.routes.js";
+import plansRoutes from "./plans.routes.js";
+
 import inflationRoutes from "./inflation.routes.js";
 
 const router = Router();
@@ -62,10 +65,10 @@ router.use("/ai", aiRoutes);
 router.use("/notification", notificationRoutes);
 router.use("/communication", communicationRoutes);
 router.use("/export", exportRoutes);
+router.use("/payment", paymentRoutes);
+router.use("/plans", plansRoutes);
 router.use("/inflation", inflationRoutes);
 
-// TODO: Al final BORRAR estos controllers
-router.get("/token", getToken);
 
 /*
 router.post("/login", loginUser);

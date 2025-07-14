@@ -9,7 +9,7 @@ import {
 import { verifyToken } from "../middleware/authMiddleware.js";
 import { checkCompanyRole } from "../middleware/companyOwnerMiddleware.js";
 
-const ROLE_COMPANY_OWNER = "111111111";
+const ROLE_COMPANY_OWNER = "1111111110";
 const router = Router();
 
 router.post(
