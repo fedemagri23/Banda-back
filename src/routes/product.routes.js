@@ -11,13 +11,13 @@ const router = Router();
 router.post(
   "/post/:companyId",
   verifyToken,
-  checkCompanyRole("000000000"),
+  checkCompanyRole("0000000000"),
   addProduct
 );
 router.get(
   "/get-all/:companyId",
   verifyToken,
-  checkCompanyRole("000000000"),
+  checkCompanyRole("0000000000"),
   getProductsByCompany
 );
 

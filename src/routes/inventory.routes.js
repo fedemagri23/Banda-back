@@ -11,13 +11,13 @@ const router = Router();
 router.get(
   "/get-all/:companyId",
   verifyToken,
-  checkCompanyRole("000000001"),
+  checkCompanyRole("0000000010"),
   getInventoryByCompany
 );
 router.post(
   "/adjust/:companyId",
   verifyToken,
-  checkCompanyRole("000000001"),
+  checkCompanyRole("0000000010"),
   adjustInventoryPricesByCompany
 );
 

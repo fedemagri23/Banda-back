@@ -15,19 +15,19 @@ router.get("/currencies",
 router.get(
   "/order/balance-chart/:companyId",
   verifyToken,
-  checkCompanyRole("000000000"),
+  checkCompanyRole("0000000000"),
   getOrderBalanceChart
 );
 router.get(
   "/supplier-distribution-chart/:companyId",
   verifyToken,
-  checkCompanyRole("000000000"),
+  checkCompanyRole("0000000000"),
   getSupplierDistributionChart
 );
 router.get(
   "/client-distribution-chart/:companyId",
   verifyToken,
-  checkCompanyRole("000000000"),
+  checkCompanyRole("0000000000"),
   getClientDistributionChart
 );
 

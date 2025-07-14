@@ -7,8 +7,11 @@ import {
   upsertUserCertificate,
   deleteUserCertificate,
 } from "../controllers/arcatoken.controllers.js";
+import { checkCompanyRole } from "../middleware/companyOwnerMiddleware.js";
 
 const router = Router();
+
+// TODO: Pasar token
 
 // Token ARCA
 router.get("/token/:user_id/:cuit", getArcaToken);

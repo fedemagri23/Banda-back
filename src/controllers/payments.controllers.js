@@ -19,8 +19,6 @@ const plans = {
 export const processPaymentController = async (req, res) => {
   try {
     const paymentData = req.body;
-    
-    console.log('Payment data received:', JSON.stringify(paymentData, null, 2));
 
     const selectedPlan = plans[paymentData.planId] || plans.free_trial;
     const months = paymentData.months || 1;
@@ -92,8 +90,6 @@ async function activateUserPlan(userId, planName, months) {
             
       await client.query('COMMIT');
       
-      console.log(`✅ Plan '${planName}' activated for user ${userId}`);
-      
     } catch (error) {
       await client.query('ROLLBACK');
       throw error;
@@ -120,13 +116,6 @@ export const webhookController = async (req, res) => {
         [paymentInfo.status, paymentInfo.id]
       );
 
-      // Lógica según el estado
-      if (paymentInfo.status === 'approved') {
-        console.log('Payment approved:', paymentInfo.id);
-        // Aquí puedes agregar lógica para activar servicios, enviar emails, etc.
-      } else if (paymentInfo.status === 'rejected') {
-        console.log('Payment rejected:', paymentInfo.id);
-      }
     }
 
     res.status(200).send('OK');

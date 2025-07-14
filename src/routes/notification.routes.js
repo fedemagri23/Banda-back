@@ -5,6 +5,7 @@ import {
   rejectInvitation,
 } from "../controllers/notification.controllers.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
+import { checkCompanyRole } from "../middleware/companyOwnerMiddleware.js";
 
 const router = Router();
 

@@ -144,8 +144,6 @@ router.use("/export", exportRoutes);
 router.use("/payment", paymentRoutes);
 router.use("/plans", plansRoutes);
 
-// TODO: Al final BORRAR estos controllers
-router.get("/token", getToken);
 
 /*
 router.post("/login", loginUser);

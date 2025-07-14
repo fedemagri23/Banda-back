@@ -62,8 +62,6 @@ export const getOrderBalanceChart = async (req, res) => {
         const total = Number(item.total);
         const itemCurrency = item.currency;
 
-        console.log(currencyExchange[itemCurrency]);
-
         const usdBalance = total / currencyExchange[itemCurrency];
         
         if (!acc[created_at]) {

@@ -2,10 +2,6 @@ import { pool } from '../db.js';
 
 export const getPlanInfo = async (req, res) => {
 
-
-
-    console.log('Fetching plan info for user:', req);
-
     try {
 
         const {userId} = req.body; // Asegúrate de que req.user esté definido y tenga el id del usuario
@@ -18,8 +14,6 @@ export const getPlanInfo = async (req, res) => {
         }
 
         const plan = result.rows[0];
-
-        console.log('Plan info retrieved:', plan);
 
         res.json({
             current_plan: plan.current_plan,
