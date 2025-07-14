@@ -1,6 +1,15 @@
 import { currencyExchange } from "../config.js";
 import { pool } from "../db.js";
 
+export const getCurrencies = async (req, res) => {
+  try {
+    res.json(currencyExchange);
+  } catch (error) {
+    console.error("Error getting currencies:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export const getOrderBalanceChart = async (req, res) => {
   try {
     const { startDate, endDate, currency } = req.query;
