@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   getClientDistributionChart,
+  getCurrencies,
   getOrderBalanceChart,
   getSupplierDistributionChart,
 } from "../controllers/metric.controllers.js";
@@ -8,7 +9,9 @@ import { verifyToken } from "../middleware/authMiddleware.js";
 import { checkCompanyRole } from "../middleware/companyOwnerMiddleware.js";
 
 const router = Router();
-
+router.get("/currencies",
+  getCurrencies
+);
 router.get(
   "/order/balance-chart/:companyId",
   verifyToken,
