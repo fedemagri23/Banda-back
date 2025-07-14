@@ -83,8 +83,7 @@ async function activateUserPlan(userId, planName, months) {
           SET 
             current_plan = $1, 
             plan_activated_at = CURRENT_DATE, 
-            plan_expires_at = CURRENT_DATE + INTERVAL '${months} months',
-            last_payment_at = CURRENT_DATE
+            plan_expires_at = CURRENT_DATE + INTERVAL '${months} months'
           WHERE id = $2
         `, [planName, userId]);
             
